@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Management - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">🔐 Role Management</h2>
+                        <p class="mt-1 text-sm text-gray-600">System roles, permissions, and access control</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="createNewRole()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-plus mr-1"></i>New Role
+                        </button>
+                        <button onclick="exportRolesCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-download mr-1"></i>Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Role Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users-cog text-banking-blue text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Roles</dt>
+                                <dd class="text-lg font-medium text-gray-900">14</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-layer-group text-purple-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Categories</dt>
+                                <dd class="text-lg font-medium text-gray-900">5</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active</dt>
+                                <dd class="text-lg font-medium text-gray-900">100%</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Coverage</dt>
+                                <dd class="text-lg font-medium text-gray-900">Complete</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="roleSearch" class="block text-sm font-medium text-gray-700 mb-1">Search Roles</label>
+                        <input type="text" id="roleSearch" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                               placeholder="Search roles..." onkeyup="filterRoles()">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="clearFilters()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-times mr-1"></i>Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Administration -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                🚀 System Administration
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-banking-blue">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">🚀</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Super Administrator</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_SUPERUSER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Complete system control and administrative privileges</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">System Administration</span>
+                </div>
+
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-banking-blue">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">⚙️</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Administrator</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_ADMIN</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">System administration and user management</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Administration</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Frontline Banking -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                🏦 Frontline Banking
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-green-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">🏦</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Teller</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_TELLER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Front-line banking services and transactions</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Frontline Banking</span>
+                </div>
+
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-purple-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">🏢</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Branch Manager</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_BRANCH_MANAGER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Branch operations and staff management</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Branch Management</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Service -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                👥 Customer Service
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-yellow-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">👥</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Customer Service Officer</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_CUSTOMER_SERVICE_OFFICER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Customer support and account services</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Customer Service</span>
+                </div>
+
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-indigo-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">🤝</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Relationship Manager</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_RELATIONSHIP_MANAGER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Client relationship management and advisory</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">Relationship Banking</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lending -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                💰 Lending
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-green-600">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">💰</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Loan Officer</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_LOAN_OFFICER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Loan processing and credit assessment</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Lending</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Operations -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                ⚡ Operations
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-orange-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">⚡</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Operations Officer</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_OPERATIONS_OFFICER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Operational processes and workflow management</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Operations</span>
+                </div>
+
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-red-500">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">📊</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Operations Manager</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_OPERATIONS_MANAGER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Operations oversight and process optimization</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Operations Management</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compliance -->
+        <div class="category-section mb-8">
+            <h3 class="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                🔒 Compliance
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-gray-600">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">🔒</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Compliance Officer</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_COMPLIANCE_OFFICER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Regulatory compliance and risk management</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Compliance</span>
+                </div>
+
+                <div class="role-card bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition duration-200 border-l-4 border-red-600">
+                    <div class="flex items-center mb-4">
+                        <div class="text-3xl mr-3">⚠️</div>
+                        <div class="role-title">
+                            <h4 class="text-lg font-semibold text-gray-900">Chief Risk Officer</h4>
+                            <p class="text-sm text-gray-500 font-mono">ROLE_CHIEF_RISK_OFFICER</p>
+                        </div>
+                    </div>
+                    <p class="role-description text-gray-600 mb-4">Enterprise risk management and strategy</p>
+                    <span class="role-category inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Risk Management</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-6 text-center">
+            <a href="/superuser/dashboard" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function filterRoles() {
+            var search = document.getElementById('roleSearch').value.toLowerCase();
+            var cards = document.querySelectorAll('.role-card');
+            cards.forEach(function(card) {
+                var title = card.querySelector('.role-title').innerText.toLowerCase();
+                card.style.display = title.includes(search) ? '' : 'none';
+            });
+        }
+
+        function clearFilters() {
+            document.getElementById('roleSearch').value = '';
+            var cards = document.querySelectorAll('.role-card');
+            cards.forEach(function(card) {
+                card.style.display = '';
+            });
+        }
+
+        function exportRolesCSV() {
+            var csv = 'Role Code,Role Name,Description,Category\n';
+            var cards = document.querySelectorAll('.role-card');
+            cards.forEach(function(card) {
+                if (card.style.display !== 'none') {
+                    var code = card.querySelector('.role-title p').innerText;
+                    var name = card.querySelector('.role-title h4').innerText;
+                    var desc = card.querySelector('.role-description').innerText;
+                    var cat = card.querySelector('.role-category').innerText;
+                    csv += '"' + code + '","' + name + '","' + desc + '","' + cat + '"\n';
+                }
+            });
+            var blob = new Blob([csv], {type: 'text/csv'});
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'roles.csv';
+            link.click();
+        }
+
+        function createNewRole() {
+            alert('Create new role functionality would open a modal or redirect to role creation form.');
+        }
+
+        function editRole(roleCode) {
+            alert('Edit role: ' + roleCode);
+        }
+
+        function viewPermissions(roleCode) {
+            alert('View permissions for: ' + roleCode);
+        }
+    </script>
+</body>
+</html>

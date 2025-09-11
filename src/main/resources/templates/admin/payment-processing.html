@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Processing - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ Payment Processing</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-cogs mr-2 text-blue-600"></i>Payment Processing Engine
+                </h1>
+                <p class="text-gray-600 mt-1">Monitor real-time payment processing and transaction flows</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-sync-alt text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Processing Queue</p>
+                        <p class="text-2xl font-semibold text-gray-900">1,247</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Processed Today</p>
+                        <p class="text-2xl font-semibold text-gray-900">89,456</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Failed Transactions</p>
+                        <p class="text-2xl font-semibold text-gray-900">234</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Avg Processing Time</p>
+                        <p class="text-2xl font-semibold text-gray-900">2.3s</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Real-Time Transaction Processing</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Gateway</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Processing Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TXN001234567</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Card Payment</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦25,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Interswitch</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">1.8s</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900">View Details</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TXN001234568</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Bank Transfer</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦150,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">NIBSS</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Processing</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3.2s</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-orange-600 hover:text-orange-900">Monitor</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TXN001234569</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Mobile Money</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦5,500</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">MTN MoMo</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Failed</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5.1s</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-red-600 hover:text-red-900">Retry</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Processing Statistics</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-up text-green-600 mr-3"></i>
+                                <span class="font-medium">Successful Transactions</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">89,222</span>
+                                <p class="text-sm text-gray-500">99.7% success rate</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-down text-red-600 mr-3"></i>
+                                <span class="font-medium">Failed Transactions</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm">234</span>
+                                <p class="text-sm text-gray-500">0.3% failure rate</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-redo text-blue-600 mr-3"></i>
+                                <span class="font-medium">Retry Attempts</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">89</span>
+                                <p class="text-sm text-gray-500">38% retry success</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">System Health</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Processing Engine:</span>
+                            <span class="font-semibold text-green-600">✓ Online</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Queue Status:</span>
+                            <span class="font-semibold text-blue-600">Normal Load</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Database Connection:</span>
+                            <span class="font-semibold text-green-600">✓ Connected</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Memory Usage:</span>
+                            <span class="font-semibold">67%</span>
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Throughput (TPS):</span>
+                                <span class="font-semibold text-blue-600">1,247</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-gray-600">Peak Capacity:</span>
+                                <span class="font-semibold">5,000 TPS</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+                        <i class="fas fa-chart-line mr-2"></i>View Performance
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

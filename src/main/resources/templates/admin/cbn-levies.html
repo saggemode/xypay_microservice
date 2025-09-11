@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="layouts/legacy-layout :: layout('CBN Levies', ~{::section})">
+<section>
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-semibold">CBN Levies</h1>
+            <a href="/superuser/dashboard/legacy" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Back</a>
+        </div>
+
+        <div class="bg-white shadow rounded p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">Levy Active</div>
+                    <div class="font-medium" th:text="${levyActive} ? 'Yes' : 'No'">Yes</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Levy Threshold</div>
+                    <div class="font-medium" th:text="${levyThreshold}">₦10,000 per block</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Levy Amount</div>
+                    <div class="font-medium" th:text="${levyAmount}">₦50 per block</div>
+                </div>
+            </div>
+
+            <p class="text-gray-600">Levy applies in blocks of threshold for qualifying transactions based on Transfer Charge Controls.</p>
+
+            <div class="pt-4">
+                <a href="/admin/charge-control" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Manage Charge Controls</a>
+            </div>
+        </div>
+    </div>
+</section>
+</html>
+

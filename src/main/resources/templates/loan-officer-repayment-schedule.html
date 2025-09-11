@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Loan Officer Repayment Schedule</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-btn.success { background: #28a745; color: white; border: 1px outset #28a745; }
+        .java-btn.info { background: #17a2b8; color: white; border: 1px outset #17a2b8; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; width: 100%; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; width: 100%; }
+        .payment-due { background: #fff3cd; color: #856404; }
+        .payment-overdue { background: #f8d7da; color: #721c24; }
+        .payment-paid { background: #d4edda; color: #155724; }
+        .schedule-summary { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .summary-card { text-align: center; border: 1px solid #c0c0c0; padding: 8px; background: #f8f8f8; }
+        .summary-value { font-weight: bold; font-size: 14px; }
+        .summary-label { font-size: 10px; color: #666; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Loan Officer Repayment Schedule</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Schedule</span>
+            <span class="menu-item">Payments</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="generateSchedule()">Generate Schedule</button>
+            <button class="toolbar-btn" onclick="recordPayment()">Record Payment</button>
+            <button class="toolbar-btn" onclick="modifySchedule()">Modify</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="exportSchedule()">Export</button>
+            <button class="toolbar-btn" onclick="printSchedule()">Print</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="backToPortfolio()">Back to Portfolio</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Schedule Options</div>
+                
+                <div class="tree-node selected" onclick="selectScheduleView(this, 'current')">
+                    <div class="tree-icon">📅</div>
+                    Current Schedule
+                </div>
+                
+                <div class="tree-node" onclick="selectScheduleView(this, 'calculator')">
+                    <div class="tree-icon">🧮</div>
+                    Payment Calculator
+                </div>
+                
+                <div class="tree-node" onclick="selectScheduleView(this, 'history')">
+                    <div class="tree-icon">📋</div>
+                    Payment History
+                </div>
+                
+                <div class="tree-node" onclick="selectScheduleView(this, 'overdue')">
+                    <div class="tree-icon">⚠️</div>
+                    Overdue Payments
+                </div>
+                
+                <div class="tree-node" onclick="selectScheduleView(this, 'projections')">
+                    <div class="tree-icon">📊</div>
+                    Payment Projections
+                </div>
+                
+                <div class="tree-node" onclick="selectScheduleView(this, 'modifications')">
+                    <div class="tree-icon">✏️</div>
+                    Schedule Modifications
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Loan Repayment Schedule Management</div>
+                <div class="details-content">
+                    
+                    <!-- Loan Information -->
+                    <div class="config-section">
+                        <div class="config-header">💼 Loan Information</div>
+                        <div class="config-content">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                                <div>
+                                    <strong>Customer:</strong> Sarah Johnson<br>
+                                    <strong>Account:</strong> 1234567890
+                                </div>
+                                <div>
+                                    <strong>Loan Amount:</strong> ₦750,000.00<br>
+                                    <strong>Interest Rate:</strong> 15.5% p.a.
+                                </div>
+                                <div>
+                                    <strong>Term:</strong> 24 months<br>
+                                    <strong>Start Date:</strong> 2024-01-15
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Schedule Summary -->
+                    <div class="config-section">
+                        <div class="config-header">📊 Schedule Summary</div>
+                        <div class="config-content">
+                            <div class="schedule-summary">
+                                <div class="summary-card">
+                                    <div class="summary-value" style="color: #0078d4;">₦36,547.23</div>
+                                    <div class="summary-label">Monthly Payment</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" style="color: #28a745;">₦127,133.52</div>
+                                    <div class="summary-label">Total Interest</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" style="color: #ffc107;">12</div>
+                                    <div class="summary-label">Payments Made</div>
+                                </div>
+                                <div class="summary-card">
+                                    <div class="summary-value" style="color: #dc3545;">12</div>
+                                    <div class="summary-label">Remaining</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Repayment Schedule Table -->
+                    <div class="config-section">
+                        <div class="config-header">📅 Repayment Schedule</div>
+                        <div class="config-content">
+                            <div style="border: 1px inset #c0c0c0; background: white;">
+                                <table class="java-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Payment #</th>
+                                            <th>Due Date</th>
+                                            <th>Principal</th>
+                                            <th>Interest</th>
+                                            <th>Total Payment</th>
+                                            <th>Balance</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="payment-paid">
+                                            <td>1</td>
+                                            <td>2024-02-15</td>
+                                            <td>₦26,859.73</td>
+                                            <td>₦9,687.50</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦723,140.27</td>
+                                            <td><strong>PAID</strong></td>
+                                            <td><button class="java-btn" style="font-size: 9px; padding: 2px 4px;">Receipt</button></td>
+                                        </tr>
+                                        <tr class="payment-paid">
+                                            <td>2</td>
+                                            <td>2024-03-15</td>
+                                            <td>₦27,207.48</td>
+                                            <td>₦9,339.75</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦695,932.79</td>
+                                            <td><strong>PAID</strong></td>
+                                            <td><button class="java-btn" style="font-size: 9px; padding: 2px 4px;">Receipt</button></td>
+                                        </tr>
+                                        <tr class="payment-due">
+                                            <td>3</td>
+                                            <td>2024-04-15</td>
+                                            <td>₦27,559.47</td>
+                                            <td>₦8,987.76</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦668,373.32</td>
+                                            <td><strong>DUE</strong></td>
+                                            <td><button class="java-btn success" style="font-size: 9px; padding: 2px 4px;">Pay</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>4</td>
+                                            <td>2024-05-15</td>
+                                            <td>₦27,915.72</td>
+                                            <td>₦8,631.51</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦640,457.60</td>
+                                            <td>PENDING</td>
+                                            <td><button class="java-btn" style="font-size: 9px; padding: 2px 4px;">Schedule</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>5</td>
+                                            <td>2024-06-15</td>
+                                            <td>₦28,276.28</td>
+                                            <td>₦8,270.95</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦612,181.32</td>
+                                            <td>PENDING</td>
+                                            <td><button class="java-btn" style="font-size: 9px; padding: 2px 4px;">Schedule</button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>6</td>
+                                            <td>2024-07-15</td>
+                                            <td>₦28,641.21</td>
+                                            <td>₦7,906.02</td>
+                                            <td>₦36,547.23</td>
+                                            <td>₦583,540.11</td>
+                                            <td>PENDING</td>
+                                            <td><button class="java-btn" style="font-size: 9px; padding: 2px 4px;">Schedule</button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Schedule Actions -->
+                            <div style="text-align: center; margin-top: 16px;">
+                                <button class="java-btn primary" onclick="recordPayment()">Record Payment</button>
+                                <button class="java-btn" onclick="generateFullSchedule()">View Full Schedule</button>
+                                <button class="java-btn info" onclick="calculateEarlyPayoff()">Early Payoff</button>
+                                <button class="java-btn" onclick="modifySchedule()">Modify Schedule</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Schedule Message -->
+                    <div th:if="${schedule}" class="config-section" style="background: #d1ecf1; border-color: #bee5eb;">
+                        <div class="config-content">
+                            <div style="color: #0c5460; font-weight: bold;" th:text="${schedule}">
+                                Schedule information displayed here.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Default Schedule Message -->
+                    <div th:unless="${schedule}" class="config-section" style="background: #d1ecf1; border-color: #bee5eb;">
+                        <div class="config-content">
+                            <div style="color: #0c5460; font-weight: bold;">
+                                📅 Repayment schedule is displayed above with payment history and upcoming due dates.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Schedule Ready | Next Payment: Apr 15, 2024 | Amount: ₦36,547.23</span>
+            <span>Officer: <span sec:authentication="name">Loan Officer</span> | Status: Connected</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectScheduleView(element, viewType) {
+            // Update tree selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            console.log('Selected schedule view:', viewType);
+        }
+        
+        function generateSchedule() {
+            alert('📅 Generate Schedule\n\nThis would generate a new repayment schedule based on loan parameters in a real implementation.');
+        }
+        
+        function recordPayment() {
+            alert('💰 Record Payment\n\nThis would open the payment recording interface in a real implementation.');
+        }
+        
+        function modifySchedule() {
+            alert('✏️ Modify Schedule\n\nThis would allow modifications to the repayment schedule in a real implementation.');
+        }
+        
+        function exportSchedule() {
+            alert('📤 Export Schedule\n\nThis would export the repayment schedule to Excel, PDF, or CSV format in a real implementation.');
+        }
+        
+        function printSchedule() {
+            alert('🖨️ Print Schedule\n\nThis would print the repayment schedule in a real implementation.');
+        }
+        
+        function backToPortfolio() {
+            if (confirm('Return to Portfolio?\n\nAny unsaved changes will be lost.')) {
+                window.location.href = '/loan-officer/portfolio';
+            }
+        }
+        
+        function generateFullSchedule() {
+            alert('📋 Full Schedule\n\nThis would display the complete repayment schedule for all 24 payments in a real implementation.');
+        }
+        
+        function calculateEarlyPayoff() {
+            alert('🚀 Early Payoff Calculator\n\nThis would calculate early payoff amounts and savings in a real implementation.');
+        }
+        
+        // Initialize
+        window.onload = function() {
+            selectScheduleView(document.querySelector('.tree-node.selected'), 'current');
+        };
+    </script>
+</body>
+</html>

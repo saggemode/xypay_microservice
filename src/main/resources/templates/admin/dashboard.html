@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - XyPay Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Welcome Section -->
+        <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+                <p class="mt-1 text-sm text-gray-600">System administration and management console</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-banking-blue text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">Total Users</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${totalUsers ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-piggy-bank text-green-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">XySave Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${xySaveAccounts ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-shield-alt text-red-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">Security Alerts</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${securityAlerts ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-tie text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">Active Staff</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${activeStaff ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-undo text-orange-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">Reversals Today</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${reversalsToday ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-4">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-store text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="ml-3 w-0 flex-1">
+                            <dl>
+                                <dt class="text-xs font-medium text-gray-500 truncate">Merchants</dt>
+                                <dd class="text-lg font-medium text-gray-900" th:text="${totalMerchants ?: '0'}">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Management Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Advanced Savings Products -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-piggy-bank mr-2 text-green-600"></i>Savings Products
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/admin/xysave" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-coins text-green-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">XySave Accounts</h4>
+                                    <p class="text-xs text-gray-500">Interest-bearing savings with tiered rates</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/spend-save" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-up text-green-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Spend & Save</h4>
+                                    <p class="text-xs text-gray-500">Auto-save from transactions</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/target-savings" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-bullseye text-green-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Target Savings</h4>
+                                    <p class="text-xs text-gray-500">Goal-based savings with categories</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/fixed-savings" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-lock text-green-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Fixed Savings</h4>
+                                    <p class="text-xs text-gray-500">Term deposits with maturity dates</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security & Fraud Prevention -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-shield-alt mr-2 text-red-600"></i>Security & Fraud
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/admin/night-guard" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-moon text-red-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Night Guard Settings</h4>
+                                    <p class="text-xs text-gray-500">Time-based transaction restrictions</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/transaction-shield" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-shield text-red-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Large Transaction Shield</h4>
+                                    <p class="text-xs text-gray-500">Amount-based limits with biometrics</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/location-guard" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt text-red-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Location Guard</h4>
+                                    <p class="text-xs text-gray-500">Geographic transaction controls</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/fraud-detection" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-search text-red-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Fraud Detection</h4>
+                                    <p class="text-xs text-gray-500">AI-powered fraud monitoring</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staff Management -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-user-tie mr-2 text-purple-600"></i>Staff Management
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/admin/staff-roles" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-users-cog text-purple-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Staff Roles & Profiles</h4>
+                                    <p class="text-xs text-gray-500">Hierarchical permissions</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/transaction-approvals" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-double text-purple-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Transaction Approvals</h4>
+                                    <p class="text-xs text-gray-500">Maker-checker workflows</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/customer-escalations" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-circle text-purple-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Customer Escalations</h4>
+                                    <p class="text-xs text-gray-500">Support ticket system</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/staff-activity" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-history text-purple-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Staff Activity Tracking</h4>
+                                    <p class="text-xs text-gray-500">Audit trails and monitoring</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Advanced Transaction Features -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <!-- Transaction Management -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-exchange-alt mr-2 text-orange-600"></i>Advanced Transactions
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/admin/transaction-reversals" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-undo text-orange-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Transaction Reversals</h4>
+                                    <p class="text-xs text-gray-500">Parent-child relationships & bulk reversals</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/transaction-metadata" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-tags text-orange-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Metadata & Filtering</h4>
+                                    <p class="text-xs text-gray-500">Advanced search capabilities</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/bulk-actions" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-tasks text-orange-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Bulk Actions</h4>
+                                    <p class="text-xs text-gray-500">Mass operations (approve, flag, reverse)</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/export-statements" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-download text-orange-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Export Options</h4>
+                                    <p class="text-xs text-gray-500">CSV, Excel, PDF statements</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interest & Merchant Features -->
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-4 py-5 sm:p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">
+                        <i class="fas fa-percent mr-2 text-blue-600"></i>Interest & Merchants
+                    </h3>
+                    <div class="space-y-3">
+                        <a href="/admin/interest-engine" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-calculator text-blue-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Interest Calculation Engine</h4>
+                                    <p class="text-xs text-gray-500">Tiered rates & daily accrual</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/interest-breakdown" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-pie text-blue-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Interest Breakdown</h4>
+                                    <p class="text-xs text-gray-500">Detailed calculations & reports</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/merchant-settlement" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-store text-blue-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Merchant Settlement</h4>
+                                    <p class="text-xs text-gray-500">Settlement accounts & payouts</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="/admin/merchant-verification" class="block p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-blue-600 mr-3"></i>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900">Merchant Verification</h4>
+                                    <p class="text-xs text-gray-500">Account validation system</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

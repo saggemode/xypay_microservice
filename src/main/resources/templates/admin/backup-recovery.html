@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backup & Recovery - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ Backup & Recovery</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-shield-alt mr-2 text-green-600"></i>Backup & Recovery Management
+                </h1>
+                <p class="text-gray-600 mt-1">Manage system backups, disaster recovery, and data protection</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Last Backup</p>
+                        <p class="text-lg font-semibold text-gray-900">2 hours ago</p>
+                        <p class="text-sm text-green-600">✓ Successful</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-database text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Backup Size</p>
+                        <p class="text-2xl font-semibold text-gray-900">2.4TB</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-history text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Retention Period</p>
+                        <p class="text-2xl font-semibold text-gray-900">90 days</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">RTO Target</p>
+                        <p class="text-2xl font-semibold text-gray-900">4 hours</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">Backup History</h3>
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-play mr-2"></i>Start Backup
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Backup ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Start Time</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BKP20250904001</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Full Backup</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-04 00:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2h 15m</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2.4TB</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Restore</button>
+                                <button class="text-green-600 hover:text-green-900">Verify</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BKP20250903001</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Incremental</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-03 12:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">45m</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">156GB</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Restore</button>
+                                <button class="text-green-600 hover:text-green-900">Verify</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BKP20250903002</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Transaction Log</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-03 06:00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">12m</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">24GB</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Completed</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Restore</button>
+                                <button class="text-green-600 hover:text-green-900">Verify</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Backup Schedule</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-database text-blue-600 mr-3"></i>
+                                <span class="font-medium">Full Backup</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">Daily</span>
+                                <p class="text-sm text-gray-500">12:00 AM</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-layer-group text-green-600 mr-3"></i>
+                                <span class="font-medium">Incremental</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">Every 6h</span>
+                                <p class="text-sm text-gray-500">6, 12, 18, 24</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-alt text-purple-600 mr-3"></i>
+                                <span class="font-medium">Transaction Log</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">Hourly</span>
+                                <p class="text-sm text-gray-500">Continuous</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Recovery Metrics</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Recovery Time Objective (RTO):</span>
+                            <span class="font-semibold text-blue-600">4 hours</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Recovery Point Objective (RPO):</span>
+                            <span class="font-semibold text-green-600">15 minutes</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Backup Success Rate:</span>
+                            <span class="font-semibold text-green-600">99.8%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Storage Utilization:</span>
+                            <span class="font-semibold text-yellow-600">67%</span>
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">DR Site Status:</span>
+                                <span class="font-semibold text-green-600">✓ Ready</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-gray-600">Last DR Test:</span>
+                                <span class="font-semibold">Aug 15, 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md font-medium">
+                        <i class="fas fa-bolt mr-2"></i>Test DR Plan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

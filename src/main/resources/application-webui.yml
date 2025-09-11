@@ -1,0 +1,139 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: web-ui-service
+  
+  # Web UI Service Configuration - No Database, No JPA
+  # This service only serves web pages and communicates with microservices
+  
+  # Redis for session management only
+  redis:
+    host: localhost
+    port: 6379
+    timeout: 2000ms
+    lettuce:
+      pool:
+        max-active: 8
+        max-idle: 8
+        min-idle: 0
+  
+  # Session management
+  session:
+    store-type: redis
+    redis:
+      namespace: "xypay:webui:sessions"
+  
+  # Thymeleaf configuration
+  thymeleaf:
+    cache: false
+    prefix: classpath:/templates/
+    suffix: .html
+    encoding: UTF-8
+    mode: HTML
+
+# Eureka configuration
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+
+# Circuit breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      customer-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+      account-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+      transaction-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+      notification-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+      treasury-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+      analytics-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+  retry:
+    instances:
+      customer-service:
+        max-attempts: 3
+        wait-duration: 1s
+      account-service:
+        max-attempts: 3
+        wait-duration: 1s
+      transaction-service:
+        max-attempts: 3
+        wait-duration: 1s
+      notification-service:
+        max-attempts: 3
+        wait-duration: 1s
+      treasury-service:
+        max-attempts: 3
+        wait-duration: 1s
+      analytics-service:
+        max-attempts: 3
+        wait-duration: 1s
+
+# Feign configuration
+feign:
+  circuitbreaker:
+    enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 10000
+        logger-level: basic
+
+# Management endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging configuration
+logging:
+  level:
+    com.xypay.xypay.client: DEBUG
+    org.springframework.cloud.openfeign: DEBUG
+    org.springframework.security: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/web-ui-service.log
+
+# Web UI Service specific configurations
+webui:
+  service:
+    timeout: 10000
+    retry-attempts: 3
+    fallback-enabled: true
+  security:
+    session-timeout: 3600
+    max-sessions: 1000

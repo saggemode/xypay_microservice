@@ -1,0 +1,285 @@
+{
+    "bvn": {
+      "12345678901": {
+        "first_name": "John",
+        "last_name": "Doe",
+        "middle_name": "Michael",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN1",
+        "dob": "1990-01-01",
+        "phone": "08012345678",
+        "gender": "male"
+      },
+      "11122233344": {
+        "first_name": "Alice",
+        "last_name": "Smith",
+        "middle_name": "Jane",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN2",
+        "dob": "1985-07-15",
+        "phone": "08087654321",
+        "gender": "female"
+      },
+      "22233344455": {
+        "first_name": "David",
+        "last_name": "Johnson",
+        "middle_name": "Lee",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN3",
+        "dob": "1992-03-10",
+        "phone": "08023456789",
+        "gender": "male"
+      },
+      "33344455566": {
+        "first_name": "Mary",
+        "last_name": "Williams",
+        "middle_name": "Grace",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN4",
+        "dob": "1988-11-22",
+        "phone": "08034567890",
+        "gender": "female"
+      },
+      "44455566677": {
+        "first_name": "James",
+        "last_name": "Brown",
+        "middle_name": "Paul",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN5",
+        "dob": "1995-06-18",
+        "phone": "08045678901",
+        "gender": "male"
+      },
+      "55566677788": {
+        "first_name": "Patricia",
+        "last_name": "Jones",
+        "middle_name": "Ann",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN6",
+        "dob": "1991-09-30",
+        "phone": "08056789012",
+        "gender": "female"
+      },
+      "66677788899": {
+        "first_name": "Robert",
+        "last_name": "Garcia",
+        "middle_name": "Scott",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN7",
+        "dob": "1987-12-05",
+        "phone": "08067890123",
+        "gender": "male"
+      },
+      "77788899900": {
+        "first_name": "Linda",
+        "last_name": "Martinez",
+        "middle_name": "Joy",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN8",
+        "dob": "1993-04-14",
+        "phone": "08078901234",
+        "gender": "female"
+      },
+      "88899900011": {
+        "first_name": "Michael",
+        "last_name": "Rodriguez",
+        "middle_name": "Alan",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN9",
+        "dob": "1989-08-27",
+        "phone": "08089012345",
+        "gender": "male"
+      },
+      "99900011122": {
+        "first_name": "Barbara",
+        "last_name": "Wilson",
+        "middle_name": "Sue",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN10",
+        "dob": "1996-02-19",
+        "phone": "08090123456",
+        "gender": "female"
+      },
+      "10111213141": {
+        "first_name": "William",
+        "last_name": "Anderson",
+        "middle_name": "Ray",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN11",
+        "dob": "1994-07-23",
+        "phone": "08101234567",
+        "gender": "male"
+      },
+      "12131415161": {
+        "first_name": "Elizabeth",
+        "last_name": "Thomas",
+        "middle_name": "Kate",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN12",
+        "dob": "1997-10-11",
+        "phone": "08112345678",
+        "gender": "female"
+      },
+      "13141516171": {
+        "first_name": "Charles",
+        "last_name": "Taylor",
+        "middle_name": "Edward",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN13",
+        "dob": "1990-12-30",
+        "phone": "08123456789",
+        "gender": "male"
+      },
+      "14151617181": {
+        "first_name": "Jennifer",
+        "last_name": "Moore",
+        "middle_name": "Rose",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN14",
+        "dob": "1986-04-05",
+        "phone": "08134567890",
+        "gender": "female"
+      },
+      "15161718191": {
+        "first_name": "Christopher",
+        "last_name": "Jackson",
+        "middle_name": "Mark",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN15",
+        "dob": "1993-08-14",
+        "phone": "08145678901",
+        "gender": "male"
+      },
+      "16171819101": {
+        "first_name": "Amanda",
+        "last_name": "Martin",
+        "middle_name": "Lynn",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN16",
+        "dob": "1989-01-27",
+        "phone": "08156789012",
+        "gender": "female"
+      },
+      "17181910111": {
+        "first_name": "Daniel",
+        "last_name": "Thompson",
+        "middle_name": "Paul",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN17",
+        "dob": "1996-06-08",
+        "phone": "08167890123",
+        "gender": "male"
+      },
+      "18191011121": {
+        "first_name": "Jessica",
+        "last_name": "White",
+        "middle_name": "Marie",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN18",
+        "dob": "1992-03-19",
+        "phone": "08178901234",
+        "gender": "female"
+      },
+      "19101112131": {
+        "first_name": "Matthew",
+        "last_name": "Harris",
+        "middle_name": "James",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN19",
+        "dob": "1983-09-12",
+        "phone": "08189012345",
+        "gender": "male"
+      },
+      "20212223242": {
+        "first_name": "Karen",
+        "last_name": "Martinez",
+        "middle_name": "Lynn",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=BVN20",
+        "dob": "1995-08-08",
+        "phone": "08190123456",
+        "gender": "female"
+      }
+    },
+    "nin": {
+      "98765432101": {
+        "first_name": "Jane",
+        "last_name": "Smith",
+        "middle_name": "Ann",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN1",
+        "dob": "1992-05-10",
+        "phone": "08098765432",
+        "gender": "female"
+      },
+      "87654321098": {
+        "first_name": "Peter",
+        "last_name": "Clark",
+        "middle_name": "James",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN2",
+        "dob": "1987-02-18",
+        "phone": "08087654321",
+        "gender": "male"
+      },
+      "76543210987": {
+        "first_name": "Emily",
+        "last_name": "Lewis",
+        "middle_name": "Marie",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN3",
+        "dob": "1993-07-22",
+        "phone": "08076543210",
+        "gender": "female"
+      },
+      "65432109876": {
+        "first_name": "Daniel",
+        "last_name": "Walker",
+        "middle_name": "George",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN4",
+        "dob": "1989-10-30",
+        "phone": "08065432109",
+        "gender": "male"
+      },
+      "54321098765": {
+        "first_name": "Olivia",
+        "last_name": "Hall",
+        "middle_name": "Faith",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN5",
+        "dob": "1996-03-12",
+        "phone": "08054321098",
+        "gender": "female"
+      },
+      "43210987654": {
+        "first_name": "Matthew",
+        "last_name": "Allen",
+        "middle_name": "Brian",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN6",
+        "dob": "1991-08-25",
+        "phone": "08043210987",
+        "gender": "male"
+      },
+      "32109876543": {
+        "first_name": "Sophia",
+        "last_name": "Young",
+        "middle_name": "Ella",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN7",
+        "dob": "1994-12-17",
+        "phone": "08032109876",
+        "gender": "female"
+      },
+      "21098765432": {
+        "first_name": "Anthony",
+        "last_name": "King",
+        "middle_name": "Henry",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN8",
+        "dob": "1988-04-28",
+        "phone": "08021098765",
+        "gender": "male"
+      },
+      "10987654321": {
+        "first_name": "Grace",
+        "last_name": "Wright",
+        "middle_name": "Ivy",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN9",
+        "dob": "1997-11-09",
+        "phone": "08010987654",
+        "gender": "female"
+      },
+      "01987654321": {
+        "first_name": "Henry",
+        "last_name": "Scott",
+        "middle_name": "Owen",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN10",
+        "dob": "1995-06-06",
+        "phone": "08019876543",
+        "gender": "male"
+      },
+      "11223344556": {
+        "first_name": "Megan",
+        "last_name": "Green",
+        "middle_name": "Paige",
+        "profile_picture": "https://dummyimage.com/200x200/000/fff&text=NIN11",
+        "dob": "1998-09-13",
+        "phone": "08112334455",
+        "gender": "female"
+      }
+    }
+  }

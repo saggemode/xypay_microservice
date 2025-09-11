@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Management - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bank-blue': '#1e40af',
+                        'bank-green': '#059669',
+                        'bank-red': '#dc2626',
+                        'bank-yellow': '#d97706',
+                        'bank-gray': '#6b7280'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-bank-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                    <span class="text-blue-200">Transaction Management</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm" sec:authentication="name">Admin User</span>
+                    <a href="/logout" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Transaction Management</h2>
+            <p class="text-gray-600">Manage deposits, withdrawals, transfers, and monitor transaction activity</p>
+        </div>
+
+        <!-- Transaction Actions -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Transaction Operations</h3>
+            </div>
+            <div class="p-6">
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="showDepositModal()" class="bg-bank-green hover:bg-green-700 text-white px-6 py-3 rounded-lg">
+                        <i class="fas fa-plus-circle mr-2"></i>Deposit
+                    </button>
+                    <button onclick="showWithdrawModal()" class="bg-bank-red hover:bg-red-700 text-white px-6 py-3 rounded-lg">
+                        <i class="fas fa-minus-circle mr-2"></i>Withdraw
+                    </button>
+                    <button onclick="showTransferModal()" class="bg-bank-blue hover:bg-blue-700 text-white px-6 py-3 rounded-lg">
+                        <i class="fas fa-exchange-alt mr-2"></i>Transfer
+                    </button>
+                    <button onclick="loadTransactions()" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-lg">
+                        <i class="fas fa-refresh mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Recent Transactions</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="txTable">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <!-- Dynamic content will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div id="depositModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Make Deposit</h3>
+                    <button onclick="closeDepositModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Account ID</label>
+                        <input type="text" id="depositAccountId" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="depositAmount" step="0.01" min="0.01" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                        <input type="text" id="depositCurrency" placeholder="NGN" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reference</label>
+                        <input type="text" id="depositRef" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeDepositModal()" 
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button onclick="deposit()" 
+                                class="px-4 py-2 bg-bank-green text-white rounded-lg hover:bg-green-700">
+                            <i class="fas fa-plus-circle mr-2"></i>Deposit
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div id="withdrawModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Make Withdrawal</h3>
+                    <button onclick="closeWithdrawModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Account ID</label>
+                        <input type="text" id="withdrawAccountId" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="withdrawAmount" step="0.01" min="0.01" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                        <input type="text" id="withdrawCurrency" placeholder="NGN" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reference</label>
+                        <input type="text" id="withdrawRef" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeWithdrawModal()" 
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button onclick="withdraw()" 
+                                class="px-4 py-2 bg-bank-red text-white rounded-lg hover:bg-red-700">
+                            <i class="fas fa-minus-circle mr-2"></i>Withdraw
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Modal -->
+    <div id="transferModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Make Transfer</h3>
+                    <button onclick="closeTransferModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">From Account ID</label>
+                        <input type="text" id="transferFrom" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">To Account ID</label>
+                        <input type="text" id="transferTo" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                        <input type="number" id="transferAmount" step="0.01" min="0.01" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                        <input type="text" id="transferCurrency" placeholder="NGN" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Reference</label>
+                        <input type="text" id="transferRef" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closeTransferModal()" 
+                                class="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400">
+                            Cancel
+                        </button>
+                        <button onclick="transfer()" 
+                                class="px-4 py-2 bg-bank-blue text-white rounded-lg hover:bg-blue-700">
+                            <i class="fas fa-exchange-alt mr-2"></i>Transfer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadTransactions() {
+            fetch('/api/transactions')
+                .then(r => r.json())
+                .then(data => {
+                    let rows = '';
+                    data.forEach(t => {
+                        const statusColor = t.status === 'COMPLETED' ? 'text-green-600' : 
+                                          t.status === 'PENDING' ? 'text-yellow-600' : 'text-red-600';
+                        rows += `<tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.accountId}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.type}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.amount}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.currency}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm ${statusColor} font-medium">${t.status}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${t.reference}</td>
+                        </tr>`;
+                    });
+                    document.querySelector('#txTable tbody').innerHTML = rows;
+                })
+                .catch(error => {
+                    console.error('Error loading transactions:', error);
+                    document.querySelector('#txTable tbody').innerHTML = 
+                        '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">Error loading transactions</td></tr>';
+                });
+        }
+
+        function showDepositModal() {
+            document.getElementById('depositModal').classList.remove('hidden');
+        }
+
+        function closeDepositModal() {
+            document.getElementById('depositModal').classList.add('hidden');
+        }
+
+        function deposit() {
+            const accountId = document.getElementById('depositAccountId').value;
+            const amount = document.getElementById('depositAmount').value;
+            const currency = document.getElementById('depositCurrency').value;
+            const ref = document.getElementById('depositRef').value;
+            
+            if (!accountId || !amount || !currency) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            fetch('/api/transactions/deposit', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `accountId=${encodeURIComponent(accountId)}&amount=${encodeURIComponent(amount)}&currency=${encodeURIComponent(currency)}&reference=${encodeURIComponent(ref)}`
+            }).then(() => {
+                loadTransactions();
+                closeDepositModal();
+                // Clear form
+                document.getElementById('depositAccountId').value = '';
+                document.getElementById('depositAmount').value = '';
+                document.getElementById('depositCurrency').value = '';
+                document.getElementById('depositRef').value = '';
+            }).catch(error => {
+                console.error('Error making deposit:', error);
+                alert('Error making deposit');
+            });
+        }
+
+        function showWithdrawModal() {
+            document.getElementById('withdrawModal').classList.remove('hidden');
+        }
+
+        function closeWithdrawModal() {
+            document.getElementById('withdrawModal').classList.add('hidden');
+        }
+
+        function withdraw() {
+            const accountId = document.getElementById('withdrawAccountId').value;
+            const amount = document.getElementById('withdrawAmount').value;
+            const currency = document.getElementById('withdrawCurrency').value;
+            const ref = document.getElementById('withdrawRef').value;
+            
+            if (!accountId || !amount || !currency) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            fetch('/api/transactions/withdraw', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `accountId=${encodeURIComponent(accountId)}&amount=${encodeURIComponent(amount)}&currency=${encodeURIComponent(currency)}&reference=${encodeURIComponent(ref)}`
+            }).then(() => {
+                loadTransactions();
+                closeWithdrawModal();
+                // Clear form
+                document.getElementById('withdrawAccountId').value = '';
+                document.getElementById('withdrawAmount').value = '';
+                document.getElementById('withdrawCurrency').value = '';
+                document.getElementById('withdrawRef').value = '';
+            }).catch(error => {
+                console.error('Error making withdrawal:', error);
+                alert('Error making withdrawal');
+            });
+        }
+
+        function showTransferModal() {
+            document.getElementById('transferModal').classList.remove('hidden');
+        }
+
+        function closeTransferModal() {
+            document.getElementById('transferModal').classList.add('hidden');
+        }
+
+        function transfer() {
+            const from = document.getElementById('transferFrom').value;
+            const to = document.getElementById('transferTo').value;
+            const amount = document.getElementById('transferAmount').value;
+            const currency = document.getElementById('transferCurrency').value;
+            const ref = document.getElementById('transferRef').value;
+            
+            if (!from || !to || !amount || !currency) {
+                alert('Please fill in all required fields');
+                return;
+            }
+            
+            fetch('/api/transactions/transfer', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: `fromAccountId=${encodeURIComponent(from)}&toAccountId=${encodeURIComponent(to)}&amount=${encodeURIComponent(amount)}&currency=${encodeURIComponent(currency)}&reference=${encodeURIComponent(ref)}`
+            }).then(() => {
+                loadTransactions();
+                closeTransferModal();
+                // Clear form
+                document.getElementById('transferFrom').value = '';
+                document.getElementById('transferTo').value = '';
+                document.getElementById('transferAmount').value = '';
+                document.getElementById('transferCurrency').value = '';
+                document.getElementById('transferRef').value = '';
+            }).catch(error => {
+                console.error('Error making transfer:', error);
+                alert('Error making transfer');
+            });
+        }
+
+        // Load transactions on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTransactions();
+        });
+    </script>
+</body>
+</html>

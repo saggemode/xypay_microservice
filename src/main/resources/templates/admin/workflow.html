@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow & Authorization - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Workflow & Authorization</h2>
+                        <p class="mt-1 text-sm text-gray-600">Configure approval workflows and field-level permissions</p>
+                    </div>
+                    <button class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-plus mr-2"></i>Add New Workflow
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Management Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Field Access Control</h3>
+                    <p class="text-sm text-gray-600 mb-4">Configure field-level permissions for different user roles.</p>
+                    <button class="bg-banking-accent text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm">
+                        <i class="fas fa-cog mr-1"></i>Configure
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Approval Matrix</h3>
+                    <p class="text-sm text-gray-600 mb-4">Set up multi-level approval workflows for transactions.</p>
+                    <button class="bg-banking-accent text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm">
+                        <i class="fas fa-sitemap mr-1"></i>Manage
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Role Permissions</h3>
+                    <p class="text-sm text-gray-600 mb-4">Define what each role can access and modify.</p>
+                    <button class="bg-banking-accent text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm">
+                        <i class="fas fa-user-shield mr-1"></i>Setup
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Workflows Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Active Workflows</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Workflow Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Transfer Approval</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Transaction</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-01</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="#" class="text-banking-blue hover:text-blue-900 mr-3">Edit</a>
+                                    <a href="#" class="text-red-600 hover:text-red-900">Delete</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

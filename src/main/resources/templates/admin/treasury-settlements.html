@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treasury Settlements - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ Treasury Settlements</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-handshake mr-2 text-blue-600"></i>Treasury Settlements
+                </h1>
+                <p class="text-gray-600 mt-1">Monitor and manage treasury trade settlements</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Settled Today</p>
+                        <p class="text-2xl font-semibold text-gray-900">47</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Pending Settlement</p>
+                        <p class="text-2xl font-semibold text-gray-900">12</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-exclamation-triangle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Failed Settlements</p>
+                        <p class="text-2xl font-semibold text-gray-900">3</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-dollar-sign text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Settlement Value</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦8.4B</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Settlement Queue</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trade ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Instrument</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Counterparty</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Settlement Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TRD001234</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">FGN Bond 2030</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">First Bank PLC</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦500M</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-05</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                                <button class="text-green-600 hover:text-green-900">Settle</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TRD005678</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">USD/NGN Swap</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Access Bank PLC</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$2.5M</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-04</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Settled</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                                <button class="text-purple-600 hover:text-purple-900">Confirm</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Settlement Methods</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-university text-blue-600 mr-3"></i>
+                                <span class="font-medium">DVP (Delivery vs Payment)</span>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">28</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-exchange-alt text-green-600 mr-3"></i>
+                                <span class="font-medium">Net Settlement</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">19</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-money-bill-wave text-purple-600 mr-3"></i>
+                                <span class="font-medium">Cash Settlement</span>
+                            </div>
+                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">15</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Settlement Risk</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Settlement Risk Exposure:</span>
+                            <span class="font-semibold text-red-600">₦245M</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Counterparty Risk:</span>
+                            <span class="font-semibold text-orange-600">₦89M</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Operational Risk:</span>
+                            <span class="font-semibold text-yellow-600">₦34M</span>
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Risk Limit:</span>
+                                <span class="font-semibold text-blue-600">₦500M</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                                <div class="bg-yellow-600 h-2 rounded-full" style="width: 49%"></div>
+                            </div>
+                            <p class="text-sm text-gray-500 mt-1">49% of limit utilized</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

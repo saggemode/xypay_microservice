@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Teller Account Lookup Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .form-label { width: 140px; font-weight: bold; font-size: 11px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; flex: 1; margin-right: 8px; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; flex: 1; margin-right: 8px; }
+        .java-alert { padding: 8px; border: 1px solid #c0c0c0; margin-bottom: 12px; }
+        .java-alert.success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+        .java-alert.error { background: #f8d7da; border-color: #f5c6cb; color: #721c24; }
+        .account-info { background: #f8f8f8; border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 6px; padding: 2px 0; border-bottom: 1px dotted #ccc; }
+        .info-label { font-weight: bold; }
+        .info-value { color: #0078d4; }
+        .transaction-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 12px; }
+        .transaction-table th, .transaction-table td { border: 1px solid #c0c0c0; padding: 4px; text-align: left; }
+        .transaction-table th { background: #e8e8e8; font-weight: bold; }
+        .status-active { color: #28a745; font-weight: bold; }
+        .status-inactive { color: #dc3545; font-weight: bold; }
+        .status-frozen { color: #ffc107; font-weight: bold; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Teller Console - Account Lookup Service</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Account</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="newLookup()">🔍 New Lookup</button>
+            <button class="toolbar-btn" onclick="advancedSearch()">🔎 Advanced Search</button>
+            <button class="toolbar-btn" onclick="customerSearch()">👤 Customer Search</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="printDetails()">🖨️ Print Details</button>
+            <button class="toolbar-btn" onclick="exportData()">📊 Export Data</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">❓ Help</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Lookup Services</div>
+                
+                <div class="tree-node selected" onclick="selectLookup(this, 'account-number')">
+                    <div class="tree-icon">🔢</div>
+                    Account Number
+                </div>
+                
+                <div class="tree-node" onclick="selectLookup(this, 'customer-name')">
+                    <div class="tree-icon">👤</div>
+                    Customer Name
+                </div>
+                
+                <div class="tree-node" onclick="selectLookup(this, 'phone-number')">
+                    <div class="tree-icon">📞</div>
+                    Phone Number
+                </div>
+                
+                <div class="tree-node" onclick="selectLookup(this, 'email-address')">
+                    <div class="tree-icon">📧</div>
+                    Email Address
+                </div>
+                
+                <div class="tree-node" onclick="selectLookup(this, 'id-number')">
+                    <div class="tree-icon">🆔</div>
+                    ID Number
+                </div>
+                
+                <div class="tree-node" onclick="selectLookup(this, 'advanced-search')">
+                    <div class="tree-icon">🔎</div>
+                    Advanced Search
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Account Lookup & Information</div>
+                <div class="details-content">
+                    
+                    <div class="config-section">
+                        <div class="config-header">🔍 Account Lookup</div>
+                        <div class="config-content">
+                            
+                            <!-- Search Form -->
+                            <form th:action="@{/teller/account-lookup}" method="get">
+                                <fieldset>
+                                    <legend>🔢 Search Criteria</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Search Type:</span>
+                                        <select class="form-select" id="searchType" name="searchType" onchange="updateSearchFields()">
+                                            <option value="ACCOUNT_NUMBER">Account Number</option>
+                                            <option value="CUSTOMER_NAME">Customer Name</option>
+                                            <option value="PHONE_NUMBER">Phone Number</option>
+                                            <option value="EMAIL_ADDRESS">Email Address</option>
+                                            <option value="ID_NUMBER">ID Number</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row" id="accountNumberRow">
+                                        <span class="form-label">Account Number:</span>
+                                        <input type="text" class="form-input" id="accountNumber" name="accountNumber" placeholder="Enter account number" th:value="${param.accountNumber}">
+                                    </div>
+                                    
+                                    <div class="form-row" id="customerNameRow" style="display: none;">
+                                        <span class="form-label">Customer Name:</span>
+                                        <input type="text" class="form-input" id="customerName" name="customerName" placeholder="Enter customer name">
+                                    </div>
+                                    
+                                    <div class="form-row" id="phoneNumberRow" style="display: none;">
+                                        <span class="form-label">Phone Number:</span>
+                                        <input type="tel" class="form-input" id="phoneNumber" name="phoneNumber" placeholder="+234-xxx-xxx-xxxx">
+                                    </div>
+                                    
+                                    <div class="form-row" id="emailAddressRow" style="display: none;">
+                                        <span class="form-label">Email Address:</span>
+                                        <input type="email" class="form-input" id="emailAddress" name="emailAddress" placeholder="customer@email.com">
+                                    </div>
+                                    
+                                    <div class="form-row" id="idNumberRow" style="display: none;">
+                                        <span class="form-label">ID Number:</span>
+                                        <input type="text" class="form-input" id="idNumber" name="idNumber" placeholder="Enter ID number">
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin-top: 12px;">
+                                        <button type="submit" class="java-btn primary">🔍 Lookup Account</button>
+                                        <button type="button" class="java-btn" onclick="clearSearch()">Clear</button>
+                                    </div>
+                                </fieldset>
+                            </form>
+                            
+                            <!-- Account Information Display -->
+                            <div th:if="${account}" class="java-alert success">
+                                <strong>✅ Account Found!</strong>
+                            </div>
+                            
+                            <div th:if="${error}" class="java-alert error">
+                                <strong>❌ Lookup Failed:</strong><br>
+                                <span th:text="${error}">Account not found or error occurred</span>
+                            </div>
+                            
+                            <!-- Account Details Section -->
+                            <div th:if="${account}" class="config-section">
+                                <div class="config-header">🏦 Account Details</div>
+                                <div class="config-content">
+                                    <div class="account-info">
+                                        <div class="info-row">
+                                            <span class="info-label">Account Number:</span>
+                                            <span class="info-value" th:text="${account.accountNumber}">1234567890</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Account Type:</span>
+                                            <span class="info-value" th:text="${account.accountType}">Savings</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Account Status:</span>
+                                            <span th:class="${account.status == 'ACTIVE' ? 'status-active' : (account.status == 'INACTIVE' ? 'status-inactive' : 'status-frozen')}" 
+                                                  th:text="${account.status}">Active</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Current Balance:</span>
+                                            <span class="info-value" th:text="'₦' + ${#numbers.formatDecimal(account.balance, 0, 2)}">₦125,450.75</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Available Balance:</span>
+                                            <span class="info-value" th:text="'₦' + ${#numbers.formatDecimal(account.availableBalance, 0, 2)}">₦125,450.75</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Date Opened:</span>
+                                            <span class="info-value" th:text="${#temporals.format(account.dateOpened, 'dd/MM/yyyy')}">15/03/2023</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Branch:</span>
+                                            <span class="info-value" th:text="${account.branch}">Main Branch</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Customer Information Section -->
+                            <div th:if="${account}" class="config-section">
+                                <div class="config-header">👤 Customer Information</div>
+                                <div class="config-content">
+                                    <div class="account-info">
+                                        <div class="info-row">
+                                            <span class="info-label">Customer Name:</span>
+                                            <span class="info-value" th:text="${account.customerName}">John Doe</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Phone Number:</span>
+                                            <span class="info-value" th:text="${account.phoneNumber}">+234-801-234-5678</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Email Address:</span>
+                                            <span class="info-value" th:text="${account.emailAddress}">john.doe@email.com</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Address:</span>
+                                            <span class="info-value" th:text="${account.address}">123 Main Street, Lagos, Nigeria</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">ID Type:</span>
+                                            <span class="info-value" th:text="${account.idType}">National ID</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">ID Number:</span>
+                                            <span class="info-value" th:text="${account.idNumber}">12345678901</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin-top: 12px;">
+                                        <button class="java-btn" onclick="viewFullProfile()">👤 View Full Profile</button>
+                                        <button class="java-btn" onclick="updateCustomer()">✏️ Update Customer</button>
+                                        <button class="java-btn" onclick="viewDocuments()">📄 View Documents</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Transactions Section -->
+                            <div th:if="${account}" class="config-section">
+                                <div class="config-header">📋 Recent Transactions</div>
+                                <div class="config-content">
+                                    <table class="transaction-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Type</th>
+                                                <th>Description</th>
+                                                <th>Amount</th>
+                                                <th>Balance</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="transaction : ${transactions}" th:if="${transactions}">
+                                                <td th:text="${#temporals.format(transaction.date, 'dd/MM/yyyy HH:mm')}">03/09/2024 14:30</td>
+                                                <td th:text="${transaction.type}">Deposit</td>
+                                                <td th:text="${transaction.description}">Cash Deposit</td>
+                                                <td th:text="'₦' + ${#numbers.formatDecimal(transaction.amount, 0, 2)}" 
+                                                    th:class="${transaction.type == 'DEBIT' ? 'text-red-600' : 'text-green-600'}">₦50,000.00</td>
+                                                <td th:text="'₦' + ${#numbers.formatDecimal(transaction.balance, 0, 2)}">₦125,450.75</td>
+                                                <td th:text="${transaction.status}" class="status-active">Completed</td>
+                                            </tr>
+                                            <!-- Sample data when no transactions available -->
+                                            <tr th:unless="${transactions}">
+                                                <td>03/09/2024 14:30</td>
+                                                <td>Deposit</td>
+                                                <td>Cash Deposit</td>
+                                                <td class="text-green-600">₦50,000.00</td>
+                                                <td>₦125,450.75</td>
+                                                <td class="status-active">Completed</td>
+                                            </tr>
+                                            <tr th:unless="${transactions}">
+                                                <td>02/09/2024 10:15</td>
+                                                <td>Withdrawal</td>
+                                                <td>ATM Withdrawal</td>
+                                                <td class="text-red-600">₦20,000.00</td>
+                                                <td>₦75,450.75</td>
+                                                <td class="status-active">Completed</td>
+                                            </tr>
+                                            <tr th:unless="${transactions}">
+                                                <td>01/09/2024 16:45</td>
+                                                <td>Transfer</td>
+                                                <td>Online Transfer</td>
+                                                <td class="text-red-600">₦15,000.00</td>
+                                                <td>₦95,450.75</td>
+                                                <td class="status-active">Completed</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <div style="text-align: center; margin-top: 12px;">
+                                        <button class="java-btn" onclick="viewAllTransactions()">📋 View All Transactions</button>
+                                        <button class="java-btn" onclick="printStatement()">🖨️ Print Statement</button>
+                                        <button class="java-btn" onclick="exportTransactions()">📊 Export Transactions</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Quick Actions -->
+                            <div th:if="${account}" class="config-section">
+                                <div class="config-header">⚡ Quick Actions</div>
+                                <div class="config-content">
+                                    <div style="text-align: center;">
+                                        <button class="java-btn primary" onclick="newDeposit()">💵 New Deposit</button>
+                                        <button class="java-btn primary" onclick="newWithdrawal()">💸 New Withdrawal</button>
+                                        <button class="java-btn" onclick="balanceInquiry()">💰 Balance Inquiry</button>
+                                        <button class="java-btn" onclick="freezeAccount()">❄️ Freeze Account</button>
+                                        <button class="java-btn" onclick="closeAccount()">🔒 Close Account</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div th:unless="${account}" style="background: #f8f8f8; border: 1px inset #c0c0c0; padding: 12px; margin-top: 16px; font-size: 11px; color: #666;">
+                                <strong>Instructions:</strong> Enter search criteria and click "Lookup Account" to find account information. 
+                                You can search by account number, customer name, phone number, email address, or ID number.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Teller Console Ready | Service: Account Lookup | Session: Active</span>
+            <span>Lookup Status: <span id="lookupStatus">Ready</span></span>
+        </div>
+    </div>
+    
+    <script>
+        function selectLookup(element, lookupType) {
+            // Update tree selection
+            if (element) {
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+            
+            // Update search type
+            const searchTypeSelect = document.getElementById('searchType');
+            switch(lookupType) {
+                case 'account-number':
+                    searchTypeSelect.value = 'ACCOUNT_NUMBER';
+                    break;
+                case 'customer-name':
+                    searchTypeSelect.value = 'CUSTOMER_NAME';
+                    break;
+                case 'phone-number':
+                    searchTypeSelect.value = 'PHONE_NUMBER';
+                    break;
+                case 'email-address':
+                    searchTypeSelect.value = 'EMAIL_ADDRESS';
+                    break;
+                case 'id-number':
+                    searchTypeSelect.value = 'ID_NUMBER';
+                    break;
+            }
+            
+            updateSearchFields();
+            document.getElementById('lookupStatus').textContent = 'Search: ' + lookupType.replace('-', ' ').toUpperCase();
+        }
+        
+        function updateSearchFields() {
+            const searchType = document.getElementById('searchType').value;
+            
+            // Hide all rows
+            document.getElementById('accountNumberRow').style.display = 'none';
+            document.getElementById('customerNameRow').style.display = 'none';
+            document.getElementById('phoneNumberRow').style.display = 'none';
+            document.getElementById('emailAddressRow').style.display = 'none';
+            document.getElementById('idNumberRow').style.display = 'none';
+            
+            // Show relevant row
+            switch(searchType) {
+                case 'ACCOUNT_NUMBER':
+                    document.getElementById('accountNumberRow').style.display = 'block';
+                    break;
+                case 'CUSTOMER_NAME':
+                    document.getElementById('customerNameRow').style.display = 'block';
+                    break;
+                case 'PHONE_NUMBER':
+                    document.getElementById('phoneNumberRow').style.display = 'block';
+                    break;
+                case 'EMAIL_ADDRESS':
+                    document.getElementById('emailAddressRow').style.display = 'block';
+                    break;
+                case 'ID_NUMBER':
+                    document.getElementById('idNumberRow').style.display = 'block';
+                    break;
+            }
+        }
+        
+        function clearSearch() {
+            document.querySelector('form').reset();
+            document.getElementById('lookupStatus').textContent = 'Ready';
+            updateSearchFields();
+        }
+        
+        function newLookup() {
+            clearSearch();
+        }
+        
+        function advancedSearch() {
+            alert('🔎 Advanced Search\\n\\nThis would open advanced search options in a real implementation.');
+        }
+        
+        function customerSearch() {
+            alert('👤 Customer Search\\n\\nThis would open customer search interface in a real implementation.');
+        }
+        
+        function printDetails() {
+            alert('🖨️ Print Account Details\\n\\nThis would print account information in a real implementation.');
+        }
+        
+        function exportData() {
+            alert('📊 Export Data\\n\\nThis would export account data to Excel/CSV in a real implementation.');
+        }
+        
+        function viewFullProfile() {
+            alert('👤 Customer Profile\\n\\nThis would open the full customer profile in a real implementation.');
+        }
+        
+        function updateCustomer() {
+            alert('✏️ Update Customer\\n\\nThis would open customer update form in a real implementation.');
+        }
+        
+        function viewDocuments() {
+            alert('📄 Customer Documents\\n\\nThis would show customer documents in a real implementation.');
+        }
+        
+        function viewAllTransactions() {
+            alert('📋 All Transactions\\n\\nThis would show complete transaction history in a real implementation.');
+        }
+        
+        function printStatement() {
+            alert('🖨️ Print Statement\\n\\nThis would print account statement in a real implementation.');
+        }
+        
+        function exportTransactions() {
+            alert('📊 Export Transactions\\n\\nThis would export transaction data in a real implementation.');
+        }
+        
+        function newDeposit() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            if (accountNumber) {
+                window.location.href = '/teller/deposit?account=' + accountNumber;
+            } else {
+                window.location.href = '/teller/deposit';
+            }
+        }
+        
+        function newWithdrawal() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            if (accountNumber) {
+                window.location.href = '/teller/withdrawal?account=' + accountNumber;
+            } else {
+                window.location.href = '/teller/withdrawal';
+            }
+        }
+        
+        function balanceInquiry() {
+            alert('💰 Balance Inquiry\\n\\nCurrent Balance: ₦125,450.75\\nAvailable Balance: ₦125,450.75\\nAccount Status: Active');
+        }
+        
+        function freezeAccount() {
+            if (confirm('Freeze this account?\\n\\nThis will prevent all transactions until unfrozen.')) {
+                alert('❄️ Account Frozen\\n\\nAccount has been frozen successfully.');
+            }
+        }
+        
+        function closeAccount() {
+            if (confirm('Close this account?\\n\\nThis action requires supervisor approval.')) {
+                alert('🔒 Account Closure Request\\n\\nAccount closure request has been submitted for approval.');
+            }
+        }
+        
+        // Initialize
+        window.onload = function() {
+            document.getElementById('lookupStatus').textContent = 'Ready';
+            updateSearchFields();
+        };
+    </script>
+</body>
+</html>

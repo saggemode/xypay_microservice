@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle != null ? pageTitle + ' - XyPay Admin' : 'XyPay Admin Dashboard'}">XyPay Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                    <div class="ml-10 hidden md:block">
+                        <div class="flex items-baseline space-x-4">
+                            <a href="/admin/dashboard" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Dashboard</a>
+                            <a href="/admin/users" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Users</a>
+                            <a href="/admin/branches" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Branches</a>
+                            <a href="/admin/products" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Products</a>
+                            <a href="/admin/reports" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700">Reports</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6" th:if="${pageTitle}">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-2xl font-bold text-gray-900" th:text="${pageTitle}">Page Title</h2>
+                <p class="mt-1 text-sm text-gray-600" th:text="${pageDescription}" th:if="${pageDescription}">Page description</p>
+            </div>
+        </div>
+
+        <!-- Content Block -->
+        <div th:replace="${contentTemplate}">
+            <!-- Page content will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12">
+        <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">
+                © 2024 XyPay Banking System. All rights reserved.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>

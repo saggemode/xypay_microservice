@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Verification - XyPay</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        .content {
+            padding: 30px;
+        }
+        .otp-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1e40af;
+            letter-spacing: 4px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #3b82f6;
+            border-radius: 10px;
+            display: inline-block;
+            margin: 10px 0;
+            min-width: 200px;
+        }
+        .otp-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .button {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+        }
+        .verification-link {
+            background-color: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #475569;
+        }
+        .expiry-notice {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .security-notice {
+            background-color: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .footer {
+            background-color: #f8fafc;
+            padding: 20px;
+            border-top: 1px solid #e2e8f0;
+            font-size: 12px;
+            color: #64748b;
+            text-align: center;
+        }
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 30px 0;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .content {
+                padding: 20px;
+            }
+            .otp-code {
+                font-size: 24px;
+                letter-spacing: 2px;
+                min-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">XyPay</div>
+            <h1>Account Verification</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hello <span th:text="${username ?: 'User'}">User</span>,</p>
+            
+            <p>Thank you for registering with XyPay Banking System. To complete your registration and secure your account, please use the verification code below:</p>
+            
+            <div class="otp-section">
+                <div class="otp-label">Your Verification Code</div>
+                <div class="otp-code" th:text="${otp ?: '000000'}">000000</div>
+            </div>
+            
+            <div class="expiry-notice">
+                <strong>⏰ Important:</strong> This code will expire in <span th:text="${otpExpiryMinutes ?: 10}">10</span> minutes.
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p>Alternatively, you can verify your account by clicking the button below:</p>
+            
+            <div style="text-align: center;">
+                <a th:href="${verificationLink ?: '#'}" class="button">✓ Verify My Account</a>
+            </div>
+            
+            <p>If the button doesn't work, you can copy and paste the following link into your browser:</p>
+            <div class="verification-link" th:text="${verificationLink ?: 'Verification link not available'}">
+                Verification link not available
+            </div>
+            
+            <div class="security-notice">
+                <strong>🔒 Security Notice:</strong> If you did not request this verification, please ignore this email or contact our support team immediately at support@xypay.com
+            </div>
+            
+            <div class="divider"></div>
+            
+            <p><strong>Need Help?</strong></p>
+            <p>If you're having trouble with the verification process, our support team is here to help:</p>
+            <ul>
+                <li>📧 Email: support@xypay.com</li>
+                <li>📞 Phone: +1 (555) 123-4567</li>
+                <li>💬 Live Chat: Available 24/7 on our website</li>
+            </ul>
+        </div>
+        
+        <div class="footer">
+            <p><strong>This is an automated message. Please do not reply to this email.</strong></p>
+            <p>&copy; 2025 XyPay Banking System. All rights reserved.</p>
+            <p>Secure • Reliable • Trusted</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Banking API - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bank-blue': '#1e40af',
+                        'bank-green': '#059669',
+                        'bank-red': '#dc2626',
+                        'bank-yellow': '#d97706',
+                        'bank-gray': '#6b7280'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-bank-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                    <span class="text-blue-200">Open Banking API</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm" sec:authentication="name">Admin User</span>
+                    <a href="/logout" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Open Banking API Management</h2>
+            <p class="text-gray-600">Test and manage Open Banking API connections, account information, and payment initiation</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-university text-bank-blue text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Connected Banks</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="connectedBanks">3</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-credit-card text-bank-green text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Total Accounts</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="totalAccounts">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-exchange-alt text-bank-yellow text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">API Calls Today</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="apiCallsToday">47</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-money-bill-wave text-bank-green text-2xl mr-4"></i>
+                    <div>
+                        <p class="text-sm font-medium text-gray-500">Payments Today</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="paymentsToday">12</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Account Information -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        <i class="fas fa-list text-bank-blue mr-2"></i>Account Information Service
+                    </h3>
+                    <p class="text-gray-600">Retrieve account information and transaction data</p>
+                </div>
+                <div class="p-6">
+                    <button onclick="loadAccounts()" class="w-full bg-bank-blue hover:bg-blue-700 text-white px-4 py-2 rounded-lg mb-4">
+                        <i class="fas fa-sync mr-2"></i>Load Accounts
+                    </button>
+                    <div id="accounts"></div>
+                </div>
+            </div>
+
+            <!-- Payment Initiation -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        <i class="fas fa-paper-plane text-bank-green mr-2"></i>Payment Initiation Service
+                    </h3>
+                    <p class="text-gray-600">Initiate payments through Open Banking APIs</p>
+                </div>
+                <div class="p-6">
+                    <form id="paymentForm" onsubmit="return sendPayment()">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">To Account</label>
+                                <input type="text" id="payTo" required 
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue"
+                                       placeholder="Enter IBAN or account ID">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Amount</label>
+                                <input type="number" id="payAmount" step="0.01" required 
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue"
+                                       placeholder="0.00">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+                                <input type="text" id="payCurrency" required 
+                                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue"
+                                       placeholder="GBP, EUR, USD">
+                            </div>
+                            <button type="submit" class="w-full bg-bank-green hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-paper-plane mr-2"></i>Send Payment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Details -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-info-circle text-bank-gray mr-2"></i>Account Details & Transactions
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="details">
+                    <div class="text-center py-8">
+                        <i class="fas fa-chart-line text-4xl text-gray-300 mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No account selected</h3>
+                        <p class="text-gray-500">Select an account to view balance and transaction details.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Results -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-receipt text-bank-gray mr-2"></i>Payment Results
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="paymentResult">
+                    <div class="text-center py-8">
+                        <i class="fas fa-money-check text-4xl text-gray-300 mb-4"></i>
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">No payments initiated yet</h3>
+                        <p class="text-gray-500">Payment results will appear here after initiating a payment.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function loadAccounts() {
+            document.getElementById('accounts').innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i><p class="text-gray-500 mt-2">Loading accounts...</p></div>';
+            
+            fetch('/api/openbanking/accounts')
+                .then(r => r.json())
+                .then(data => {
+                    let html = '<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">IBAN</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>';
+                    html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                    
+                    data.forEach(a => {
+                        html += `<tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${a.accountId}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${a.iban}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${a.type}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${a.currency}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                                <button onclick='viewBalance("${a.accountId}")' class="text-bank-blue hover:text-blue-700">
+                                    <i class="fas fa-wallet mr-1"></i>Balance
+                                </button>
+                                <button onclick='viewTx("${a.accountId}")' class="text-bank-green hover:text-green-700">
+                                    <i class="fas fa-list mr-1"></i>Transactions
+                                </button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    document.getElementById('accounts').innerHTML = html;
+                    document.getElementById('totalAccounts').textContent = data.length;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    document.getElementById('accounts').innerHTML = `
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex">
+                                <i class="fas fa-exclamation-circle text-red-400 mt-1 mr-3"></i>
+                                <div>
+                                    <h4 class="text-red-800 font-medium">Failed to load accounts</h4>
+                                    <p class="text-red-700 mt-1">Please check your API connection and try again.</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+        }
+
+        function viewBalance(id) {
+            fetch(`/api/openbanking/accounts/${id}/balances`)
+                .then(r => r.json())
+                .then(d => {
+                    document.getElementById('details').innerHTML = `
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h4 class="text-blue-800 font-medium mb-2">Account Balance</h4>
+                            <p class="text-blue-700"><strong>Account ID:</strong> ${id}</p>
+                            <p class="text-blue-700"><strong>Balance:</strong> ${d.balance} ${d.currency}</p>
+                            <p class="text-blue-700"><strong>Available:</strong> ${d.available || d.balance} ${d.currency}</p>
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to load balance', 'error');
+                });
+        }
+
+        function viewTx(id) {
+            fetch(`/api/openbanking/accounts/${id}/transactions`)
+                .then(r => r.json())
+                .then(data => {
+                    let html = `<div class="mb-4"><h4 class="font-medium text-gray-900">Transactions for Account ${id}</h4></div>`;
+                    html += '<div class="overflow-x-auto"><table class="min-w-full divide-y divide-gray-200"><thead class="bg-gray-50"><tr>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency</th>';
+                    html += '<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>';
+                    html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                    
+                    data.forEach(t => {
+                        html += `<tr class="hover:bg-gray-50">
+                            <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${t.transactionId}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${t.amount}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${t.currency}</td>
+                            <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">${t.description}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    document.getElementById('details').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to load transactions', 'error');
+                });
+        }
+
+        function sendPayment() {
+            const body = {
+                to: document.getElementById('payTo').value,
+                amount: document.getElementById('payAmount').value,
+                currency: document.getElementById('payCurrency').value
+            };
+            
+            document.getElementById('paymentResult').innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i><p class="text-gray-500 mt-2">Processing payment...</p></div>';
+            
+            fetch('/api/openbanking/payments', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(d => {
+                const statusClass = d.status === 'COMPLETED' ? 'bg-green-50 border-green-200' : 
+                                   d.status === 'FAILED' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200';
+                const iconClass = d.status === 'COMPLETED' ? 'fas fa-check-circle text-green-400' : 
+                                 d.status === 'FAILED' ? 'fas fa-exclamation-circle text-red-400' : 'fas fa-clock text-yellow-400';
+                const titleClass = d.status === 'COMPLETED' ? 'text-green-800' : 
+                                  d.status === 'FAILED' ? 'text-red-800' : 'text-yellow-800';
+                const textClass = d.status === 'COMPLETED' ? 'text-green-700' : 
+                                 d.status === 'FAILED' ? 'text-red-700' : 'text-yellow-700';
+                
+                document.getElementById('paymentResult').innerHTML = `
+                    <div class="${statusClass} border rounded-lg p-4">
+                        <div class="flex">
+                            <i class="${iconClass} mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="${titleClass} font-medium">Payment ${d.status}</h4>
+                                <p class="${textClass} mt-1">Payment ID: ${d.paymentId}</p>
+                                <p class="${textClass}">Amount: ${body.amount} ${body.currency}</p>
+                                <p class="${textClass}">To: ${body.to}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('paymentForm').reset();
+                showNotification(`Payment ${d.status.toLowerCase()}`, d.status === 'COMPLETED' ? 'success' : 'error');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('paymentResult').innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex">
+                            <i class="fas fa-exclamation-circle text-red-400 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="text-red-800 font-medium">Payment Failed</h4>
+                                <p class="text-red-700 mt-1">An error occurred while processing the payment.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return false;
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

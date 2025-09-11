@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Loan Officer Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.success { background: #28a745; color: white; border: 1px outset #28a745; }
+        .java-btn.danger { background: #dc3545; color: white; border: 1px outset #dc3545; }
+        .java-btn.info { background: #17a2b8; color: white; border: 1px outset #17a2b8; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-approved { color: #28a745; font-weight: bold; }
+        .status-rejected { color: #dc3545; font-weight: bold; }
+        .status-active { color: #17a2b8; font-weight: bold; }
+        .portfolio-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+        .stat-card { text-align: center; border: 1px solid #c0c0c0; padding: 8px; background: #f8f8f8; }
+        .stat-value { font-weight: bold; font-size: 16px; }
+        .stat-label { font-size: 10px; color: #666; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Loan Officer Portfolio Management</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Portfolio</span>
+            <span class="menu-item">Loans</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="refreshPortfolio()">Refresh</button>
+            <button class="toolbar-btn" onclick="filterLoans()">Filter</button>
+            <button class="toolbar-btn" onclick="searchLoans()">Search</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="exportPortfolio()">Export</button>
+            <button class="toolbar-btn" onclick="generateReport()">Report</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Settings</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Portfolio Views</div>
+                
+                <div class="tree-node selected" onclick="selectPortfolioView(this, 'overview')">
+                    <div class="tree-icon">📊</div>
+                    Portfolio Overview
+                </div>
+                
+                <div class="tree-node" onclick="selectPortfolioView(this, 'active')">
+                    <div class="tree-icon">✅</div>
+                    Active Loans
+                </div>
+                
+                <div class="tree-node" onclick="selectPortfolioView(this, 'pending')">
+                    <div class="tree-icon">⏳</div>
+                    Pending Approval
+                </div>
+                
+                <div class="tree-node" onclick="selectPortfolioView(this, 'overdue')">
+                    <div class="tree-icon">⚠️</div>
+                    Overdue Payments
+                </div>
+                
+                <div class="tree-node" onclick="selectPortfolioView(this, 'completed')">
+                    <div class="tree-icon">🏆</div>
+                    Completed Loans
+                </div>
+                
+                <div class="tree-node" onclick="selectPortfolioView(this, 'analytics')">
+                    <div class="tree-icon">📈</div>
+                    Portfolio Analytics
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Loan Portfolio Management</div>
+                <div class="details-content">
+                    
+                    <!-- Portfolio Overview -->
+                    <div id="overview-module" class="config-section">
+                        <div class="config-header">📊 Portfolio Overview</div>
+                        <div class="config-content">
+                            
+                            <!-- Portfolio Statistics -->
+                            <fieldset>
+                                <legend>📈 Portfolio Statistics</legend>
+                                
+                                <div class="portfolio-stats">
+                                    <div class="stat-card">
+                                        <div class="stat-value" style="color: #0078d4;">47</div>
+                                        <div class="stat-label">Total Loans</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-value" style="color: #28a745;">₦125.4M</div>
+                                        <div class="stat-label">Total Value</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-value" style="color: #ffc107;">12</div>
+                                        <div class="stat-label">Pending</div>
+                                    </div>
+                                    <div class="stat-card">
+                                        <div class="stat-value" style="color: #dc3545;">3</div>
+                                        <div class="stat-label">Overdue</div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Loan Portfolio Table -->
+                            <fieldset>
+                                <legend>💼 Loan Portfolio</legend>
+                                
+                                <div style="border: 1px inset #c0c0c0; background: white;">
+                                    <table class="java-table" th:if="${loans != null and !loans.isEmpty()}">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer Name</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="loan : ${loans}">
+                                                <td th:text="${loan.customerName}">John Smith</td>
+                                                <td th:text="${loan.amount != null ? '₦' + #numbers.formatDecimal(loan.amount, 0, 'COMMA', 2, 'POINT') : '₦0.00'}">₦500,000.00</td>
+                                                <td>
+                                                    <span th:switch="${loan.status}" 
+                                                          th:classappend="${loan.status == 'PENDING'} ? 'status-pending' : (${loan.status == 'APPROVED'} ? 'status-approved' : (${loan.status == 'ACTIVE'} ? 'status-active' : 'status-rejected'))">
+                                                        <span th:case="'PENDING'">PENDING</span>
+                                                        <span th:case="'APPROVED'">APPROVED</span>
+                                                        <span th:case="'ACTIVE'">ACTIVE</span>
+                                                        <span th:case="'REJECTED'">REJECTED</span>
+                                                        <span th:case="*" th:text="${loan.status}">UNKNOWN</span>
+                                                    </span>
+                                                </td>
+                                                <td th:text="${loan.applicationDate ?: 'N/A'}">2024-01-15</td>
+                                                <td>
+                                                    <div th:if="${loan.status == 'PENDING'}" style="display: inline-block;">
+                                                        <form th:action="@{'/loan-officer/portfolio/' + ${loan.id} + '/approve'}" method="post" style="display: inline; margin: 0;">
+                                                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                                            <button type="submit" class="java-btn success" style="font-size: 9px; padding: 2px 6px;">Approve</button>
+                                                        </form>
+                                                        <form th:action="@{'/loan-officer/portfolio/' + ${loan.id} + '/reject'}" method="post" style="display: inline; margin: 0;">
+                                                            <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                                            <button type="submit" class="java-btn danger" style="font-size: 9px; padding: 2px 6px;">Reject</button>
+                                                        </form>
+                                                    </div>
+                                                    <a th:href="@{'/loan-officer/portfolio/' + ${loan.id} + '/schedule'}" class="java-btn info" style="font-size: 9px; padding: 2px 6px; text-decoration: none;">Schedule</a>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <!-- Default loans when no data -->
+                                    <table class="java-table" th:if="${loans == null or loans.isEmpty()}">
+                                        <thead>
+                                            <tr>
+                                                <th>Customer Name</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Date</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Sarah Johnson</td>
+                                                <td>₦750,000.00</td>
+                                                <td><span class="status-pending">PENDING</span></td>
+                                                <td>2024-01-15</td>
+                                                <td>
+                                                    <button class="java-btn success" style="font-size: 9px; padding: 2px 6px;">Approve</button>
+                                                    <button class="java-btn danger" style="font-size: 9px; padding: 2px 6px;">Reject</button>
+                                                    <button class="java-btn info" style="font-size: 9px; padding: 2px 6px;">Schedule</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Michael Chen</td>
+                                                <td>₦2,000,000.00</td>
+                                                <td><span class="status-active">ACTIVE</span></td>
+                                                <td>2024-01-10</td>
+                                                <td>
+                                                    <button class="java-btn info" style="font-size: 9px; padding: 2px 6px;">Schedule</button>
+                                                    <button class="java-btn" style="font-size: 9px; padding: 2px 6px;">Details</button>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Emma Davis</td>
+                                                <td>₦1,200,000.00</td>
+                                                <td><span class="status-approved">APPROVED</span></td>
+                                                <td>2024-01-12</td>
+                                                <td>
+                                                    <button class="java-btn info" style="font-size: 9px; padding: 2px 6px;">Schedule</button>
+                                                    <button class="java-btn" style="font-size: 9px; padding: 2px 6px;">Disburse</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div style="text-align: center; margin-top: 16px;">
+                                    <button class="java-btn" onclick="bulkApproval()">Bulk Approval</button>
+                                    <button class="java-btn" onclick="exportLoans()">Export Loans</button>
+                                    <button class="java-btn" onclick="generatePortfolioReport()">Generate Report</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Success Message -->
+                    <div th:if="${result}" class="config-section" style="background: #d4edda; border-color: #c3e6cb;">
+                        <div class="config-content">
+                            <div style="color: #155724; font-weight: bold;" th:text="${result}">
+                                Loan portfolio details will be displayed here.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Portfolio Ready | View: <span id="currentView">Overview</span> | Total Loans: <span id="loanCount">47</span></span>
+            <span>Officer: <span sec:authentication="name">Loan Officer</span> | Status: Connected</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectPortfolioView(element, viewType) {
+            // Update tree selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            // Update status bar
+            document.getElementById('currentView').textContent = viewType.charAt(0).toUpperCase() + viewType.slice(1);
+            
+            // In a real implementation, this would filter the loan table based on the view
+            console.log('Selected portfolio view:', viewType);
+        }
+        
+        function refreshPortfolio() {
+            alert('🔄 Portfolio Refreshed\n\nLoan portfolio data has been updated successfully.');
+        }
+        
+        function filterLoans() {
+            alert('🔍 Filter Loans\n\nThis would open loan filtering options in a real implementation.');
+        }
+        
+        function searchLoans() {
+            alert('🔎 Search Loans\n\nThis would open loan search functionality in a real implementation.');
+        }
+        
+        function exportPortfolio() {
+            alert('📤 Export Portfolio\n\nThis would export portfolio data to Excel, PDF, or CSV format in a real implementation.');
+        }
+        
+        function generateReport() {
+            alert('📊 Generate Portfolio Report\n\nThis would generate comprehensive portfolio analysis reports in a real implementation.');
+        }
+        
+        function bulkApproval() {
+            alert('✅ Bulk Approval\n\nThis would open bulk loan approval interface in a real implementation.');
+        }
+        
+        function exportLoans() {
+            alert('📤 Export Loans\n\nThis would export loan data in various formats in a real implementation.');
+        }
+        
+        function generatePortfolioReport() {
+            alert('📊 Generate Portfolio Report\n\nThis would create detailed portfolio performance reports in a real implementation.');
+        }
+        
+        // Initialize
+        window.onload = function() {
+            selectPortfolioView(document.querySelector('.tree-node.selected'), 'overview');
+        };
+    </script>
+</body>
+</html>

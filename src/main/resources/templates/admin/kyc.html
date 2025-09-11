@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KYC Overview - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ KYC Overview</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-user-shield mr-2 text-blue-600"></i>KYC Overview
+                </h1>
+                <p class="text-gray-600 mt-1">Know Your Customer compliance dashboard and verification status</p>
+            </div>
+        </div>
+
+        <!-- KYC Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Verified Users</p>
+                        <p class="text-2xl font-semibold text-gray-900">12,847</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Pending Review</p>
+                        <p class="text-2xl font-semibold text-gray-900">347</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-times-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Rejected</p>
+                        <p class="text-2xl font-semibold text-gray-900">89</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Success Rate</p>
+                        <p class="text-2xl font-semibold text-gray-900">97.3%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-search mr-2 text-blue-600"></i>Customer Lookup
+                </h3>
+                <div class="space-y-3">
+                    <input type="text" placeholder="Search by name, email, or ID" 
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-search mr-2"></i>Search Customer
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-file-upload mr-2 text-green-600"></i>Bulk Operations
+                </h3>
+                <div class="space-y-3">
+                    <button class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition duration-200">
+                        <i class="fas fa-upload mr-2"></i>Import KYC Data
+                    </button>
+                    <button class="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 transition duration-200">
+                        <i class="fas fa-download mr-2"></i>Export Report
+                    </button>
+                </div>
+            </div>
+            
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                    <i class="fas fa-cogs mr-2 text-orange-600"></i>Quick Settings
+                </h3>
+                <div class="space-y-3">
+                    <button class="w-full bg-orange-600 text-white py-2 px-4 rounded-md hover:bg-orange-700 transition duration-200">
+                        <i class="fas fa-sliders-h mr-2"></i>KYC Thresholds
+                    </button>
+                    <button class="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 transition duration-200">
+                        <i class="fas fa-bell mr-2"></i>Alert Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KYC Management Links -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    <i class="fas fa-list mr-2 text-blue-600"></i>KYC Management
+                </h2>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <a href="/admin/kyc-management" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-user-check text-2xl text-blue-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">Full KYC Management</h3>
+                                <p class="text-sm text-gray-600">Complete KYC workflow and verification</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/aml-monitoring" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-shield-alt text-2xl text-green-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">AML Monitoring</h3>
+                                <p class="text-sm text-gray-600">Anti-Money Laundering compliance</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/risk-assessment" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-exclamation-triangle text-2xl text-yellow-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">Risk Assessment</h3>
+                                <p class="text-sm text-gray-600">Customer risk profiling and scoring</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/fraud-detection" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-search text-2xl text-red-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">Fraud Detection</h3>
+                                <p class="text-sm text-gray-600">Suspicious activity monitoring</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/customer-account" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-users text-2xl text-purple-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">Customer Accounts</h3>
+                                <p class="text-sm text-gray-600">Account management and verification</p>
+                            </div>
+                        </div>
+                    </a>
+                    
+                    <a href="/admin/reporting" class="block p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-200">
+                        <div class="flex items-center">
+                            <i class="fas fa-chart-bar text-2xl text-indigo-600 mr-3"></i>
+                            <div>
+                                <h3 class="font-semibold text-gray-900">Compliance Reports</h3>
+                                <p class="text-sm text-gray-600">Regulatory reporting and analytics</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent KYC Activity -->
+        <div class="bg-white shadow rounded-lg mt-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900">
+                    <i class="fas fa-clock mr-2 text-blue-600"></i>Recent KYC Activity
+                </h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Risk Level</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">John Doe</div>
+                                        <div class="text-sm text-gray-500">john.doe@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    Verified
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Low</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2 hours ago</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">View</a>
+                                <a href="#" class="text-green-600 hover:text-green-900">Edit</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                        <i class="fas fa-user text-gray-600"></i>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">Jane Smith</div>
+                                        <div class="text-sm text-gray-500">jane.smith@email.com</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    Pending
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Medium</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5 hours ago</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="#" class="text-blue-600 hover:text-blue-900 mr-3">Review</a>
+                                <a href="#" class="text-green-600 hover:text-green-900">Approve</a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

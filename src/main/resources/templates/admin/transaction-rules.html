@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Rules - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h2 class="text-2xl font-bold text-gray-900">Transaction Rules</h2>
+                <p class="mt-1 text-sm text-gray-600">Configure transaction limits, fees, and validation rules</p>
+            </div>
+        </div>
+
+        <!-- Rule Categories -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-dollar-sign mr-2 text-banking-blue"></i>Transaction Limits
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Daily Transfer Limit</span>
+                        <span class="text-sm font-medium">₦500,000</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Single Transaction</span>
+                        <span class="text-sm font-medium">₦100,000</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Monthly Limit</span>
+                        <span class="text-sm font-medium">₦2,000,000</span>
+                    </div>
+                </div>
+                <button class="mt-4 w-full bg-banking-accent text-white py-2 rounded-md hover:bg-blue-600 transition duration-200 text-sm">
+                    Configure Limits
+                </button>
+            </div>
+
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-percentage mr-2 text-green-600"></i>Fee Structure
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Transfer Fee</span>
+                        <span class="text-sm font-medium">₦25</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">VAT Rate</span>
+                        <span class="text-sm font-medium">7.5%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Stamp Duty</span>
+                        <span class="text-sm font-medium">₦50</span>
+                    </div>
+                </div>
+                <button class="mt-4 w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition duration-200 text-sm">
+                    Manage Fees
+                </button>
+            </div>
+
+            <div class="bg-white shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">
+                    <i class="fas fa-shield-alt mr-2 text-red-600"></i>Security Rules
+                </h3>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">Fraud Detection</span>
+                        <span class="text-sm font-medium text-green-600">Enabled</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">2FA Required</span>
+                        <span class="text-sm font-medium text-green-600">Yes</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-600">IP Validation</span>
+                        <span class="text-sm font-medium text-green-600">Active</span>
+                    </div>
+                </div>
+                <button class="mt-4 w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition duration-200 text-sm">
+                    Security Settings
+                </button>
+            </div>
+        </div>
+
+        <!-- Active Rules Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Active Transaction Rules</h3>
+                    <button class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200 text-sm">
+                        <i class="fas fa-plus mr-1"></i>Add Rule
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rule Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Daily Transfer Limit</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Limit</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">₦500,000</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="#" class="text-banking-blue hover:text-blue-900 mr-3">Edit</a>
+                                    <a href="#" class="text-red-600 hover:text-red-900">Disable</a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

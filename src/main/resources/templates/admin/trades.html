@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Trades - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ Security Trades</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i>Security Trades
+                </h1>
+                <p class="text-gray-600 mt-1">Monitor and execute securities trading operations</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Executed Today</p>
+                        <p class="text-2xl font-semibold text-gray-900">156</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Pending Orders</p>
+                        <p class="text-2xl font-semibold text-gray-900">23</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-dollar-sign text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Trade Volume</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦8.4B</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">P&L Today</p>
+                        <p class="text-2xl font-semibold text-green-600">+₦245M</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Recent Trades</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Trade ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Security</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Side</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Value</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TRD001234</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">FGN 2030 15.45%</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">BUY</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">10,000,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦102.50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1.025B</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Executed</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TRD005678</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">DANGCEM</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">SELL</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">500,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦285.50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦142.75M</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Order Management</h3>
+                </div>
+                <div class="p-6">
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Security</label>
+                            <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option>FGN 2030 15.45%</option>
+                                <option>DANGCEM</option>
+                                <option>GTBANK</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Side</label>
+                                <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                    <option>BUY</option>
+                                    <option>SELL</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Order Type</label>
+                                <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                    <option>Market</option>
+                                    <option>Limit</option>
+                                    <option>Stop</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Quantity</label>
+                                <input type="number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="1,000,000">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Price</label>
+                                <input type="number" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="102.50">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+                            <i class="fas fa-paper-plane mr-2"></i>Submit Order
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Market Data</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                            <div>
+                                <h4 class="font-medium text-gray-900">FGN 2030 15.45%</h4>
+                                <p class="text-sm text-gray-500">Government Bond</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₦102.50</p>
+                                <p class="text-sm text-green-600">+0.25%</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                            <div>
+                                <h4 class="font-medium text-gray-900">DANGCEM</h4>
+                                <p class="text-sm text-gray-500">Equity</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₦285.50</p>
+                                <p class="text-sm text-red-600">-1.2%</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                            <div>
+                                <h4 class="font-medium text-gray-900">GTBANK</h4>
+                                <p class="text-sm text-gray-500">Equity</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-semibold">₦42.75</p>
+                                <p class="text-sm text-green-600">+2.1%</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium">
+                        <i class="fas fa-sync mr-2"></i>Refresh Prices
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

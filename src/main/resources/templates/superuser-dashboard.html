@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superuser Dashboard - XyPay Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="{...dashboardNotifications(), sidebarOpen: true, sidebarCollapsed: false}">
+    <!-- Top Navigation (from modern dashboard) -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="flex items-center ml-0">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-university text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h1 class="text-xl font-bold text-gray-900">XyPay</h1>
+                        </div>
+                    </div>
+                    <!-- Center nav grouped close to logo -->
+                    <div class="hidden md:flex items-center space-x-6 ml-6">
+                        <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <a href="/superuser/dashboard/legacy" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+
+                        <div class="relative" x-data="{open:false}">
+                            <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                                Accounts <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open=false" class="absolute mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Profiles</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Audit Logs</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Security Alerts</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Sessions</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kyc Profiles</a>
+                            </div>
+                        </div>
+
+                        <div class="relative" x-data="{open:false}">
+                            <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                                Bank <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open=false" class="absolute mt-2 w-[22rem] bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50 grid grid-cols-1">
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Wallets</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transactions</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bank Transfers</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bill Payments</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Virtual Cards</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Vat Charges</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Cbn Levies</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transaction Charges</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transfer Charge Controls</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Roles</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Profiles</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transaction Approvals</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Customer Escalations</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Activities</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Night Guard Settings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Large Transaction Shield Settings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Location Guard Settings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Merchant Settlement Accounts</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transfer Failures</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Accounts</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Transactions</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Goals</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Investments</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Settings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Accounts</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Transactions</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Settings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Savings</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Saving Deposits</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Saving Withdrawals</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Accounts</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Transactions</a>
+                                <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Settings</a>
+                            </div>
+                        </div>
+
+                        <div class="relative" x-data="{open:false}">
+                            <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                                Order <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                            </button>
+                            <div x-show="open" @click.away="open=false" class="absolute mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Order Items</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Orders</a>
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Payments</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-expand text-lg"></i>
+                    </button>
+                    <button class="relative p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
+                    </button>
+                    <div class="relative">
+                        <button class="flex items-center p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex min-h-screen pt-16">
+        <!-- Sidebar -->
+        <aside :class="[sidebarCollapsed ? 'w-16' : 'w-60', 'bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-30 transform transition-all duration-300', sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0']" style="overflow-y:auto; -webkit-overflow-scrolling: touch;">
+            <div class="flex items-center h-16 px-6 border-b border-gray-200 justify-between">
+                <span class="text-xl font-bold text-banking-blue">Fintech Bank</span>
+                <button @click="sidebarCollapsed = !sidebarCollapsed" class="hidden md:inline-flex p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
+                    <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'"></i>
+                </button>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-8">
+                <!-- Dashboard -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Dashboard</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 bg-green-100 text-green-800"><i class="fas fa-home mr-2"></i> Home</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100 bg-green-100 text-green-800"><i class="fas fa-tachometer-alt mr-2"></i> Dashboard</a></li>
+                    </ul>
+                </div>
+                <!-- Authentication and Authorization -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Authentication and Authorization</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-users mr-2"></i> Groups</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user mr-2"></i> Users</a></li>
+                    </ul>
+                </div>
+                <!-- Accounts -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Accounts</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/user-profiles" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user-circle mr-2"></i> User profiles</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-clipboard-list mr-2"></i> Audit logs</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-bell mr-2"></i> Security alerts</a></li>
+                        <li><a href="/admin/kyc-profiles" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-id-card mr-2"></i> KYC Profiles</a></li>
+                        <li><a href="/admin/user-sessions" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-clock mr-2"></i> User sessions</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-tachometer-alt mr-2"></i> Security Dashboard</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-line mr-2"></i> User Analytics</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-heartbeat mr-2"></i> System Monitoring</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-file-alt mr-2"></i> Compliance Report</a></li>
+                    </ul>
+                </div>
+                <!-- Address -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Address</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-envelope mr-2"></i> Email addresses</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-map-marker-alt mr-2"></i> Shipping Addresses</a></li>
+                    </ul>
+                </div>
+                <!-- Bank -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Bank</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/bank-transfers" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-university mr-2"></i> Bank Transfers</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-file-invoice-dollar mr-2"></i> Bill Payments</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-balance-scale mr-2"></i> CBN Levies</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-users-cog mr-2"></i> Customer escalations</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-piggy-bank mr-2"></i> Fixed Savings Accounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-cogs mr-2"></i> Fixed Savings Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-exchange-alt mr-2"></i> Fixed Savings Transactions</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-shield-alt mr-2"></i> Large Transaction Shield Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-map-pin mr-2"></i> Location Guard Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-hand-holding-usd mr-2"></i> Merchant settlement accounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-moon mr-2"></i> Night Guard Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-piggy-bank mr-2"></i> Spend and Save Accounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-cogs mr-2"></i> Spend and Save Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-exchange-alt mr-2"></i> Spend and Save Transactions</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user-tie mr-2"></i> Staff Activities</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user-circle mr-2"></i> Staff profiles</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user-shield mr-2"></i> Staff roles</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-piggy-bank mr-2"></i> Target Saving Deposits</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-money-bill-wave mr-2"></i> Target Saving Withdrawals</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-bullseye mr-2"></i> Target Savings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-credit-card mr-2"></i> Transaction Charges</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-check-circle mr-2"></i> Transaction approvals</a></li>
+                        <li><a href="/admin/transactions/" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-exchange-alt mr-2"></i> Transactions</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-sliders-h mr-2"></i> Transfer Charge Controls</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-exclamation-triangle mr-2"></i> Transfer Failures</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-building mr-2"></i> VAT Charges</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-circle mr-2"></i> VAT Charges</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-credit-card mr-2"></i> Virtual Cards</a></li>
+                        <li><a href="/admin/wallets" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-wallet mr-2"></i> Wallets</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-circle mr-2"></i> XySave Accounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-bullseye mr-2"></i> XySave Goals</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-line mr-2"></i> XySave Investments</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-cogs mr-2"></i> XySave Settings</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-exchange-alt mr-2"></i> XySave Transactions</a></li>
+                    </ul>
+                </div>
+                <!-- Order -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Order</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-box mr-2"></i> Order Items</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-shopping-cart mr-2"></i> Orders</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-credit-card mr-2"></i> Payments</a></li>
+                    </ul>
+                </div>
+                <!-- Product -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Product</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-tags mr-2"></i> Categories</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-ticket-alt mr-2"></i> Coupon usages</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-percent mr-2"></i> Coupons</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-bolt mr-2"></i> Flash sale items</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-fire mr-2"></i> Flash sales</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-tag mr-2"></i> Product Discounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-star mr-2"></i> Product Reviews</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-layer-group mr-2"></i> Product variants</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-cube mr-2"></i> Products</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-sitemap mr-2"></i> Subcategories</a></li>
+                    </ul>
+                </div>
+                <!-- Report -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Report</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-line mr-2"></i> Reports</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-bar mr-2"></i> Sales reports</a></li>
+                    </ul>
+                </div>
+                <!-- Sites -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Sites</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-globe mr-2"></i> Sites</a></li>
+                    </ul>
+                </div>
+                <!-- Social Accounts -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Social Accounts</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-share-alt mr-2"></i> Social accounts</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-key mr-2"></i> Social application tokens</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-mobile-alt mr-2"></i> Social applications</a></li>
+                    </ul>
+                </div>
+                <!-- Admin_Honeypot -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Admin_Honeypot</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-sign-in-alt mr-2"></i> Login attempts</a></li>
+                    </ul>
+                </div>
+                <!-- Auth Token -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Auth Token</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-key mr-2"></i> Tokens</a></li>
+                    </ul>
+                </div>
+                <!-- Cart -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Cart</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-shopping-cart mr-2"></i> Carts</a></li>
+                    </ul>
+                </div>
+                <!-- Cities_Light -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Cities_Light</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-city mr-2"></i> Cities</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-flag mr-2"></i> Countries</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-map mr-2"></i> Regions/states</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-map-marked-alt mr-2"></i> SubRegions</a></li>
+                    </ul>
+                </div>
+                <!-- Django APScheduler -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Django APScheduler</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-tasks mr-2"></i> Django job executions</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-clock mr-2"></i> Django jobs</a></li>
+                    </ul>
+                </div>
+                <!-- Notification -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Notification</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/notifications" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-bell mr-2"></i> Notifications</a></li>
+                    </ul>
+                </div>
+                <!-- Store -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Store</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-line mr-2"></i> Customer Lifetime Values</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-chart-bar mr-2"></i> Store Analytics</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-user-tie mr-2"></i> Store Staff</a></li>
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-store mr-2"></i> Stores</a></li>
+                    </ul>
+                </div>
+                <!-- Wishlist -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2">Wishlist</h4>
+                    <ul class="space-y-1">
+                        <li><a href="#" class="flex items-center px-2 py-1 rounded hover:bg-gray-100"><i class="fas fa-heart mr-2"></i> Wishlists</a></li>
+                    </ul>
+                </div>
+                <!-- More sections as needed... -->
+            </nav>
+        </aside>
+        <!-- Main Content Area -->
+        <div :class="sidebarCollapsed ? 'flex-1 ml-16' : 'flex-1 ml-60'" class="transition-all duration-300">
+            <!-- Navigation Header -->
+            <nav class="bg-banking-blue text-white shadow-lg sticky top-0 z-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex justify-between items-center h-16">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <h1 class="text-xl font-bold">XyPay Banking System</h1>
+                            </div>
+                            <div class="ml-10">
+                                <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    <i class="fas fa-crown mr-1"></i>SUPERUSER
+                                </span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <!-- Notification Bell -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" class="relative p-2 text-white hover:text-gray-300 focus:outline-none">
+                                    <i class="fas fa-bell text-xl"></i>
+                                    <span x-show="unreadCount > 0" 
+                                          x-text="unreadCount" 
+                                          class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                                    </span>
+                                </button>
+                                
+                                <!-- Notification Dropdown -->
+                                <div x-show="open" 
+                                     @click.away="open = false"
+                                     x-transition:enter="transition ease-out duration-200"
+                                     x-transition:enter-start="opacity-0 scale-95"
+                                     x-transition:enter-end="opacity-100 scale-100"
+                                     x-transition:leave="transition ease-in duration-75"
+                                     x-transition:leave-start="opacity-100 scale-100"
+                                     x-transition:leave-end="opacity-0 scale-95"
+                                     class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg z-50">
+                                    <div class="p-4 border-b">
+                                        <h3 class="text-lg font-semibold text-gray-900">Notifications</h3>
+                                    </div>
+                                    <div class="max-h-96 overflow-y-auto">
+                                        <template x-for="notification in recentNotifications" :key="notification.id">
+                                            <div class="p-4 border-b hover:bg-gray-50 cursor-pointer" 
+                                                 @click="viewNotification(notification.id)">
+                                                <div class="flex items-start space-x-3">
+                                                    <div class="flex-shrink-0">
+                                                        <div class="w-2 h-2 bg-blue-500 rounded-full mt-2" 
+                                                             x-show="!notification.isRead"></div>
+                                                    </div>
+                                                    <div class="flex-1 min-w-0">
+                                                        <p class="text-sm font-medium text-gray-900" x-text="notification.title"></p>
+                                                        <p class="text-sm text-gray-500 truncate" x-text="notification.message"></p>
+                                                        <p class="text-xs text-gray-400 mt-1" x-text="formatDate(notification.createdAt)"></p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <div x-show="recentNotifications.length === 0" class="p-4 text-center text-gray-500">
+                                            No notifications
+                                        </div>
+                                    </div>
+                                    <div class="p-4 border-t">
+                                        <a href="/admin/notifications" class="text-banking-blue hover:text-blue-700 text-sm font-medium">
+                                            View all notifications
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                            <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                                <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <!-- Main Content -->
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <!-- Welcome Section -->
+                <div class="bg-white overflow-hidden shadow rounded-lg mb-6">
+                    <div class="px-4 py-5 sm:p-6">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-banking-blue rounded-full flex items-center justify-center">
+                                    <i class="fas fa-shield-alt text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h2 class="text-lg font-medium text-gray-900">Welcome to Superuser Dashboard</h2>
+                                <p class="text-sm text-gray-500">Complete system administration and oversight capabilities</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- System Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-banking-blue text-2xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                                        <dd class="text-lg font-medium text-gray-900" th:text="${totalUsers ?: '1'}">1</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-building text-banking-blue text-2xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Active Branches</dt>
+                                        <dd class="text-lg font-medium text-gray-900" th:text="${totalBranches ?: '1'}">1</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exchange-alt text-banking-blue text-2xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">Today's Transactions</dt>
+                                        <dd class="text-lg font-medium text-gray-900" th:text="${todayTransactions ?: '0'}">0</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow rounded-lg">
+                        <div class="p-5">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-shield-alt text-green-600 text-2xl"></i>
+                                </div>
+                                <div class="ml-5 w-0 flex-1">
+                                    <dl>
+                                        <dt class="text-sm font-medium text-gray-500 truncate">System Status</dt>
+                                        <dd class="text-lg font-medium text-green-600">Online</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Django Admin Style Feature Grid -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Core Banking -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-university mr-2 text-banking-blue"></i>Core Banking
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/accounts" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-wallet w-4 mr-2 text-banking-blue"></i>Accounts
+                                </a>
+                                <a href="/admin/customers" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-users w-4 mr-2 text-banking-blue"></i>Customers
+                                </a>
+                                <a href="/admin/transactions" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-exchange-alt w-4 mr-2 text-banking-blue"></i>Transactions
+                                </a>
+                                <a href="/admin/branches" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-building w-4 mr-2 text-banking-blue"></i>Branches
+                                </a>
+                                <a href="/admin/balances" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-balance-scale w-4 mr-2 text-banking-blue"></i>Balances
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loan Management -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-hand-holding-usd mr-2 text-green-600"></i>Loan Management
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/loans" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-file-contract w-4 mr-2 text-green-600"></i>Loans
+                                </a>
+                                <a href="/admin/loan-products" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-tags w-4 mr-2 text-green-600"></i>Loan Products
+                                </a>
+                                <a href="/admin/loan-repayments" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-money-bill-wave w-4 mr-2 text-green-600"></i>Repayments
+                                </a>
+                                <a href="/admin/loan-amortization" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-calculator w-4 mr-2 text-green-600"></i>Amortization
+                                </a>
+                                <a href="/admin/interest-calculator" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-percent w-4 mr-2 text-green-600"></i>Interest Calculator
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Trade Finance -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-globe mr-2 text-purple-600"></i>Trade Finance
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/trade-finance" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-ship w-4 mr-2 text-purple-600"></i>Trade Finance
+                                </a>
+                                <a href="/admin/trade-documents" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-file-alt w-4 mr-2 text-purple-600"></i>Trade Documents
+                                </a>
+                                <a href="/admin/trade-amendments" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-edit w-4 mr-2 text-purple-600"></i>Amendments
+                                </a>
+                                <a href="/admin/iso20022" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-code w-4 mr-2 text-purple-600"></i>ISO20022
+                                </a>
+                                <a href="/admin/swift" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-paper-plane w-4 mr-2 text-purple-600"></i>SWIFT Messages
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Treasury Operations -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-chart-line mr-2 text-blue-600"></i>Treasury Operations
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/treasury-operations" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-coins w-4 mr-2 text-blue-600"></i>Treasury Operations
+                                </a>
+                                <a href="/admin/treasury-positions" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-chart-pie w-4 mr-2 text-blue-600"></i>Positions
+                                </a>
+                                <a href="/admin/treasury-settlements" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-handshake w-4 mr-2 text-blue-600"></i>Settlements
+                                </a>
+                                <a href="/admin/fx-rates" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-exchange-alt w-4 mr-2 text-blue-600"></i>FX Rates
+                                </a>
+                                <a href="/admin/money-market" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-money-check-alt w-4 mr-2 text-blue-600"></i>Money Market
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Investment Banking -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-chart-area mr-2 text-indigo-600"></i>Investment Banking
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/securities" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-certificate w-4 mr-2 text-indigo-600"></i>Securities
+                                </a>
+                                <a href="/admin/portfolios" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-briefcase w-4 mr-2 text-indigo-600"></i>Portfolios
+                                </a>
+                                <a href="/admin/security-holdings" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-layer-group w-4 mr-2 text-indigo-600"></i>Holdings
+                                </a>
+                                <a href="/admin/security-transactions" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-random w-4 mr-2 text-indigo-600"></i>Security Trades
+                                </a>
+                                <a href="/admin/market-data" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-chart-bar w-4 mr-2 text-indigo-600"></i>Market Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Islamic Banking -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-mosque mr-2 text-teal-600"></i>Islamic Banking
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/islamic-products" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-star-and-crescent w-4 mr-2 text-teal-600"></i>Islamic Products
+                                </a>
+                                <a href="/admin/islamic-contracts" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-scroll w-4 mr-2 text-teal-600"></i>Contracts
+                                </a>
+                                <a href="/admin/islamic-payments" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-hand-holding-heart w-4 mr-2 text-teal-600"></i>Payments
+                                </a>
+                                <a href="/admin/profit-distribution" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-share-alt w-4 mr-2 text-teal-600"></i>Profit Distribution
+                                </a>
+                                <a href="/admin/sharia-compliance" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-balance-scale w-4 mr-2 text-teal-600"></i>Sharia Compliance
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Compliance & Risk -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-shield-alt mr-2 text-red-600"></i>Compliance & Risk
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/kyc" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-user-check w-4 mr-2 text-red-600"></i>KYC Management
+                                </a>
+                                <a href="/admin/aml" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-search w-4 mr-2 text-red-600"></i>AML Monitoring
+                                </a>
+                                <a href="/admin/regulatory-compliance" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-gavel w-4 mr-2 text-red-600"></i>Regulatory Compliance
+                                </a>
+                                <a href="/admin/audit-logs" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-clipboard-list w-4 mr-2 text-red-600"></i>Audit Logs
+                                </a>
+                                <a href="/admin/fraud-detection" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-exclamation-triangle w-4 mr-2 text-red-600"></i>Fraud Detection
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Systems -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-credit-card mr-2 text-orange-600"></i>Payment Systems
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/nibss" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-university w-4 mr-2 text-orange-600"></i>NIBSS Integration
+                                </a>
+                                <a href="/admin/channels" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-sitemap w-4 mr-2 text-orange-600"></i>Channels
+                                </a>
+                                <a href="/admin/multi-channel" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-network-wired w-4 mr-2 text-orange-600"></i>Multi-Channel
+                                </a>
+                                <a href="/admin/stp" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-bolt w-4 mr-2 text-orange-600"></i>STP Processing
+                                </a>
+                                <a href="/admin/reconciliation" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-check-double w-4 mr-2 text-orange-600"></i>Reconciliation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Administration -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-4 py-5 sm:p-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">
+                                <i class="fas fa-cogs mr-2 text-gray-600"></i>System Administration
+                            </h3>
+                            <div class="space-y-2">
+                                <a href="/admin/users" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-users w-4 mr-2 text-gray-600"></i>Users
+                                </a>
+                                <a href="/admin/roles" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-user-shield w-4 mr-2 text-gray-600"></i>Roles & Permissions
+                                </a>
+                                <a href="/admin/configurations" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-sliders-h w-4 mr-2 text-gray-600"></i>Configurations
+                                </a>
+                                <a href="/admin/settings" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-cog w-4 mr-2 text-gray-600"></i>System Settings
+                                </a>
+                                <a href="/admin/notifications" class="flex items-center p-2 text-sm text-gray-700 hover:bg-gray-50 rounded-md">
+                                    <i class="fas fa-bell w-4 mr-2 text-gray-600"></i>Notifications
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">
+                            <i class="fas fa-clock mr-2 text-banking-gray"></i>Recent System Activities
+                        </h3>
+                        <div class="flow-root">
+                            <ul class="-mb-8">
+                                <li>
+                                    <div class="relative pb-8">
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-green-500 flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-check text-white text-sm"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">System initialization completed successfully</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time>Just now</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="relative pb-8">
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-user text-white text-sm"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">Administrator account created and configured</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time>Just now</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="relative">
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-banking-blue flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-database text-white text-sm"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">Database schema initialized and ready</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time>Just now</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function dashboardNotifications() {
+            return {
+                recentNotifications: [],
+                unreadCount: 0,
+
+                async init() {
+                    await this.loadNotifications();
+                    this.startPolling();
+                },
+
+                async loadNotifications() {
+                    try {
+                        const response = await fetch('/api/notifications?limit=5');
+                        const data = await response.json();
+                        this.recentNotifications = data.content || data;
+                        this.unreadCount = this.recentNotifications.filter(n => !n.isRead).length;
+                    } catch (error) {
+                        console.error('Error loading notifications:', error);
+                    }
+                },
+
+                async viewNotification(id) {
+                    try {
+                        await fetch(`/api/notifications/${id}/read`, { method: 'POST' });
+                        await this.loadNotifications();
+                    } catch (error) {
+                        console.error('Error marking notification as read:', error);
+                    }
+                },
+
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleString();
+                },
+
+                startPolling() {
+                    setInterval(() => {
+                        this.loadNotifications();
+                    }, 30000); // Poll every 30 seconds
+                }
+            }
+        }
+    </script>
+</body>
+</html>

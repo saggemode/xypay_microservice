@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripting - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Scripting</h2>
+                    <p class="mt-1 text-sm text-gray-600">Execute custom scripts and manage automation</p>
+                </div>
+                <button class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                    <i class="fas fa-plus mr-2"></i>New Script
+                </button>
+            </div>
+        </div>
+
+        <!-- Script Tools -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-code text-banking-blue text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">JavaScript Executor</h3>
+                            <p class="text-sm text-gray-600">Execute custom JavaScript for advanced logic</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200">
+                            Execute Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-book text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Script Library</h3>
+                            <p class="text-sm text-gray-600">Manage and organize reusable scripts</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200">
+                            Script Library
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-purple-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-4">
+                            <h3 class="text-lg font-medium text-gray-900">Script Scheduler</h3>
+                            <p class="text-sm text-gray-600">Schedule scripts to run at specific times</p>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <button class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200">
+                            Schedule Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Scripts -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Recent Scripts</h3>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Script Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Language</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Executed</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Calculate Interest</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Calculate monthly interest for all savings accounts</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">JavaScript</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-01-15 01:00:00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Success</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="#" class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    <a href="#" class="text-banking-blue hover:text-blue-900 mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Generate Reports</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Generate daily transaction reports</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">JavaScript</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-01-15 06:00:00</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Success</span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <a href="#" class="text-green-600 hover:text-green-900 mr-3">
+                                        <i class="fas fa-play"></i>
+                                    </a>
+                                    <a href="#" class="text-banking-blue hover:text-blue-900 mr-3">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="#" class="text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Script Editor -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Script Editor</h3>
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Script Name</label>
+                            <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue" placeholder="e.g., Calculate Interest">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+                            <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue">
+                                <option value="javascript">JavaScript</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue" rows="2" placeholder="Brief description of what the script does"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Script Code</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue font-mono text-sm" rows="15" placeholder="Enter your script code here">// Example script to calculate interest
+function calculateInterest(principal, rate, time) {
+    return principal * rate * time / 100;
+}
+
+// Get all savings accounts
+var accounts = db.query("SELECT * FROM accounts WHERE account_type = 'SAVINGS'");
+
+// Calculate and apply interest for each account
+for (var i = 0; i < accounts.length; i++) {
+    var account = accounts[i];
+    var interest = calculateInterest(account.balance, 2.5, 1/12); // Monthly interest at 2.5% annual rate
+    
+    // Update account balance
+    db.execute("UPDATE accounts SET balance = balance + ? WHERE id = ?", [interest, account.id]);
+    
+    // Log the transaction
+    db.execute("INSERT INTO transactions (account_id, amount, type, description) VALUES (?, ?, 'CREDIT', 'Monthly Interest')", 
+               [account.id, interest]);
+}
+
+return "Interest calculation completed for " + accounts.length + " accounts";</textarea>
+                    </div>
+                    <div class="flex justify-between">
+                        <div class="space-x-2">
+                            <button class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200">
+                                <i class="fas fa-play mr-2"></i>Run Script
+                            </button>
+                            <button class="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition duration-200">
+                                <i class="fas fa-save mr-2"></i>Save Script
+                            </button>
+                        </div>
+                        <button class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                            <i class="fas fa-check-circle mr-2"></i>Validate Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

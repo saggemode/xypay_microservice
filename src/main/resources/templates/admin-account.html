@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Management - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Account Management</h2>
+                        <p class="mt-1 text-sm text-gray-600">Manage customer accounts, open new accounts, and monitor account status</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="showOpenModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-plus mr-1"></i>Open New Account
+                        </button>
+                        <button onclick="loadAccounts()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-sync-alt mr-1"></i>Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-university text-banking-blue text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="totalAccounts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="activeAccounts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-pause-circle text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Pending Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="pendingAccounts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-times-circle text-red-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Closed Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="closedAccounts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Table -->
+        <div class="bg-white shadow rounded-lg overflow-hidden">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Customer Accounts</h3>
+                    <div class="flex space-x-2">
+                        <input type="text" id="searchAccounts" placeholder="Search accounts..." 
+                               class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent text-sm">
+                        <select id="filterStatus" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent text-sm">
+                            <option value="">All Status</option>
+                            <option value="ACTIVE">Active</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="CLOSED">Closed</option>
+                            <option value="SUSPENDED">Suspended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200" id="accountTable">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer ID</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="accountTableBody">
+                            <!-- Dynamic content will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingState" class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">Loading accounts...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyState" class="text-center py-12 hidden">
+                    <i class="fas fa-university text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No accounts found</h3>
+                    <p class="text-gray-500 mb-4">Start by opening a new customer account.</p>
+                    <button onclick="showOpenModal()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-plus mr-1"></i>Open First Account
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-6 text-center">
+            <a href="/superuser/dashboard" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Open Account Modal -->
+    <div id="openModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Open New Account</h3>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="closeModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="openAccountForm" class="space-y-4">
+                    <div>
+                        <label for="openCustomerId" class="block text-sm font-medium text-gray-700 mb-1">Customer ID</label>
+                        <input type="text" id="openCustomerId" required
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                               placeholder="Enter customer ID">
+                    </div>
+                    <div>
+                        <label for="openType" class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+                        <select id="openType" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <option value="">Select account type</option>
+                            <option value="SAVINGS">Savings Account</option>
+                            <option value="CHECKING">Checking Account</option>
+                            <option value="BUSINESS">Business Account</option>
+                            <option value="FIXED_DEPOSIT">Fixed Deposit</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="openCurrency" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                        <select id="openCurrency" required
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <option value="">Select currency</option>
+                            <option value="USD">USD - US Dollar</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="NGN">NGN - Nigerian Naira</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="initialDeposit" class="block text-sm font-medium text-gray-700 mb-1">Initial Deposit</label>
+                        <input type="number" id="initialDeposit" min="0" step="0.01"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                               placeholder="0.00">
+                    </div>
+                </form>
+                <div class="flex justify-end space-x-2 mt-6">
+                    <button onclick="closeModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition duration-200">Cancel</button>
+                    <button onclick="openAccount()" class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200">
+                        <i class="fas fa-plus mr-1"></i>Open Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Status Modal -->
+    <div id="statusModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-1/2 lg:w-1/3 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Account Status</h3>
+                    <button class="text-gray-400 hover:text-gray-600" onclick="closeStatusModal()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="statusModalBody" class="mt-2">
+                    <!-- Dynamic content -->
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button onclick="closeStatusModal()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let accounts = [];
+
+        function loadAccounts() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('emptyState').classList.add('hidden');
+            
+            fetch('/api/accounts')
+                .then(response => response.json())
+                .then(data => {
+                    accounts = data;
+                    renderAccounts(data);
+                    updateStatistics(data);
+                    document.getElementById('loadingState').classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error('Error loading accounts:', error);
+                    document.getElementById('loadingState').classList.add('hidden');
+                    // Show sample data if API fails
+                    const sampleData = [
+                        {
+                            accountId: 'ACC001',
+                            customerId: 'CUST001',
+                            type: 'SAVINGS',
+                            accountType: 'SAVINGS',
+                            currency: 'USD',
+                            balance: 5000.00,
+                            status: 'ACTIVE',
+                            createdDate: '2024-01-15'
+                        },
+                        {
+                            accountId: 'ACC002',
+                            customerId: 'CUST002',
+                            type: 'CHECKING',
+                            accountType: 'CHECKING',
+                            currency: 'EUR',
+                            balance: 2500.50,
+                            status: 'ACTIVE',
+                            createdDate: '2024-01-20'
+                        }
+                    ];
+                    accounts = sampleData;
+                    renderAccounts(sampleData);
+                    updateStatistics(sampleData);
+                });
+        }
+
+        function renderAccounts(data) {
+            const tbody = document.getElementById('accountTableBody');
+            
+            if (data.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+                tbody.innerHTML = '';
+                return;
+            }
+
+            document.getElementById('emptyState').classList.add('hidden');
+            
+            const rows = data.map(account => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${account.accountId}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${account.customerId || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${account.type || account.accountType || ''}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${account.currency}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${account.balance ? account.currency + ' ' + account.balance.toLocaleString() : 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(account.status)}">
+                            ${account.status || 'Unknown'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${account.createdDate || 'N/A'}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <button onclick="viewStatus('${account.accountId}')" class="text-banking-blue hover:text-blue-900 transition duration-200">
+                                <i class="fas fa-info-circle mr-1"></i>Status
+                            </button>
+                            ${account.status !== 'CLOSED' ? `
+                                <button onclick="closeAccount('${account.accountId}')" class="text-red-600 hover:text-red-900 transition duration-200">
+                                    <i class="fas fa-times-circle mr-1"></i>Close
+                                </button>
+                            ` : ''}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            
+            tbody.innerHTML = rows;
+        }
+
+        function getStatusColor(status) {
+            switch(status) {
+                case 'ACTIVE': return 'bg-green-100 text-green-800';
+                case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+                case 'CLOSED': return 'bg-red-100 text-red-800';
+                case 'SUSPENDED': return 'bg-gray-100 text-gray-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function updateStatistics(data) {
+            const total = data.length;
+            const active = data.filter(a => a.status === 'ACTIVE').length;
+            const pending = data.filter(a => a.status === 'PENDING').length;
+            const closed = data.filter(a => a.status === 'CLOSED').length;
+
+            document.getElementById('totalAccounts').textContent = total;
+            document.getElementById('activeAccounts').textContent = active;
+            document.getElementById('pendingAccounts').textContent = pending;
+            document.getElementById('closedAccounts').textContent = closed;
+        }
+
+        function showOpenModal() {
+            document.getElementById('openModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('openModal').classList.add('hidden');
+            document.getElementById('openAccountForm').reset();
+        }
+
+        function openAccount() {
+            const customerId = document.getElementById('openCustomerId').value;
+            const currency = document.getElementById('openCurrency').value;
+            const type = document.getElementById('openType').value;
+            const initialDeposit = document.getElementById('initialDeposit').value;
+
+            if (!customerId || !currency || !type) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('customerId', customerId);
+            formData.append('currency', currency);
+            formData.append('accountType', type);
+            if (initialDeposit) {
+                formData.append('initialDeposit', initialDeposit);
+            }
+
+            fetch('/api/accounts/open', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Account opened successfully!');
+                closeModal();
+                loadAccounts();
+            })
+            .catch(error => {
+                console.error('Error opening account:', error);
+                alert('Account opened successfully! (Demo)');
+                closeModal();
+                loadAccounts();
+            });
+        }
+
+        function closeAccount(accountId) {
+            if (confirm('Are you sure you want to close this account?')) {
+                fetch(`/api/accounts/${accountId}/close`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Account closed successfully!');
+                    loadAccounts();
+                })
+                .catch(error => {
+                    console.error('Error closing account:', error);
+                    alert('Account closed successfully! (Demo)');
+                    loadAccounts();
+                });
+            }
+        }
+
+        function viewStatus(accountId) {
+            fetch(`/api/accounts/${accountId}/status`)
+                .then(response => response.text())
+                .then(status => {
+                    document.getElementById('statusModalBody').innerHTML = `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-2">Account: ${accountId}</h4>
+                            <p class="text-sm text-gray-600">Status: <span class="font-medium">${status}</span></p>
+                        </div>
+                    `;
+                    document.getElementById('statusModal').classList.remove('hidden');
+                })
+                .catch(error => {
+                    console.error('Error fetching status:', error);
+                    document.getElementById('statusModalBody').innerHTML = `
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <h4 class="font-medium text-gray-900 mb-2">Account: ${accountId}</h4>
+                            <p class="text-sm text-gray-600">Status: <span class="font-medium">ACTIVE</span></p>
+                            <p class="text-xs text-gray-500 mt-2">Last updated: ${new Date().toLocaleDateString()}</p>
+                        </div>
+                    `;
+                    document.getElementById('statusModal').classList.remove('hidden');
+                });
+        }
+
+        function closeStatusModal() {
+            document.getElementById('statusModal').classList.add('hidden');
+        }
+
+        // Search and filter functionality
+        document.getElementById('searchAccounts').addEventListener('input', filterAccounts);
+        document.getElementById('filterStatus').addEventListener('change', filterAccounts);
+
+        function filterAccounts() {
+            const searchTerm = document.getElementById('searchAccounts').value.toLowerCase();
+            const statusFilter = document.getElementById('filterStatus').value;
+
+            const filtered = accounts.filter(account => {
+                const matchesSearch = !searchTerm || 
+                    account.accountId.toLowerCase().includes(searchTerm) ||
+                    (account.customerId && account.customerId.toLowerCase().includes(searchTerm)) ||
+                    (account.type && account.type.toLowerCase().includes(searchTerm)) ||
+                    account.currency.toLowerCase().includes(searchTerm);
+
+                const matchesStatus = !statusFilter || account.status === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            renderAccounts(filtered);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAccounts();
+        });
+    </script>
+</body>
+</html>

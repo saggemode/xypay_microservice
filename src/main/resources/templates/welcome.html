@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Welcome Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; text-decoration: none; display: inline-block; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .setup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+        .setup-card { border: 1px inset #c0c0c0; padding: 8px; text-align: center; background: #f8f8f8; }
+        .features-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Core Banking System - Welcome & Setup</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Setup</span>
+            <span class="menu-item">Configuration</span>
+            <span class="menu-item">Documentation</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="showSystemOverview()">System Overview</button>
+            <button class="toolbar-btn" onclick="quickSetup()">Quick Setup</button>
+            <button class="toolbar-btn" onclick="showDocumentation()">Documentation</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="showSupport()">Support</button>
+            <button class="toolbar-btn" onclick="showAbout()">About</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Setup Guide</div>
+                
+                <div class="tree-node selected" onclick="selectSection(this, 'welcome')">
+                    <div class="tree-icon">🏠</div>
+                    Welcome
+                </div>
+                
+                <div class="tree-node" onclick="selectSection(this, 'system-overview')">
+                    <div class="tree-icon">📋</div>
+                    System Overview
+                </div>
+                
+                <div class="tree-node" onclick="selectSection(this, 'setup-steps')">
+                    <div class="tree-icon">⚙️</div>
+                    Setup Steps
+                </div>
+                
+                <div class="tree-node" onclick="selectSection(this, 'requirements')">
+                    <div class="tree-icon">📝</div>
+                    Requirements
+                </div>
+                
+                <div class="tree-node" onclick="selectSection(this, 'support')">
+                    <div class="tree-icon">💬</div>
+                    Support & Help
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Welcome to XyPay Core Banking System</div>
+                <div class="details-content" id="welcome-content">
+                    
+                    <div class="config-section">
+                        <div class="config-header">🏦 XyPay Core Banking Platform</div>
+                        <div class="config-content">
+                            
+                            <!-- Welcome Message -->
+                            <div style="text-align: center; margin-bottom: 24px;">
+                                <div style="background: #f0f0f0; border: 2px inset #c0c0c0; padding: 16px; margin-bottom: 16px;">
+                                    <div style="font-size: 24px; font-weight: bold; color: #333; margin-bottom: 8px;">XyPay</div>
+                                    <div style="font-size: 14px; color: #666;">Core Banking System v1.0</div>
+                                </div>
+                                
+                                <div style="font-size: 16px; font-weight: bold; margin-bottom: 12px;">Welcome to Your Banking Solution</div>
+                                <div style="font-size: 12px; color: #666; line-height: 1.5;">
+                                    Thank you for choosing XyPay as your core banking platform. 
+                                    To begin using the system, you'll need to complete the initial setup process.
+                                </div>
+                            </div>
+                            
+                            <!-- Setup Status -->
+                            <fieldset style="background: #fff8dc;">
+                                <legend>🚨 Setup Required</legend>
+                                
+                                <div style="font-size: 12px; color: #333; margin-bottom: 12px;">
+                                    <strong>Current Status:</strong> System requires initial configuration
+                                </div>
+                                
+                                <div style="font-size: 11px; color: #666; line-height: 1.4;">
+                                    Before you can access the banking modules, you must complete the setup wizard to:
+                                    <ul style="margin: 8px 0 0 20px; padding: 0;">
+                                        <li>Configure your bank information and settings</li>
+                                        <li>Create the first system administrator account</li>
+                                        <li>Set up initial system preferences</li>
+                                        <li>Initialize the database and security settings</li>
+                                    </ul>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Setup Components -->
+                            <fieldset>
+                                <legend>📋 Setup Components</legend>
+                                
+                                <div class="setup-grid">
+                                    <div class="setup-card">
+                                        <div style="font-size: 20px; margin-bottom: 4px;">👤</div>
+                                        <div style="font-weight: bold; font-size: 11px; margin-bottom: 4px;">Administrator Account</div>
+                                        <div style="font-size: 10px; color: #666; line-height: 1.3;">
+                                            Create the first system administrator with full access to all modules and configurations
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setup-card">
+                                        <div style="font-size: 20px; margin-bottom: 4px;">🏦</div>
+                                        <div style="font-weight: bold; font-size: 11px; margin-bottom: 4px;">Bank Configuration</div>
+                                        <div style="font-size: 10px; color: #666; line-height: 1.3;">
+                                            Set up your bank's basic information, branch structure, and operational settings
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="setup-card">
+                                        <div style="font-size: 20px; margin-bottom: 4px;">⚙️</div>
+                                        <div style="font-weight: bold; font-size: 11px; margin-bottom: 4px;">System Settings</div>
+                                        <div style="font-size: 10px; color: #666; line-height: 1.3;">
+                                            Configure currencies, time zones, security policies, and regulatory compliance
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Post-Setup Features -->
+                            <fieldset>
+                                <legend>🚀 Available After Setup</legend>
+                                
+                                <div style="font-size: 11px; color: #333; line-height: 1.4;">
+                                    <strong>Once setup is complete, you'll have access to:</strong>
+                                    <div class="features-grid">
+                                        <div>
+                                            <ul style="margin: 0; padding-left: 16px; font-size: 10px;">
+                                                <li>Customer account management</li>
+                                                <li>Transaction processing</li>
+                                                <li>Loan and credit services</li>
+                                                <li>KYC and compliance tools</li>
+                                            </ul>
+                                        </div>
+                                        <div>
+                                            <ul style="margin: 0; padding-left: 16px; font-size: 10px;">
+                                                <li>Reporting and analytics</li>
+                                                <li>User and role management</li>
+                                                <li>Branch operations</li>
+                                                <li>System administration</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Action Buttons -->
+                            <div style="text-align: center; margin-top: 24px;">
+                                <a href="/setup" class="java-btn primary" style="margin: 0 8px;">
+                                    🚀 Begin Setup Process
+                                </a>
+                                <button type="button" class="java-btn" onclick="showSystemInfo()">System Information</button>
+                                <button type="button" class="java-btn" onclick="showHelp()">Help & Support</button>
+                            </div>
+                            
+                            <!-- System Information -->
+                            <div style="background: #f0f0f0; border: 1px inset #c0c0c0; padding: 12px; margin-top: 16px; font-size: 10px; color: #666;">
+                                <strong>System Information:</strong><br>
+                                Version: XyPay Core Banking System v1.0<br>
+                                Build: Production Release<br>
+                                Platform: Java Spring Boot with Thymeleaf Templates<br>
+                                Database: Ready for initialization<br>
+                                Status: Awaiting initial setup
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>XyPay Core Banking System | Status: Setup Required | Version: v1.0</span>
+            <span>Setup Progress: <span id="setupProgress">Not Started</span></span>
+        </div>
+    </div>
+    
+    <script>
+        function selectSection(element, sectionType) {
+            // Update tree selection
+            if (element) {
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+            
+            // Load section content
+            const content = document.getElementById('welcome-content');
+            
+            switch(sectionType) {
+                case 'welcome':
+                    // Keep default welcome content
+                    break;
+                case 'system-overview':
+                    content.innerHTML = getSystemOverviewContent();
+                    break;
+                case 'setup-steps':
+                    content.innerHTML = getSetupStepsContent();
+                    break;
+                case 'requirements':
+                    content.innerHTML = getRequirementsContent();
+                    break;
+                case 'support':
+                    content.innerHTML = getSupportContent();
+                    break;
+            }
+        }
+        
+        function showSystemInfo() {
+            alert('XyPay Core Banking System\\n\\nVersion: 1.0\\nBuild: Production Release\\nPlatform: Java Spring Boot\\nDatabase: MySQL/PostgreSQL Compatible\\nSecurity: Enterprise Grade\\nCompliance: Banking Regulations Ready\\n\\nStatus: Awaiting Initial Setup');
+        }
+        
+        function showHelp() {
+            alert('XyPay Setup Help\\n\\n1. Click "Begin Setup Process" to start\\n2. Follow the setup wizard steps\\n3. Complete all required fields\\n4. Review and confirm settings\\n5. Initialize the system\\n\\nFor technical support:\\n- Email: support@xypay.com\\n- Phone: +1-800-XYPAY-HELP\\n- Documentation: Available after setup');
+        }
+        
+        function showSystemOverview() {
+            selectSection(document.querySelector('.tree-node:nth-child(2)'), 'system-overview');
+        }
+        
+        function quickSetup() {
+            if (confirm('Start Quick Setup?\\n\\nThis will begin the XyPay system setup process.')) {
+                window.location.href = '/setup';
+            }
+        }
+        
+        function showDocumentation() {
+            alert('📚 Documentation\\n\\nComprehensive documentation will be available after system setup is complete.');
+        }
+        
+        function showSupport() {
+            selectSection(document.querySelector('.tree-node:nth-child(5)'), 'support');
+        }
+        
+        function showAbout() {
+            alert('About XyPay Core Banking System\\n\\nVersion: 1.0\\nCopyright © 2024 XyPay Technologies\\nAll rights reserved.\\n\\nA comprehensive banking platform built for modern financial institutions.');
+        }
+        
+        function getSystemOverviewContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">📋 System Overview</div>
+                    <div class="config-content">
+                        <div style="font-size: 12px; line-height: 1.6;">
+                            <h4 style="margin-bottom: 12px;">XyPay Core Banking System Architecture</h4>
+                            <p style="margin-bottom: 12px;">A comprehensive banking platform built for modern financial institutions.</p>
+                            
+                            <h5 style="margin-bottom: 8px;">Key Features:</h5>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li>Multi-user role-based access control</li>
+                                <li>Real-time transaction processing</li>
+                                <li>Comprehensive audit trails</li>
+                                <li>Regulatory compliance tools</li>
+                                <li>Scalable microservices architecture</li>
+                            </ul>
+                            
+                            <h5 style="margin-bottom: 8px;">Technology Stack:</h5>
+                            <ul style="padding-left: 20px;">
+                                <li>Java Spring Boot Framework</li>
+                                <li>Thymeleaf Template Engine</li>
+                                <li>TailwindCSS Styling</li>
+                                <li>PostgreSQL/MySQL Database</li>
+                                <li>Spring Security Authentication</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getSetupStepsContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">⚙️ Setup Process Steps</div>
+                    <div class="config-content">
+                        <div style="font-size: 12px; line-height: 1.6;">
+                            <h4 style="margin-bottom: 12px;">Complete Setup in 5 Easy Steps</h4>
+                            
+                            <ol style="margin-bottom: 16px; padding-left: 20px;">
+                                <li><strong>Bank Information</strong> - Enter your institution details</li>
+                                <li><strong>Administrator Account</strong> - Create the first admin user</li>
+                                <li><strong>System Configuration</strong> - Set preferences and settings</li>
+                                <li><strong>Validation</strong> - Review all configurations</li>
+                                <li><strong>Initialization</strong> - Complete the setup process</li>
+                            </ol>
+                            
+                            <p><strong>Estimated Time:</strong> 10-15 minutes</p>
+                            
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="java-btn primary" onclick="quickSetup()">🚀 Start Setup Now</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getRequirementsContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">📝 System Requirements</div>
+                    <div class="config-content">
+                        <div style="font-size: 12px; line-height: 1.6;">
+                            <h4 style="margin-bottom: 12px;">Minimum System Requirements</h4>
+                            
+                            <h5 style="margin-bottom: 8px;">Server Requirements:</h5>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li>Java 11 or higher</li>
+                                <li>4GB RAM minimum (8GB recommended)</li>
+                                <li>10GB available disk space</li>
+                                <li>MySQL 8.0 or PostgreSQL 12+</li>
+                            </ul>
+                            
+                            <h5 style="margin-bottom: 8px;">Browser Support:</h5>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li>Chrome 90+ (Recommended)</li>
+                                <li>Firefox 88+</li>
+                                <li>Safari 14+</li>
+                                <li>Edge 90+</li>
+                            </ul>
+                            
+                            <h5 style="margin-bottom: 8px;">Network Requirements:</h5>
+                            <ul style="padding-left: 20px;">
+                                <li>HTTPS/SSL support</li>
+                                <li>Firewall configuration for banking ports</li>
+                                <li>Secure network infrastructure</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getSupportContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">💬 Support & Help</div>
+                    <div class="config-content">
+                        <div style="font-size: 12px; line-height: 1.6;">
+                            <h4 style="margin-bottom: 12px;">Get Help with XyPay</h4>
+                            
+                            <h5 style="margin-bottom: 8px;">Support Channels:</h5>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li><strong>Email:</strong> support@xypay.com</li>
+                                <li><strong>Phone:</strong> +1-800-XYPAY-HELP</li>
+                                <li><strong>Live Chat:</strong> Available 24/7</li>
+                                <li><strong>Documentation:</strong> Comprehensive guides available</li>
+                            </ul>
+                            
+                            <h5 style="margin-bottom: 8px;">Common Setup Issues:</h5>
+                            <ul style="margin-bottom: 16px; padding-left: 20px;">
+                                <li>Database connection problems</li>
+                                <li>Port configuration issues</li>
+                                <li>Permission and security settings</li>
+                                <li>Initial data loading</li>
+                            </ul>
+                            
+                            <div style="text-align: center; margin-top: 20px;">
+                                <button class="java-btn" onclick="showHelp()">📞 Contact Support</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Initialize
+        window.onload = function() {
+            document.getElementById('setupProgress').textContent = 'Not Started';
+        };
+    </script>
+</body>
+</html>

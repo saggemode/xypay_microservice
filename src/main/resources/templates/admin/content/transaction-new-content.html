@@ -1,0 +1,117 @@
+<!-- Add Transaction (matches legacy admin style) -->
+<div class="p-6" x-data="{ tab: 'details' }">
+    <div class="mb-6 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900">Transactions</h1>
+            <nav class="text-sm text-gray-500 mt-1"><span>Home</span><span class="mx-2">›</span><span>Bank</span><span class="mx-2">›</span><span>Transactions</span><span class="mx-2">›</span><span class="text-gray-700">Add Transaction</span></nav>
+        </div>
+        <a href="/admin/transactions" class="text-blue-700 hover:text-blue-900 text-sm">Back to list</a>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-9">
+            <div class="bg-white rounded-lg shadow">
+                <div class="border-b border-gray-200 px-6 pt-4">
+                    <div class="flex space-x-6">
+                        <button class="py-3 text-sm font-medium" :class="tab==='details' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600'" @click="tab='details'">Transaction Details</button>
+                        <button class="py-3 text-sm font-medium" :class="tab==='status' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600'" @click="tab='status'">Status Information</button>
+                        <button class="py-3 text-sm font-medium" :class="tab==='history' ? 'text-blue-700 border-b-2 border-blue-700' : 'text-gray-600'" @click="tab='history'">Transactions</button>
+                    </div>
+                </div>
+
+                <form action="/admin/transactions" method="post">
+                    <div class="p-6 space-y-6" x-show="tab==='details'">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+                                <input type="text" name="reference" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Auto or enter manually">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Wallet *</label>
+                                <div class="flex items-center space-x-2">
+                                    <select name="wallet.id" required class="flex-1 border border-gray-300 rounded px-3 py-2">
+                                        <option value="">----------</option>
+                                        <option th:each="wallet : ${wallets}" th:value="${wallet.id}" th:text="${wallet.accountNumber + ' - ' + wallet.user.username}"></option>
+                                    </select>
+                                    <a href="#" class="text-green-600" title="Create Wallet"><i class="fas fa-plus"></i></a>
+                                    <a href="#" class="text-blue-600" title="View Wallet"><i class="fas fa-eye"></i></a>
+                                    <a href="#" class="text-yellow-600" title="Edit Wallet"><i class="fas fa-pencil-alt"></i></a>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Amount *</label>
+                                <input type="number" name="amount" step="0.01" min="0" required class="w-full border border-gray-300 rounded px-3 py-2" placeholder="0.0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                                <select name="currency" class="w-full border border-gray-300 rounded px-3 py-2">
+                                    <option value="NGN">Nigerian Naira</option>
+                                    <option value="USD">US Dollar</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Type *</label>
+                                <select name="transactionType" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                                    <option value="">----------</option>
+                                    <option value="DEBIT">Debit</option>
+                                    <option value="CREDIT">Credit</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Channel *</label>
+                                <select name="channel" class="w-full border border-gray-300 rounded px-3 py-2" required>
+                                    <option value="">----------</option>
+                                    <option value="TRANSFER">Transfer</option>
+                                    <option value="DEPOSIT">Deposit</option>
+                                    <option value="BILL">Bill Payment</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6" x-show="tab==='status'">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Initial Status</label>
+                                <select name="status" class="w-full border border-gray-300 rounded px-3 py-2">
+                                    <option value="SUCCESS">Success</option>
+                                    <option value="PENDING">Pending</option>
+                                    <option value="FAILED">Failed</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Narration</label>
+                                <input type="text" name="narration" class="w-full border border-gray-300 rounded px-3 py-2" placeholder="Optional note">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-6" x-show="tab==='history'">
+                        <p class="text-sm text-gray-500">No related transactions yet.</p>
+                    </div>
+
+                    <div class="hidden">
+                        <input type="hidden" name="processImmediately" value="on">
+                    </div>
+                    
+                    <div class="border-t border-gray-200 p-6 flex justify-end space-x-3">
+                        <button name="action" value="save" type="submit" class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded">Save</button>
+                        <button name="action" value="save_add" type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded">Save and add another</button>
+                        <button name="action" value="save_continue" type="submit" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2 rounded">Save and continue editing</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3">
+            <div class="bg-white rounded-lg shadow p-4 space-y-3">
+                <h3 class="text-sm font-semibold text-gray-900">Hints</h3>
+                <ul class="list-disc list-inside text-xs text-gray-600 space-y-1">
+                    <li>Use Reference to track external IDs.</li>
+                    <li>Choose the Wallet that will be debited or credited.</li>
+                    <li>Pick a Channel and Type to classify the transaction.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

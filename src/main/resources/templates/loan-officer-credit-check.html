@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Loan Officer Credit Check</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .credit-score-display { text-align: center; padding: 20px; border: 2px solid #c0c0c0; background: #f8f8f8; margin: 16px 0; }
+        .score-value { font-size: 36px; font-weight: bold; margin: 8px 0; }
+        .score-excellent { color: #28a745; }
+        .score-good { color: #17a2b8; }
+        .score-fair { color: #ffc107; }
+        .score-poor { color: #dc3545; }
+        .credit-history { border: 1px inset #c0c0c0; background: white; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Loan Officer Credit Check System</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Credit</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="refreshCreditData()">Refresh</button>
+            <button class="toolbar-btn" onclick="newCreditCheck()">New Check</button>
+            <button class="toolbar-btn" onclick="searchCustomer()">Search</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="exportReport()">Export</button>
+            <button class="toolbar-btn" onclick="printReport()">Print</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Settings</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Credit Check Tools</div>
+                
+                <div class="tree-node selected" onclick="selectCreditModule(this, 'check')">
+                    <div class="tree-icon">🔍</div>
+                    Credit Score Check
+                </div>
+                
+                <div class="tree-node" onclick="selectCreditModule(this, 'history')">
+                    <div class="tree-icon">📋</div>
+                    Credit History
+                </div>
+                
+                <div class="tree-node" onclick="selectCreditModule(this, 'analysis')">
+                    <div class="tree-icon">📊</div>
+                    Risk Analysis
+                </div>
+                
+                <div class="tree-node" onclick="selectCreditModule(this, 'reports')">
+                    <div class="tree-icon">📄</div>
+                    Credit Reports
+                </div>
+                
+                <div class="tree-node" onclick="selectCreditModule(this, 'monitoring')">
+                    <div class="tree-icon">👁️</div>
+                    Credit Monitoring
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Credit Check Management</div>
+                <div class="details-content">
+                    
+                    <!-- Credit Score Check Module -->
+                    <div id="check-module" class="config-section">
+                        <div class="config-header">🔍 Credit Score Check</div>
+                        <div class="config-content">
+                            
+                            <!-- Credit Check Form -->
+                            <fieldset>
+                                <legend>📝 Customer Credit Check</legend>
+                                
+                                <form th:action="@{/loan-officer/credit-score}" method="get">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Customer Name:</label>
+                                            <input type="text" name="customerName" class="form-input" style="width: 100%;" 
+                                                   th:value="${customerName}" placeholder="Enter customer full name" required>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Customer ID/BVN:</label>
+                                            <input type="text" name="customerId" class="form-input" style="width: 100%;" 
+                                                   placeholder="Enter BVN or Customer ID">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Check Type:</label>
+                                            <select name="checkType" class="form-select" style="width: 100%;">
+                                                <option value="basic">Basic Credit Score</option>
+                                                <option value="detailed">Detailed Credit Report</option>
+                                                <option value="comprehensive">Comprehensive Analysis</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Loan Amount:</label>
+                                            <input type="number" name="loanAmount" class="form-input" style="width: 100%;" 
+                                                   placeholder="Enter requested loan amount" step="1000">
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin-top: 16px;">
+                                        <button type="submit" class="java-btn" style="background: #0078d4; color: white;">Check Credit Score</button>
+                                        <button type="button" class="java-btn" onclick="clearForm()">Clear Form</button>
+                                        <button type="button" class="java-btn" onclick="simulateScore()">Simulate Score</button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                            
+                            <!-- Credit Score Display -->
+                            <div th:if="${score != null}" class="credit-score-display">
+                                <div style="font-weight: bold; font-size: 14px;">Credit Score for <span th:text="${customerName}">Customer</span></div>
+                                <div class="score-value" th:classappend="${score >= 750} ? 'score-excellent' : (${score >= 650} ? 'score-good' : (${score >= 550} ? 'score-fair' : 'score-poor'))" th:text="${score}">750</div>
+                                <div style="font-size: 12px; color: #666;">
+                                    <span th:switch="${score}">
+                                        <span th:case="${score >= 750}">Excellent Credit - Low Risk</span>
+                                        <span th:case="${score >= 650}">Good Credit - Moderate Risk</span>
+                                        <span th:case="${score >= 550}">Fair Credit - Higher Risk</span>
+                                        <span th:case="*">Poor Credit - High Risk</span>
+                                    </span>
+                                </div>
+                                <div style="margin-top: 12px;">
+                                    <button class="java-btn" onclick="generateDetailedReport()">Detailed Report</button>
+                                    <button class="java-btn" onclick="exportScore()">Export Score</button>
+                                </div>
+                            </div>
+                            
+                            <!-- Simulated Score Display -->
+                            <div id="simulatedScoreDisplay" class="credit-score-display" style="display: none;">
+                                <div style="font-weight: bold; font-size: 14px;">Simulated Credit Score</div>
+                                <div id="simulatedScore" class="score-value">--</div>
+                                <div id="simulatedRating" style="font-size: 12px; color: #666;">Click "Simulate Score" to generate</div>
+                                <div style="margin-top: 12px;">
+                                    <button class="java-btn" onclick="acceptSimulation()">Accept Score</button>
+                                    <button class="java-btn" onclick="rejectSimulation()">Reject</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Credit History Module -->
+                    <div id="history-module" class="config-section" style="display: none;">
+                        <div class="config-header">📋 Credit History</div>
+                        <div class="config-content">
+                            
+                            <fieldset>
+                                <legend>📊 Credit History Records</legend>
+                                
+                                <div class="credit-history">
+                                    <table class="java-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Institution</th>
+                                                <th>Loan Type</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                                <th>Payment History</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2023-12-15</td>
+                                                <td>First Bank</td>
+                                                <td>Personal Loan</td>
+                                                <td>₦500,000</td>
+                                                <td style="color: #28a745;">Paid</td>
+                                                <td>On-time</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2023-08-20</td>
+                                                <td>GTBank</td>
+                                                <td>Auto Loan</td>
+                                                <td>₦2,000,000</td>
+                                                <td style="color: #ffc107;">Active</td>
+                                                <td>2 Late Payments</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2022-05-10</td>
+                                                <td>Access Bank</td>
+                                                <td>Credit Card</td>
+                                                <td>₦100,000</td>
+                                                <td style="color: #dc3545;">Defaulted</td>
+                                                <td>Multiple Defaults</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Credit Check Ready | Module: <span id="currentModule">Credit Score Check</span> | Last Check: <span id="lastCheck">--:--</span></span>
+            <span>User: <span sec:authentication="name">Loan Officer</span> | Status: Connected</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectCreditModule(element, moduleType) {
+            // Update tree selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            // Hide all modules
+            document.querySelectorAll('[id$="-module"]').forEach(module => {
+                module.style.display = 'none';
+            });
+            
+            // Show selected module
+            const moduleElement = document.getElementById(moduleType + '-module');
+            if (moduleElement) {
+                moduleElement.style.display = 'block';
+            }
+            
+            // Update status bar
+            const moduleNames = {
+                'check': 'Credit Score Check',
+                'history': 'Credit History',
+                'analysis': 'Risk Analysis',
+                'reports': 'Credit Reports',
+                'monitoring': 'Credit Monitoring'
+            };
+            document.getElementById('currentModule').textContent = moduleNames[moduleType] || moduleType;
+        }
+        
+        function refreshCreditData() {
+            alert('🔄 Credit Data Refreshed\n\nCredit bureau data and scoring models have been updated successfully.');
+            document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function newCreditCheck() {
+            clearForm();
+            document.querySelector('input[name="customerName"]').focus();
+        }
+        
+        function searchCustomer() {
+            alert('🔍 Customer Search\n\nThis would open advanced customer search options in a real implementation.');
+        }
+        
+        function exportReport() {
+            alert('📤 Export Credit Report\n\nThis would export the credit report to PDF or Excel format in a real implementation.');
+        }
+        
+        function printReport() {
+            window.print();
+        }
+        
+        function clearForm() {
+            document.querySelector('form').reset();
+            document.getElementById('simulatedScoreDisplay').style.display = 'none';
+        }
+        
+        function simulateScore() {
+            const customerName = document.querySelector('input[name="customerName"]').value;
+            if (!customerName) {
+                alert('Please enter a customer name first.');
+                return;
+            }
+            
+            // Generate random credit score
+            const score = Math.floor(Math.random() * 400) + 400; // 400-800 range
+            const scoreElement = document.getElementById('simulatedScore');
+            const ratingElement = document.getElementById('simulatedRating');
+            
+            // Remove existing score classes
+            scoreElement.className = 'score-value';
+            
+            // Add appropriate score class and rating
+            if (score >= 750) {
+                scoreElement.classList.add('score-excellent');
+                ratingElement.textContent = 'Excellent Credit - Low Risk';
+            } else if (score >= 650) {
+                scoreElement.classList.add('score-good');
+                ratingElement.textContent = 'Good Credit - Moderate Risk';
+            } else if (score >= 550) {
+                scoreElement.classList.add('score-fair');
+                ratingElement.textContent = 'Fair Credit - Higher Risk';
+            } else {
+                scoreElement.classList.add('score-poor');
+                ratingElement.textContent = 'Poor Credit - High Risk';
+            }
+            
+            scoreElement.textContent = score;
+            document.getElementById('simulatedScoreDisplay').style.display = 'block';
+            document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString();
+        }
+        
+        function acceptSimulation() {
+            alert('✅ Simulated Score Accepted\n\nThe simulated credit score has been recorded for this customer.');
+        }
+        
+        function rejectSimulation() {
+            document.getElementById('simulatedScoreDisplay').style.display = 'none';
+        }
+        
+        function generateDetailedReport() {
+            alert('📊 Generating Detailed Credit Report\n\nThis would generate a comprehensive credit analysis report in a real implementation.');
+        }
+        
+        function exportScore() {
+            alert('📤 Export Credit Score\n\nThis would export the credit score data in various formats in a real implementation.');
+        }
+        
+        // Initialize
+        window.onload = function() {
+            selectCreditModule(document.querySelector('.tree-node.selected'), 'check');
+            document.getElementById('lastCheck').textContent = new Date().toLocaleTimeString();
+        };
+    </script>
+</body>
+</html>

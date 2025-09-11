@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Money Market - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ Money Market</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-coins mr-2 text-blue-600"></i>Money Market Operations
+                </h1>
+                <p class="text-gray-600 mt-1">Manage short-term funding and investment operations</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-piggy-bank text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Deposits</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦15.8B</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-hand-holding-usd text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Placements</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦12.4B</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-percentage text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Avg Rate</p>
+                        <p class="text-2xl font-semibold text-gray-900">18.5%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-chart-line text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Net Interest</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦245M</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Active Money Market Transactions</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Counterparty</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Maturity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">MM001234</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Call Deposit</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">CBN</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦2.5B</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">18.75%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-09-11</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">MM005678</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Term Deposit</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">First Bank PLC</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1.8B</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">19.25%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">2025-10-04</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Maturing</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Interest Rate Curve</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Overnight:</span>
+                            <span class="font-semibold">17.50%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">7 Days:</span>
+                            <span class="font-semibold">18.25%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">30 Days:</span>
+                            <span class="font-semibold">18.75%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">90 Days:</span>
+                            <span class="font-semibold">19.50%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">180 Days:</span>
+                            <span class="font-semibold">20.25%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">1 Year:</span>
+                            <span class="font-semibold">21.00%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Liquidity Management</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Available Liquidity:</span>
+                            <span class="font-semibold text-green-600">₦3.4B</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Required Reserves:</span>
+                            <span class="font-semibold text-blue-600">₦2.1B</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Excess Liquidity:</span>
+                            <span class="font-semibold text-purple-600">₦1.3B</span>
+                        </div>
+                        <div class="border-t pt-4">
+                            <h4 class="font-medium text-gray-900 mb-2">Maturity Profile</h4>
+                            <div class="space-y-2">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Today:</span>
+                                    <span class="font-semibold">₦450M</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">This Week:</span>
+                                    <span class="font-semibold">₦1.2B</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">This Month:</span>
+                                    <span class="font-semibold">₦2.8B</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

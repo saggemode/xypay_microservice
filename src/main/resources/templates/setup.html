@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay System Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-blue-600 text-white p-6">
+            <h1 class="text-2xl font-bold">XyPay Core Banking System Setup</h1>
+            <p class="text-blue-100">Initialize your banking system with basic configuration</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="p-6">
+            <!-- Status Messages -->
+            <div th:if="${error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                <p class="font-bold">Error:</p>
+                <p th:text="${error}"></p>
+            </div>
+            
+            <div th:if="${success}" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <p class="font-bold">Success:</p>
+                <p th:text="${success}"></p>
+            </div>
+
+            <form id="setupForm" action="/setup" method="post" class="space-y-6">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+                <!-- Bank Information Section -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-landmark mr-2 text-blue-500"></i>
+                        Bank Information
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="bankName" class="block text-sm font-medium text-gray-700 mb-1">Bank Name *</label>
+                            <input type="text" id="bankName" name="bankName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Enter the legal name of your financial institution">
+                            <p class="mt-1 text-xs text-gray-500">The official legal name of your financial institution</p>
+                        </div>
+                        
+                        <div>
+                            <label for="bankCode" class="block text-sm font-medium text-gray-700 mb-1">Bank Code *</label>
+                            <input type="text" id="bankCode" name="bankCode" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="e.g., HQ001, MAIN, CENTRAL">
+                            <p class="mt-1 text-xs text-gray-500">Unique identifier for your main branch (3-6 uppercase letters or numbers)</p>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <label for="bankAddress" class="block text-sm font-medium text-gray-700 mb-1">Bank Address</label>
+                            <textarea id="bankAddress" name="bankAddress" rows="3"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                      placeholder="Enter the main branch address"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label for="bankPhone" class="block text-sm font-medium text-gray-700 mb-1">Contact Phone</label>
+                            <input type="tel" id="bankPhone" name="bankPhone"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="+234-xxx-xxx-xxxx">
+                        </div>
+                        
+                        <div>
+                            <label for="bankEmail" class="block text-sm font-medium text-gray-700 mb-1">Contact Email</label>
+                            <input type="email" id="bankEmail" name="bankEmail"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="info@yourbank.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Administrator Account Section -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-user-shield mr-2 text-blue-500"></i>
+                        Administrator Account
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="adminFirstName" class="block text-sm font-medium text-gray-700 mb-1">First Name *</label>
+                            <input type="text" id="adminFirstName" name="adminFirstName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Administrator's first name">
+                        </div>
+                        
+                        <div>
+                            <label for="adminLastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name *</label>
+                            <input type="text" id="adminLastName" name="adminLastName" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Administrator's last name">
+                        </div>
+                        
+                        <div>
+                            <label for="adminUsername" class="block text-sm font-medium text-gray-700 mb-1">Username *</label>
+                            <input type="text" id="adminUsername" name="adminUsername" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Login username (no spaces)">
+                            <p class="mt-1 text-xs text-gray-500">This will be used to login to the system. Must be unique and contain no spaces.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="adminEmail" class="block text-sm font-medium text-gray-700 mb-1">Email Address *</label>
+                            <input type="email" id="adminEmail" name="adminEmail" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="admin@yourbank.com">
+                        </div>
+                        
+                        <div>
+                            <label for="adminPassword" class="block text-sm font-medium text-gray-700 mb-1">Password *</label>
+                            <input type="password" id="adminPassword" name="adminPassword" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Minimum 6 characters">
+                            <p class="mt-1 text-xs text-gray-500">Must be at least 6 characters long. Use a strong password for security.</p>
+                        </div>
+                        
+                        <div>
+                            <label for="adminConfirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password *</label>
+                            <input type="password" id="adminConfirmPassword" name="adminConfirmPassword" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                   placeholder="Re-enter password">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Configuration Section -->
+                <div class="border border-gray-200 rounded-lg p-4">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-cog mr-2 text-blue-500"></i>
+                        System Configuration
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="defaultCurrency" class="block text-sm font-medium text-gray-700 mb-1">Default Currency</label>
+                            <select id="defaultCurrency" name="defaultCurrency"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="NGN">Nigerian Naira (NGN)</option>
+                                <option value="USD">US Dollar (USD)</option>
+                                <option value="EUR">Euro (EUR)</option>
+                                <option value="GBP">British Pound (GBP)</option>
+                                <option value="KES">Kenyan Shilling (KES)</option>
+                                <option value="GHS">Ghanaian Cedi (GHS)</option>
+                                <option value="ZAR">South African Rand (ZAR)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label for="timeZone" class="block text-sm font-medium text-gray-700 mb-1">Time Zone</label>
+                            <select id="timeZone" name="timeZone"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="Africa/Lagos">West Africa Time (WAT)</option>
+                                <option value="UTC">Coordinated Universal Time (UTC)</option>
+                                <option value="America/New_York">Eastern Time (ET)</option>
+                                <option value="Europe/London">Greenwich Mean Time (GMT)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="md:col-span-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="enableDemoData" name="enableDemoData" value="true" checked
+                                       class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                <label for="enableDemoData" class="ml-2 block text-sm text-gray-700">
+                                    Load sample customers and transactions for testing
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Capabilities Information -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <h3 class="font-medium text-blue-800 mb-2 flex items-center">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Post-Setup Capabilities
+                    </h3>
+                    <p class="text-sm text-blue-700 mb-2">After completing this setup, you will be able to:</p>
+                    <ul class="text-sm text-blue-700 list-disc list-inside space-y-1">
+                        <li>Access the administrator dashboard and control panel</li>
+                        <li>Configure additional branches, departments, and users</li>
+                        <li>Set up banking products, services, and account types</li>
+                        <li>Define workflows, approval matrices, and permissions</li>
+                        <li>Configure interest rates, fees, and charges</li>
+                        <li>Set up KYC requirements and compliance rules</li>
+                        <li>Generate reports and analytics</li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
+                    <button type="button" id="validateBtn"
+                            class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <i class="fas fa-check mr-1"></i>
+                        Validate Configuration
+                    </button>
+                    <button type="submit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center">
+                        <i class="fas fa-rocket mr-1"></i>
+                        Initialize Banking System
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-4 border-t border-gray-200">
+            <p class="text-xs text-gray-500">XyPay Core Banking System v1.0</p>
+        </div>
+    </div>
+
+    <script>
+        // Handle form validation
+        document.getElementById('validateBtn').addEventListener('click', function() {
+            const form = document.getElementById('setupForm');
+            const formData = new FormData(form);
+            
+            let errors = [];
+            
+            // Validate required fields
+            if (!formData.get('bankName') || formData.get('bankName').length < 3) {
+                errors.push('Bank name must be at least 3 characters long');
+            }
+            
+            if (!formData.get('bankCode') || !/^[A-Z0-9]{3,6}$/.test(formData.get('bankCode'))) {
+                errors.push('Bank code must be 3-6 uppercase letters or numbers');
+            }
+            
+            if (!formData.get('adminUsername') || /\s/.test(formData.get('adminUsername'))) {
+                errors.push('Username cannot contain spaces');
+            }
+            
+            if (!formData.get('adminEmail') || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.get('adminEmail'))) {
+                errors.push('Please enter a valid email address');
+            }
+            
+            if (!formData.get('adminPassword') || formData.get('adminPassword').length < 6) {
+                errors.push('Password must be at least 6 characters long');
+            }
+            
+            if (formData.get('adminPassword') !== formData.get('adminConfirmPassword')) {
+                errors.push('Passwords do not match');
+            }
+            
+            // Show errors or success message
+            const statusMessages = document.getElementById('statusMessages');
+            if (errors.length > 0) {
+                statusMessages.innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                        <p class="font-bold">Validation Errors:</p>
+                        <ul class="list-disc list-inside">
+                            ${errors.map(error => `<li>${error}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            } else {
+                statusMessages.innerHTML = `
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                        <p><i class="fas fa-check-circle mr-1"></i> Configuration validation successful!</p>
+                        <p class="text-sm mt-1">All required fields are properly filled.</p>
+                    </div>
+                `;
+            }
+        });
+
+        // Password confirmation validation
+        document.getElementById('adminConfirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('adminPassword').value;
+            const confirm = this.value;
+            
+            if (password && confirm && password !== confirm) {
+                this.classList.add('border-red-500');
+            } else {
+                this.classList.remove('border-red-500');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Teller Deposit Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; }
+        .form-label { width: 140px; font-weight: bold; font-size: 11px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; flex: 1; margin-right: 8px; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; flex: 1; margin-right: 8px; }
+        .java-alert { padding: 8px; border: 1px solid #c0c0c0; margin-bottom: 12px; }
+        .java-alert.success { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Teller Console - Deposit Service</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Transaction</span>
+            <span class="menu-item">Account</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="newDeposit()">New Deposit</button>
+            <button class="toolbar-btn" onclick="lookupAccount()">Account Lookup</button>
+            <button class="toolbar-btn" onclick="verifyFunds()">Verify Funds</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="printReceipt()">Print Receipt</button>
+            <button class="toolbar-btn" onclick="showHistory()">Transaction History</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Help</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Deposit Services</div>
+                
+                <div class="tree-node selected" onclick="selectService(this, 'cash-deposit')">
+                    <div class="tree-icon">💵</div>
+                    Cash Deposit
+                </div>
+                
+                <div class="tree-node" onclick="selectService(this, 'check-deposit')">
+                    <div class="tree-icon">📄</div>
+                    Check Deposit
+                </div>
+                
+                <div class="tree-node" onclick="selectService(this, 'transfer-deposit')">
+                    <div class="tree-icon">🔄</div>
+                    Transfer Deposit
+                </div>
+                
+                <div class="tree-node" onclick="selectService(this, 'bulk-deposit')">
+                    <div class="tree-icon">📦</div>
+                    Bulk Deposit
+                </div>
+                
+                <div class="tree-node" onclick="selectService(this, 'deposit-history')">
+                    <div class="tree-icon">📋</div>
+                    Deposit History
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Account Deposit Transaction</div>
+                <div class="details-content">
+                    
+                    <div class="config-section">
+                        <div class="config-header">💵 Deposit Processing</div>
+                        <div class="config-content">
+                            
+                            <!-- Result Messages -->
+                            <div th:if="${result}" class="java-alert success">
+                                <strong>✅ Transaction Result:</strong><br>
+                                <span th:text="${result}">Deposit processed successfully</span>
+                            </div>
+                            
+                            <form th:action="@{/teller/deposit}" method="post">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                
+                                <!-- Account Information Section -->
+                                <fieldset>
+                                    <legend>🏦 Account Information</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Account Number:</span>
+                                        <input type="text" class="form-input" id="accountNumber" name="accountNumber" required placeholder="Enter account number">
+                                    </div>
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 12px;">Account to receive the deposit</div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Account Holder:</span>
+                                        <input type="text" class="form-input" id="accountHolder" name="accountHolder" readonly placeholder="Will be populated after account lookup">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Current Balance:</span>
+                                        <input type="text" class="form-input" id="currentBalance" name="currentBalance" readonly placeholder="Current account balance">
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin: 12px 0;">
+                                        <button type="button" class="java-btn" onclick="lookupAccount()">Lookup Account</button>
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Deposit Details Section -->
+                                <fieldset>
+                                    <legend>💵 Deposit Details</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Deposit Type:</span>
+                                        <select class="form-select" id="depositType" name="depositType" onchange="updateDepositFields()">
+                                            <option value="CASH">Cash Deposit</option>
+                                            <option value="CHECK">Check Deposit</option>
+                                            <option value="TRANSFER">Transfer Deposit</option>
+                                            <option value="MONEY_ORDER">Money Order</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Deposit Amount:</span>
+                                        <input type="number" step="0.01" class="form-input" id="amount" name="amount" required placeholder="0.00">
+                                    </div>
+                                    <div style="font-size: 10px; color: #666; margin-bottom: 12px;">Amount to be deposited into the account</div>
+                                    
+                                    <div class="form-row" id="checkNumberRow" style="display: none;">
+                                        <span class="form-label">Check Number:</span>
+                                        <input type="text" class="form-input" id="checkNumber" name="checkNumber" placeholder="Check number">
+                                    </div>
+                                    
+                                    <div class="form-row" id="referenceRow">
+                                        <span class="form-label">Reference Number:</span>
+                                        <input type="text" class="form-input" id="referenceNumber" name="referenceNumber" placeholder="Transaction reference">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Description:</span>
+                                        <textarea class="form-input" id="description" name="description" rows="2" placeholder="Deposit description or notes"></textarea>
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Customer Information Section -->
+                                <fieldset>
+                                    <legend>👤 Customer Information</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Name:</span>
+                                        <input type="text" class="form-input" id="customerName" name="customerName" placeholder="Name of person making deposit">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Phone Number:</span>
+                                        <input type="tel" class="form-input" id="phoneNumber" name="phoneNumber" placeholder="+234-xxx-xxx-xxxx">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">ID Type:</span>
+                                        <select class="form-select" id="idType" name="idType">
+                                            <option value="">Select ID Type</option>
+                                            <option value="DRIVERS_LICENSE">Driver's License</option>
+                                            <option value="PASSPORT">Passport</option>
+                                            <option value="NATIONAL_ID">National ID</option>
+                                            <option value="VOTER_ID">Voter ID</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">ID Number:</span>
+                                        <input type="text" class="form-input" id="idNumber" name="idNumber" placeholder="Identification number">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Transaction Summary -->
+                                <fieldset style="background: #f8f8f8;">
+                                    <legend>📊 Transaction Summary</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Deposit Amount:</span>
+                                        <input type="text" class="form-input" id="summaryAmount" readonly placeholder="0.00">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Processing Fee:</span>
+                                        <input type="text" class="form-input" id="processingFee" value="0.00" readonly>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Net Deposit:</span>
+                                        <input type="text" class="form-input" id="netDeposit" readonly placeholder="0.00">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">New Balance:</span>
+                                        <input type="text" class="form-input" id="newBalance" readonly placeholder="Will be calculated">
+                                    </div>
+                                </fieldset>
+                                
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <button type="button" class="java-btn" onclick="calculateSummary()">Calculate Summary</button>
+                                    <button type="submit" class="java-btn primary">💵 Process Deposit</button>
+                                    <button type="button" class="java-btn" onclick="clearForm()">Clear Form</button>
+                                </div>
+                            </form>
+                            
+                            <div th:unless="${result}" style="background: #f8f8f8; border: 1px inset #c0c0c0; padding: 12px; margin-top: 16px; font-size: 11px; color: #666;">
+                                <strong>Instructions:</strong> Enter the account number and lookup account details. 
+                                Fill in deposit amount and customer information, then process the deposit.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Teller Console Ready | Service: Deposit Processing | Session: Active</span>
+            <span>Transaction Status: <span id="transactionStatus">Ready</span></span>
+        </div>
+    </div>
+    
+    <script>
+        function selectService(element, serviceType) {
+            // Update tree selection
+            if (element) {
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+            
+            // Update status
+            document.getElementById('transactionStatus').textContent = 'Service: ' + serviceType.replace('-', ' ').toUpperCase();
+            
+            // In a real application, this would load different service forms
+            alert('Service selected: ' + serviceType.replace('-', ' ').toUpperCase());
+        }
+        
+        function lookupAccount() {
+            const accountNumber = document.getElementById('accountNumber').value;
+            
+            if (!accountNumber) {
+                alert('❌ Please enter an account number first.');
+                return;
+            }
+            
+            // Simulate account lookup
+            document.getElementById('transactionStatus').textContent = 'Looking up account...';
+            
+            setTimeout(() => {
+                // Simulate account data
+                document.getElementById('accountHolder').value = 'John Doe';
+                document.getElementById('currentBalance').value = '₦25,450.00';
+                alert('✅ Account found!\\n\\nAccount Holder: John Doe\\nAccount Type: Savings\\nStatus: Active\\nCurrent Balance: ₦25,450.00');
+                document.getElementById('transactionStatus').textContent = 'Account Verified';
+            }, 1500);
+        }
+        
+        function updateDepositFields() {
+            const depositType = document.getElementById('depositType').value;
+            const checkNumberRow = document.getElementById('checkNumberRow');
+            
+            if (depositType === 'CHECK') {
+                checkNumberRow.style.display = 'block';
+                document.getElementById('checkNumber').required = true;
+            } else {
+                checkNumberRow.style.display = 'none';
+                document.getElementById('checkNumber').required = false;
+            }
+        }
+        
+        function calculateSummary() {
+            const amount = parseFloat(document.getElementById('amount').value || 0);
+            const currentBalance = parseFloat(document.getElementById('currentBalance').value.replace(/[₦,]/g, '') || 0);
+            const processingFee = parseFloat(document.getElementById('processingFee').value || 0);
+            
+            if (amount <= 0) {
+                alert('❌ Please enter a valid deposit amount.');
+                return;
+            }
+            
+            const netDeposit = amount - processingFee;
+            const newBalance = currentBalance + netDeposit;
+            
+            document.getElementById('summaryAmount').value = '₦' + amount.toFixed(2);
+            document.getElementById('netDeposit').value = '₦' + netDeposit.toFixed(2);
+            document.getElementById('newBalance').value = '₦' + newBalance.toFixed(2);
+            
+            document.getElementById('transactionStatus').textContent = 'Summary Calculated';
+        }
+        
+        function clearForm() {
+            if (confirm('Clear all form data?')) {
+                document.querySelector('form').reset();
+                document.getElementById('accountHolder').value = '';
+                document.getElementById('currentBalance').value = '';
+                document.getElementById('summaryAmount').value = '';
+                document.getElementById('netDeposit').value = '';
+                document.getElementById('newBalance').value = '';
+                document.getElementById('transactionStatus').textContent = 'Ready';
+                updateDepositFields();
+            }
+        }
+        
+        function newDeposit() {
+            clearForm();
+        }
+        
+        function verifyFunds() {
+            alert('💰 Verify Funds\\n\\nThis would verify fund availability in a real implementation.');
+        }
+        
+        function printReceipt() {
+            alert('🖨️ Print Receipt\\n\\nThis would print a transaction receipt in a real implementation.');
+        }
+        
+        function showHistory() {
+            alert('📋 Transaction History\\n\\nThis would show transaction history in a real implementation.');
+        }
+        
+        // Auto-update summary when amount changes
+        document.getElementById('amount').addEventListener('input', function() {
+            const amount = parseFloat(this.value || 0);
+            if (amount > 0) {
+                document.getElementById('summaryAmount').value = '₦' + amount.toFixed(2);
+                calculateSummary();
+            }
+        });
+        
+        // Initialize
+        window.onload = function() {
+            document.getElementById('transactionStatus').textContent = 'Ready';
+            updateDepositFields();
+        };
+    </script>
+</body>
+</html>

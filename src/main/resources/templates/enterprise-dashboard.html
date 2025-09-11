@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Dashboard - XyPay Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/date-fns@2.29.3/index.min.js"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Debug Alpine.js loading
+        document.addEventListener('alpine:init', () => {
+            console.log('Alpine.js initialized successfully');
+        });
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6',
+                        'success': '#10b981',
+                        'warning': '#f59e0b',
+                        'danger': '#ef4444'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen" x-data="enterpriseDashboard()">
+    <!-- Enterprise Navigation -->
+    <nav class="bg-gradient-to-r from-banking-blue to-blue-800 text-white shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-4">
+                    <!-- Hamburger Menu Button -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 rounded-md text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    <div class="flex items-center">
+                        <i class="fas fa-university text-2xl mr-3"></i>
+                        <h1 class="text-xl font-bold">XyPay Enterprise</h1>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-2 text-sm">
+                        <span class="bg-green-500 px-2 py-1 rounded-full">
+                            <i class="fas fa-circle text-xs mr-1"></i>LIVE
+                        </span>
+                        <span class="text-blue-200">System Status: Operational</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:block text-sm">
+                        <span class="text-blue-200">Last Updated:</span>
+                        <span id="lastUpdate" class="font-mono">--:--:--</span>
+                    </div>
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>SUPERUSER
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex min-h-screen">
+        <!-- Mobile Sidebar Overlay -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 z-20 bg-gray-600 bg-opacity-75 lg:hidden" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"></div>
+        
+        <!-- Enterprise Sidebar -->
+        <aside :class="[
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+            sidebarCollapsed ? 'w-16' : 'w-80'
+        ]" class="bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-30 overflow-y-auto transform transition-all duration-300 ease-in-out lg:static lg:inset-0">
+            <div class="flex items-center justify-between h-16 px-6 border-b border-gray-200">
+                <div class="flex items-center">
+                    <i class="fas fa-university text-xl text-banking-blue mr-3"></i>
+                    <span x-show="!sidebarCollapsed" class="text-xl font-bold text-banking-blue">Enterprise Console</span>
+                    <span x-show="sidebarCollapsed" class="text-xs text-gray-500">Collapsed</span>
+                </div>
+                <!-- Desktop Toggle Button -->
+                <button @click="sidebarCollapsed = !sidebarCollapsed; console.log('Toggle clicked, sidebarCollapsed:', sidebarCollapsed)" class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
+                    <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'" class="text-sm"></i>
+                </button>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-8">
+                <!-- Real-Time Metrics -->
+                <div>
+                    <h4 x-show="!sidebarCollapsed" class="text-xs font-semibold text-gray-400 uppercase mb-2">Live Metrics</h4>
+                    <div x-show="!sidebarCollapsed" class="space-y-2">
+                        <div class="bg-green-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-green-800">TPS</span>
+                                <span class="text-lg font-bold text-green-900" id="liveTPS">0</span>
+                            </div>
+                            <div class="text-xs text-green-600">Transactions/sec</div>
+                        </div>
+                        <div class="bg-blue-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-blue-800">Response Time</span>
+                                <span class="text-lg font-bold text-blue-900" id="liveResponseTime">0ms</span>
+                            </div>
+                            <div class="text-xs text-blue-600">Avg Response</div>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-purple-800">Active Users</span>
+                                <span class="text-lg font-bold text-purple-900" id="liveActiveUsers">0</span>
+                            </div>
+                            <div class="text-xs text-purple-600">Concurrent</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Banking -->
+                <div>
+                    <h4 x-show="!sidebarCollapsed" class="text-xs font-semibold text-gray-400 uppercase mb-2">Core Banking</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/customers" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Customer Management' : ''">
+                            <i class="fas fa-users w-5 text-banking-blue" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Customer Management</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full" id="customerCount">0</span>
+                        </a></li>
+                        <li><a href="/admin/accounts" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Account Management' : ''">
+                            <i class="fas fa-wallet w-5 text-green-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Account Management</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full" id="accountCount">0</span>
+                        </a></li>
+                        <li><a href="/admin/transactions" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Transaction Processing' : ''">
+                            <i class="fas fa-exchange-alt w-5 text-purple-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Transaction Processing</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full" id="transactionCount">0</span>
+                        </a></li>
+                        <li><a href="/admin/loans" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Loan Management' : ''">
+                            <i class="fas fa-hand-holding-usd w-5 text-yellow-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Loan Management</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full" id="loanCount">0</span>
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- Risk & Compliance -->
+                <div>
+                    <h4 x-show="!sidebarCollapsed" class="text-xs font-semibold text-gray-400 uppercase mb-2">Risk & Compliance</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/aml" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'AML Monitoring' : ''">
+                            <i class="fas fa-shield-alt w-5 text-red-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">AML Monitoring</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full" id="amlAlerts">0</span>
+                        </a></li>
+                        <li><a href="/admin/fraud" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Fraud Detection' : ''">
+                            <i class="fas fa-exclamation-triangle w-5 text-orange-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Fraud Detection</span>
+                            <span x-show="!sidebarCollapsed" class="ml-auto bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full" id="fraudAlerts">0</span>
+                        </a></li>
+                        <li><a href="/admin/compliance" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Compliance Reports' : ''">
+                            <i class="fas fa-clipboard-check w-5 text-indigo-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Compliance Reports</span>
+                        </a></li>
+                    </ul>
+                </div>
+
+                <!-- System Operations -->
+                <div>
+                    <h4 x-show="!sidebarCollapsed" class="text-xs font-semibold text-gray-400 uppercase mb-2">System Operations</h4>
+                    <ul class="space-y-1">
+                        <li><a href="/admin/monitoring" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'System Monitoring' : ''">
+                            <i class="fas fa-heartbeat w-5 text-green-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">System Monitoring</span>
+                        </a></li>
+                        <li><a href="/admin/treasury" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Treasury Management' : ''">
+                            <i class="fas fa-chart-line w-5 text-blue-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Treasury Management</span>
+                        </a></li>
+                        <li><a href="/admin/analytics" class="flex items-center px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors" :title="sidebarCollapsed ? 'Business Analytics' : ''">
+                            <i class="fas fa-chart-bar w-5 text-purple-600" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                            <span x-show="!sidebarCollapsed">Business Analytics</span>
+                        </a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main :class="sidebarCollapsed ? 'ml-16' : 'ml-80'" class="flex-1 ml-80">
+            <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+                <!-- Enterprise Header -->
+                <div class="bg-gradient-to-r from-banking-blue to-blue-600 text-white overflow-hidden shadow-xl rounded-lg mb-6">
+                    <div class="px-6 py-8">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h1 class="text-3xl font-bold">Enterprise Dashboard</h1>
+                                <p class="mt-2 text-blue-100">Real-time banking operations and system monitoring</p>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-sm text-blue-200">System Uptime</div>
+                                <div class="text-2xl font-bold" id="systemUptime">99.99%</div>
+                                <div class="text-xs text-blue-200">Last 30 days</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Performance Indicators -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                    <!-- Transaction Volume -->
+                    <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-exchange-alt text-green-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="text-sm font-medium text-gray-500">Transaction Volume</div>
+                                    <div class="text-2xl font-bold text-gray-900" id="transactionVolume">₦0</div>
+                                    <div class="text-sm text-green-600">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span id="transactionVolumeChange">+12.5%</span> vs last month
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Customers -->
+                    <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-users text-blue-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="text-sm font-medium text-gray-500">Active Customers</div>
+                                    <div class="text-2xl font-bold text-gray-900" id="activeCustomers">0</div>
+                                    <div class="text-sm text-blue-600">
+                                        <i class="fas fa-arrow-up mr-1"></i>
+                                        <span id="customerGrowth">+8.2%</span> vs last month
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- System Performance -->
+                    <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-tachometer-alt text-purple-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="text-sm font-medium text-gray-500">Avg Response Time</div>
+                                    <div class="text-2xl font-bold text-gray-900" id="avgResponseTime">0ms</div>
+                                    <div class="text-sm text-purple-600">
+                                        <i class="fas fa-arrow-down mr-1"></i>
+                                        <span id="responseTimeChange">-15.3%</span> vs last month
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Risk Score -->
+                    <div class="bg-white overflow-hidden shadow-lg rounded-lg">
+                        <div class="p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+                                        <i class="fas fa-shield-alt text-red-600 text-xl"></i>
+                                    </div>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <div class="text-sm font-medium text-gray-500">Risk Score</div>
+                                    <div class="text-2xl font-bold text-gray-900" id="riskScore">Low</div>
+                                    <div class="text-sm text-green-600">
+                                        <i class="fas fa-check mr-1"></i>
+                                        <span id="riskStatus">All systems normal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Transaction Trends -->
+                    <div class="bg-white shadow-lg rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">Transaction Trends</h3>
+                            <p class="text-sm text-gray-500">Last 24 hours</p>
+                        </div>
+                        <div class="p-6">
+                            <canvas id="transactionChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- System Performance -->
+                    <div class="bg-white shadow-lg rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">System Performance</h3>
+                            <p class="text-sm text-gray-500">CPU, Memory, Response Time</p>
+                        </div>
+                        <div class="p-6">
+                            <canvas id="performanceChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Real-Time Activity Feed -->
+                <div class="bg-white shadow-lg rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">Real-Time Activity</h3>
+                        <p class="text-sm text-gray-500">Live system events and transactions</p>
+                    </div>
+                    <div class="p-6">
+                        <div id="activityFeed" class="space-y-3 max-h-96 overflow-y-auto">
+                            <!-- Activity items will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function enterpriseDashboard() {
+            return {
+                sidebarOpen: false,
+                sidebarCollapsed: false,
+                
+                init() {
+                    console.log('Dashboard initialized, sidebarCollapsed:', this.sidebarCollapsed);
+                    this.initializeCharts();
+                    this.startRealTimeUpdates();
+                    this.loadInitialData();
+                },
+
+                initializeCharts() {
+                    // Transaction Trends Chart
+                    const transactionCtx = document.getElementById('transactionChart').getContext('2d');
+                    this.transactionChart = new Chart(transactionCtx, {
+                        type: 'line',
+                        data: {
+                            labels: this.generateTimeLabels(),
+                            datasets: [{
+                                label: 'Transactions',
+                                data: this.generateTransactionData(),
+                                borderColor: 'rgb(59, 130, 246)',
+                                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value.toLocaleString();
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+
+                    // Performance Chart
+                    const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+                    this.performanceChart = new Chart(performanceCtx, {
+                        type: 'line',
+                        data: {
+                            labels: this.generateTimeLabels(),
+                            datasets: [
+                                {
+                                    label: 'CPU %',
+                                    data: this.generateCPUData(),
+                                    borderColor: 'rgb(239, 68, 68)',
+                                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Memory %',
+                                    data: this.generateMemoryData(),
+                                    borderColor: 'rgb(16, 185, 129)',
+                                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Response Time (ms)',
+                                    data: this.generateResponseTimeData(),
+                                    borderColor: 'rgb(245, 158, 11)',
+                                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                                    yAxisID: 'y1'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    max: 100
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    grid: {
+                                        drawOnChartArea: false,
+                                    },
+                                }
+                            }
+                        }
+                    });
+                },
+
+                startRealTimeUpdates() {
+                    // Update every 5 seconds
+                    setInterval(() => {
+                        this.updateLiveMetrics();
+                        this.updateCharts();
+                        this.updateActivityFeed();
+                        this.updateLastUpdateTime();
+                    }, 5000);
+                },
+
+                loadInitialData() {
+                    // Load initial data from server
+                    this.fetchDashboardData();
+                },
+
+                updateLiveMetrics() {
+                    // Simulate real-time data updates
+                    const tps = Math.floor(Math.random() * 1000) + 500;
+                    const responseTime = Math.floor(Math.random() * 50) + 20;
+                    const activeUsers = Math.floor(Math.random() * 10000) + 5000;
+
+                    document.getElementById('liveTPS').textContent = tps.toLocaleString();
+                    document.getElementById('liveResponseTime').textContent = responseTime + 'ms';
+                    document.getElementById('liveActiveUsers').textContent = activeUsers.toLocaleString();
+                },
+
+                updateCharts() {
+                    // Update chart data
+                    const newTransactionData = this.generateTransactionData();
+                    const newCPUData = this.generateCPUData();
+                    const newMemoryData = this.generateMemoryData();
+                    const newResponseTimeData = this.generateResponseTimeData();
+
+                    this.transactionChart.data.datasets[0].data = newTransactionData;
+                    this.transactionChart.update('none');
+
+                    this.performanceChart.data.datasets[0].data = newCPUData;
+                    this.performanceChart.data.datasets[1].data = newMemoryData;
+                    this.performanceChart.data.datasets[2].data = newResponseTimeData;
+                    this.performanceChart.update('none');
+                },
+
+                updateActivityFeed() {
+                    const activities = [
+                        { type: 'transaction', message: 'Large transfer processed: ₦2,500,000', time: 'now', status: 'success' },
+                        { type: 'user', message: 'New customer registered: John Doe', time: '2m ago', status: 'info' },
+                        { type: 'security', message: 'Fraud attempt detected and blocked', time: '5m ago', status: 'warning' },
+                        { type: 'system', message: 'Database backup completed successfully', time: '10m ago', status: 'success' },
+                        { type: 'transaction', message: 'Bulk transfer processed: 150 transactions', time: '15m ago', status: 'success' }
+                    ];
+
+                    const randomActivity = activities[Math.floor(Math.random() * activities.length)];
+                    this.addActivityItem(randomActivity);
+                },
+
+                addActivityItem(activity) {
+                    const feed = document.getElementById('activityFeed');
+                    const activityElement = document.createElement('div');
+                    activityElement.className = 'flex items-center space-x-3 p-3 bg-gray-50 rounded-lg';
+                    
+                    const statusColor = {
+                        'success': 'text-green-600',
+                        'warning': 'text-yellow-600',
+                        'info': 'text-blue-600',
+                        'error': 'text-red-600'
+                    }[activity.status] || 'text-gray-600';
+
+                    activityElement.innerHTML = `
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-circle text-xs ${statusColor}"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-900">${activity.message}</p>
+                            <p class="text-xs text-gray-500">${activity.time}</p>
+                        </div>
+                    `;
+
+                    feed.insertBefore(activityElement, feed.firstChild);
+                    
+                    // Keep only last 10 items
+                    while (feed.children.length > 10) {
+                        feed.removeChild(feed.lastChild);
+                    }
+                },
+
+                updateLastUpdateTime() {
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString();
+                    document.getElementById('lastUpdate').textContent = timeString;
+                },
+
+                generateTimeLabels() {
+                    const labels = [];
+                    for (let i = 23; i >= 0; i--) {
+                        const time = new Date();
+                        time.setHours(time.getHours() - i);
+                        labels.push(time.getHours() + ':00');
+                    }
+                    return labels;
+                },
+
+                generateTransactionData() {
+                    return Array.from({ length: 24 }, () => Math.floor(Math.random() * 10000) + 5000);
+                },
+
+                generateCPUData() {
+                    return Array.from({ length: 24 }, () => Math.floor(Math.random() * 30) + 40);
+                },
+
+                generateMemoryData() {
+                    return Array.from({ length: 24 }, () => Math.floor(Math.random() * 20) + 60);
+                },
+
+                generateResponseTimeData() {
+                    return Array.from({ length: 24 }, () => Math.floor(Math.random() * 30) + 20);
+                },
+
+                async fetchDashboardData() {
+                    try {
+                        // Fetch real data from your backend
+                        const response = await fetch('/api/dashboard/metrics');
+                        const data = await response.json();
+                        
+                        // Update UI with real data
+                        document.getElementById('transactionVolume').textContent = '₦' + data.transactionVolume?.toLocaleString() || '0';
+                        document.getElementById('activeCustomers').textContent = data.activeCustomers?.toLocaleString() || '0';
+                        document.getElementById('avgResponseTime').textContent = data.avgResponseTime + 'ms' || '0ms';
+                        document.getElementById('riskScore').textContent = data.riskScore || 'Low';
+                        
+                    } catch (error) {
+                        console.error('Error fetching dashboard data:', error);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

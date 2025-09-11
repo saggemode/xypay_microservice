@@ -1,0 +1,125 @@
+<!-- Wallets Content -->
+<div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-900">Wallets</h1>
+    <a href="/admin/wallets/add" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+        <i class="fas fa-plus mr-2"></i>Add Wallet
+    </a>
+</div>
+
+<!-- Search and Filter Section -->
+<div class="bg-white shadow rounded-lg mb-6">
+    <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-medium text-gray-900">Search and Filter</h3>
+    </div>
+    <div class="p-6">
+        <form method="get" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">currency</label>
+                    <select name="currency" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                        <option value="">All</option>
+                        <option value="NGN" th:selected="${currency == 'NGN'}">NGN</option>
+                        <option value="USD" th:selected="${currency == 'USD'}">USD</option>
+                        <option value="EUR" th:selected="${currency == 'EUR'}">EUR</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">created at</label>
+                    <input type="date" name="createdFrom" th:value="${createdFrom}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">to</label>
+                    <input type="date" name="createdTo" th:value="${createdTo}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+                    <input type="text" name="search" th:value="${search}" placeholder="Search..." class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm">
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-search mr-2"></i>Search
+                    </button>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <form id="bulkActionForm" method="post" class="flex items-center space-x-4">
+                        <select id="bulkActionSelect" class="border border-gray-300 rounded-md px-3 py-2 text-sm">
+                            <option value="">--------</option>
+                            <option value="delete">Delete selected wallets</option>
+                        </select>
+                        <button type="button" id="bulkActionButton" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium" disabled>
+                            Go
+                        </button>
+                    </form>
+                </div>
+                <div class="text-sm text-gray-500">
+                    <span id="selectedCount">0</span> of <span th:text="${totalWallets}">0</span> selected
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Wallets Table -->
+<div class="bg-white shadow rounded-lg overflow-hidden">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left">
+                    <input type="checkbox" id="selectAll" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Alternative account number</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <a href="#" class="group inline-flex items-center">
+                        Created at
+                        <i class="fas fa-sort-up ml-1 text-blue-600"></i>
+                    </a>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            <tr th:each="wallet : ${wallets}" class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <input type="checkbox" th:value="${wallet.id}" class="row-checkbox rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-green-600" th:text="${wallet.user.username}">austin</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="${wallet.accountNumber}">7038655955</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="${wallet.alternativeAccountNumber}">8774879296</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="${wallet.currency + ' ' + #numbers.formatDecimal(wallet.balance, 1, 'COMMA', 2, 'POINT')}">NGN10,000.00</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="${wallet.currency}">NGN</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900" th:text="${#temporals.format(wallet.createdAt, 'MMM d, yyyy, h:mm a')}">Aug. 1, 2025, 9:23 p.m.</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div class="flex space-x-2">
+                        <a th:href="@{/admin/wallets/{id}(id=${wallet.id})}" class="text-blue-600 hover:text-blue-900"><i class="fas fa-eye"></i> View</a>
+                        <a th:href="@{/admin/wallets/{id}/edit(id=${wallet.id})}" class="text-green-600 hover:text-green-900"><i class="fas fa-edit"></i> Edit</a>
+                        <form th:action="@{/admin/wallets/{id}/delete(id=${wallet.id})}" method="post" class="inline">
+                            <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Are you sure you want to delete this wallet?')"><i class="fas fa-times"></i> Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="mt-4 text-sm text-gray-500">
+    <span th:text="${totalWallets}">2</span> Wallets
+</div>

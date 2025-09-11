@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="layouts/legacy-layout :: layout('User Profile Detail', ~{::section})">
+<section>
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-semibold">User Profile Detail</h1>
+            <a th:href="@{'/admin/user-profiles'}" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Back</a>
+        </div>
+
+        <div class="bg-white shadow rounded p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">User</div>
+                    <div class="font-medium" th:text="${user.username}">username</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Email</div>
+                    <div class="font-medium" th:text="${user.email}">email@example.com</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">First Name</div>
+                    <div class="font-medium" th:text="${user.firstName}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Last Name</div>
+                    <div class="font-medium" th:text="${user.lastName}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Roles</div>
+                    <div class="font-medium" th:text="${user.roles}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Enabled</div>
+                    <div class="font-medium" th:text="${user.enabled} ? 'Yes' : 'No'">Yes</div>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <h2 class="text-lg font-semibold mb-2">Profile</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <div class="text-sm text-gray-500">Phone</div>
+                        <div class="font-medium" th:text="${user.profile != null ? user.profile.phone : ''}">-</div>
+                    </div>
+                    <div>
+                        <div class="text-sm text-gray-500">Verified</div>
+                        <div class="font-medium" th:text="${user.profile != null && user.profile.isVerified} ? 'Yes' : 'No'">No</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <div class="text-sm text-gray-500">Notification Preferences</div>
+                        <div class="font-medium">
+                            <span>Email: </span><span th:text="${user.profile != null && user.profile.notifyEmail} ? 'On' : 'Off'"></span>
+                            <span class="ml-4">SMS: </span><span th:text="${user.profile != null && user.profile.notifySms} ? 'On' : 'Off'"></span>
+                            <span class="ml-4">Push: </span><span th:text="${user.profile != null && user.profile.notifyPush} ? 'On' : 'Off'"></span>
+                            <span class="ml-4">In-App: </span><span th:text="${user.profile != null && user.profile.notifyInApp} ? 'On' : 'Off'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <a th:href="@{'/admin/user-profiles/' + ${user.id} + '/edit'}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Edit</a>
+            </div>
+        </div>
+    </div>
+</section>
+</html>
+

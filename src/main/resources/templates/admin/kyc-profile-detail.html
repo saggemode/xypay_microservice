@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="layouts/legacy-layout :: layout('KYC Profile Detail', ~{::section})">
+<section>
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-2xl font-semibold">KYC Profile Detail</h1>
+            <a th:href="@{'/admin/kyc-profiles'}" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Back</a>
+        </div>
+
+        <div class="bg-white shadow rounded p-6 space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">ID</div>
+                    <div class="font-medium" th:text="${kycProfile.id}">1</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">User</div>
+                    <div class="font-medium" th:text="${kycProfile.user != null ? kycProfile.user.username : 'N/A'}">username</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">KYC Level</div>
+                    <div class="font-medium" th:text="${kycProfile.kycLevel}">TIER_1</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Approved</div>
+                    <div class="font-medium" th:text="${kycProfile.isApproved} ? 'Yes' : 'No'">No</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">BVN</div>
+                    <div class="font-medium" th:text="${kycProfile.bvn}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">NIN</div>
+                    <div class="font-medium" th:text="${kycProfile.nin}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Date of Birth</div>
+                    <div class="font-medium" th:text="${kycProfile.dateOfBirth}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Gender</div>
+                    <div class="font-medium" th:text="${kycProfile.gender}">-</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">State</div>
+                    <div class="font-medium" th:text="${kycProfile.state}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">LGA</div>
+                    <div class="font-medium" th:text="${kycProfile.lga}">-</div>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-sm text-gray-500">Address</div>
+                <div class="font-medium" th:text="${kycProfile.address}">-</div>
+            </div>
+
+            <div>
+                <div class="text-sm text-gray-500">Telephone</div>
+                <div class="font-medium" th:text="${kycProfile.telephoneNumber}">-</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <div class="text-sm text-gray-500">Created At</div>
+                    <div class="font-medium" th:text="${kycProfile.createdAt}">-</div>
+                </div>
+                <div>
+                    <div class="text-sm text-gray-500">Updated At</div>
+                    <div class="font-medium" th:text="${kycProfile.updatedAt}">-</div>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <a th:href="@{'/admin/kyc-profiles/' + ${kycProfile.id} + '/edit'}" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Edit</a>
+            </div>
+        </div>
+    </div>
+</section>
+</html>
+

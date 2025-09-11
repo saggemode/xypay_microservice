@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Configurator - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bank-blue': '#1e40af',
+                        'bank-green': '#059669',
+                        'bank-red': '#dc2626',
+                        'bank-yellow': '#d97706',
+                        'bank-gray': '#6b7280'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-bank-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                    <span class="text-blue-200">Screen Configurator</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm" sec:authentication="name">Admin User</span>
+                    <a href="/logout" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">Dynamic Screen Configurator</h2>
+            <p class="text-gray-600">Design and configure dynamic forms and screens for the banking application</p>
+        </div>
+
+        <div class="grid grid-cols-12 gap-6">
+            <!-- Screen Properties Panel -->
+            <div class="col-span-3">
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-cog text-bank-blue mr-2"></i>Screen Properties
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <form id="screenConfigForm">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Screen Code</label>
+                                    <input type="text" id="screenCode" required 
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Screen Name</label>
+                                    <input type="text" id="screenName" required 
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Screen Type</label>
+                                    <select id="screenType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                        <option value="FORM">Form</option>
+                                        <option value="LIST">List</option>
+                                        <option value="DASHBOARD">Dashboard</option>
+                                        <option value="REPORT">Report</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Access Roles</label>
+                                    <select id="accessRoles" multiple class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                        <option value="ROLE_ADMIN">Admin</option>
+                                        <option value="ROLE_TELLER">Teller</option>
+                                        <option value="ROLE_MANAGER">Manager</option>
+                                        <option value="ROLE_OFFICER">Officer</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Field Components Panel -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-puzzle-piece text-bank-green mr-2"></i>Field Components
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="addField('text')" class="bg-blue-50 hover:bg-blue-100 text-bank-blue border border-blue-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-font mr-1"></i>Text
+                            </button>
+                            <button onclick="addField('number')" class="bg-green-50 hover:bg-green-100 text-bank-green border border-green-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-hashtag mr-1"></i>Number
+                            </button>
+                            <button onclick="addField('date')" class="bg-yellow-50 hover:bg-yellow-100 text-bank-yellow border border-yellow-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-calendar mr-1"></i>Date
+                            </button>
+                            <button onclick="addField('select')" class="bg-purple-50 hover:bg-purple-100 text-purple-600 border border-purple-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-list mr-1"></i>Select
+                            </button>
+                            <button onclick="addField('checkbox')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-600 border border-indigo-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-check-square mr-1"></i>Checkbox
+                            </button>
+                            <button onclick="addField('textarea')" class="bg-gray-50 hover:bg-gray-100 text-bank-gray border border-gray-200 px-3 py-2 rounded-lg text-sm">
+                                <i class="fas fa-align-left mr-1"></i>Textarea
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Screen Preview Panel -->
+            <div class="col-span-6">
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-eye text-bank-blue mr-2"></i>Screen Preview
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <div id="previewArea" class="min-h-96 border-2 border-dashed border-gray-300 rounded-lg p-6">
+                            <div class="text-center py-16">
+                                <i class="fas fa-plus-circle text-4xl text-gray-300 mb-4"></i>
+                                <h4 class="text-lg font-medium text-gray-900 mb-2">Drag components here to build your screen</h4>
+                                <p class="text-gray-500">Or click on field components to add them</p>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex space-x-3">
+                            <button onclick="saveConfiguration()" class="bg-bank-green hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-save mr-2"></i>Save Configuration
+                            </button>
+                            <button onclick="previewConfiguration()" class="bg-bank-blue hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-eye mr-2"></i>Preview
+                            </button>
+                            <button onclick="validateConfiguration()" class="bg-bank-yellow hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-check mr-2"></i>Validate
+                            </button>
+                            <button onclick="clearPreview()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-trash mr-2"></i>Clear
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Field Properties Panel -->
+            <div class="col-span-3">
+                <div class="bg-white rounded-lg shadow mb-6">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-wrench text-bank-gray mr-2"></i>Field Properties
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <div id="fieldProperties">
+                            <div class="text-center py-8">
+                                <i class="fas fa-mouse-pointer text-2xl text-gray-300 mb-2"></i>
+                                <p class="text-gray-500 text-sm">Select a field to configure its properties</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Validation Rules Panel -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-shield-alt text-bank-red mr-2"></i>Validation Rules
+                        </h3>
+                    </div>
+                    <div class="p-4">
+                        <div id="validationRules">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Rule Type</label>
+                                    <select id="validationType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                        <option value="required">Required</option>
+                                        <option value="regex">Regex Pattern</option>
+                                        <option value="range">Range</option>
+                                        <option value="custom">Custom Script</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Error Message</label>
+                                    <input type="text" id="errorMessage" 
+                                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                </div>
+                                <button onclick="addValidationRule()" class="w-full bg-bank-red hover:bg-red-700 text-white px-4 py-2 rounded-lg">
+                                    <i class="fas fa-plus mr-2"></i>Add Rule
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let fieldCounter = 0;
+        let currentConfiguration = {
+            fields: {},
+            layout: {},
+            validations: {}
+        };
+        let selectedFieldId = null;
+
+        function addField(fieldType) {
+            fieldCounter++;
+            const fieldId = `field_${fieldCounter}`;
+            const fieldName = `${fieldType}_${fieldCounter}`;
+            
+            const fieldHtml = generateFieldHtml(fieldType, fieldId, fieldName);
+            
+            const previewArea = document.getElementById('previewArea');
+            if (previewArea.querySelector('.text-center')) {
+                previewArea.innerHTML = '';
+            }
+            
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'bg-gray-50 border border-gray-200 rounded-lg p-4 mb-4 cursor-pointer hover:bg-gray-100';
+            fieldDiv.innerHTML = fieldHtml;
+            fieldDiv.onclick = () => selectField(fieldId, fieldType, fieldName);
+            fieldDiv.id = `container_${fieldId}`;
+            
+            previewArea.appendChild(fieldDiv);
+            
+            // Add to configuration
+            currentConfiguration.fields[fieldId] = {
+                type: fieldType,
+                name: fieldName,
+                label: fieldName.replace('_', ' ').toUpperCase(),
+                required: false,
+                properties: {}
+            };
+            
+            showNotification(`${fieldType} field added successfully`, 'success');
+        }
+
+        function generateFieldHtml(fieldType, fieldId, fieldName) {
+            const label = fieldName.replace('_', ' ').toUpperCase();
+            
+            switch(fieldType) {
+                case 'text':
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}">`;
+                case 'number':
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><input type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}">`;
+                case 'date':
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}">`;
+                case 'select':
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><select class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}"><option>Option 1</option><option>Option 2</option></select>`;
+                case 'checkbox':
+                    return `<div class="flex items-center"><input type="checkbox" class="mr-2" id="${fieldId}" name="${fieldName}"><label class="text-sm font-medium text-gray-700">${label}</label></div>`;
+                case 'textarea':
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><textarea class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}" rows="3"></textarea>`;
+                default:
+                    return `<label class="block text-sm font-medium text-gray-700 mb-2">${label}</label><input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2" id="${fieldId}" name="${fieldName}">`;
+            }
+        }
+
+        function selectField(fieldId, fieldType, fieldName) {
+            selectedFieldId = fieldId;
+            
+            // Highlight selected field
+            document.querySelectorAll('[id^="container_"]').forEach(el => {
+                el.classList.remove('ring-2', 'ring-bank-blue');
+            });
+            document.getElementById(`container_${fieldId}`).classList.add('ring-2', 'ring-bank-blue');
+            
+            const propertiesDiv = document.getElementById('fieldProperties');
+            propertiesDiv.innerHTML = `
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Field Name</label>
+                        <input type="text" value="${fieldName}" onchange="updateFieldProperty('${fieldId}', 'name', this.value)"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Label</label>
+                        <input type="text" value="${currentConfiguration.fields[fieldId].label}" onchange="updateFieldProperty('${fieldId}', 'label', this.value)"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <div class="flex items-center">
+                        <input type="checkbox" ${currentConfiguration.fields[fieldId].required ? 'checked' : ''} onchange="updateFieldProperty('${fieldId}', 'required', this.checked)" class="mr-2">
+                        <label class="text-sm font-medium text-gray-700">Required</label>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">CSS Class</label>
+                        <input type="text" placeholder="Additional CSS classes" onchange="updateFieldProperty('${fieldId}', 'cssClass', this.value)"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                    </div>
+                    <button onclick="removeField('${fieldId}')" class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg">
+                        <i class="fas fa-trash mr-2"></i>Remove Field
+                    </button>
+                </div>
+            `;
+        }
+
+        function updateFieldProperty(fieldId, property, value) {
+            currentConfiguration.fields[fieldId][property] = value;
+            showNotification('Field property updated', 'success');
+        }
+
+        function removeField(fieldId) {
+            document.getElementById(`container_${fieldId}`).remove();
+            delete currentConfiguration.fields[fieldId];
+            document.getElementById('fieldProperties').innerHTML = `
+                <div class="text-center py-8">
+                    <i class="fas fa-mouse-pointer text-2xl text-gray-300 mb-2"></i>
+                    <p class="text-gray-500 text-sm">Select a field to configure its properties</p>
+                </div>
+            `;
+            showNotification('Field removed', 'success');
+        }
+
+        function clearPreview() {
+            document.getElementById('previewArea').innerHTML = `
+                <div class="text-center py-16">
+                    <i class="fas fa-plus-circle text-4xl text-gray-300 mb-4"></i>
+                    <h4 class="text-lg font-medium text-gray-900 mb-2">Drag components here to build your screen</h4>
+                    <p class="text-gray-500">Or click on field components to add them</p>
+                </div>
+            `;
+            currentConfiguration = { fields: {}, layout: {}, validations: {} };
+            fieldCounter = 0;
+            showNotification('Preview cleared', 'success');
+        }
+
+        function saveConfiguration() {
+            const screenCode = document.getElementById('screenCode').value;
+            const screenName = document.getElementById('screenName').value;
+            const screenType = document.getElementById('screenType').value;
+            const accessRoles = Array.from(document.getElementById('accessRoles').selectedOptions).map(option => option.value);
+
+            if (!screenCode || !screenName) {
+                showNotification('Please fill in screen code and name', 'error');
+                return;
+            }
+
+            const configData = {
+                screenCode: screenCode,
+                screenName: screenName,
+                screenType: screenType,
+                layoutConfig: currentConfiguration.layout,
+                fieldConfig: currentConfiguration.fields,
+                validationRules: currentConfiguration.validations,
+                accessRoles: accessRoles,
+                createdBy: 'ADMIN'
+            };
+
+            fetch('/admin/screen-configurator/screen-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(configData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Configuration saved successfully!', 'success');
+                } else {
+                    showNotification('Error: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to save configuration', 'error');
+            });
+        }
+
+        function previewConfiguration() {
+            const configData = {
+                screenName: document.getElementById('screenName').value,
+                screenType: document.getElementById('screenType').value,
+                layoutConfig: currentConfiguration.layout,
+                fieldConfig: currentConfiguration.fields,
+                validationRules: currentConfiguration.validations
+            };
+
+            fetch('/admin/screen-configurator/preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(configData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Preview generated:', data);
+                showNotification('Preview generated successfully!', 'success');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to generate preview', 'error');
+            });
+        }
+
+        function validateConfiguration() {
+            const fieldCount = Object.keys(currentConfiguration.fields).length;
+            if (fieldCount === 0) {
+                showNotification('No fields to validate', 'error');
+                return;
+            }
+            
+            showNotification(`Configuration validation completed! ${fieldCount} fields validated.`, 'success');
+        }
+
+        function addValidationRule() {
+            const validationType = document.getElementById('validationType').value;
+            const errorMessage = document.getElementById('errorMessage').value;
+            
+            if (!selectedFieldId) {
+                showNotification('Please select a field first', 'error');
+                return;
+            }
+            
+            if (!errorMessage) {
+                showNotification('Please enter an error message', 'error');
+                return;
+            }
+            
+            if (!currentConfiguration.validations[selectedFieldId]) {
+                currentConfiguration.validations[selectedFieldId] = [];
+            }
+            
+            currentConfiguration.validations[selectedFieldId].push({
+                type: validationType,
+                message: errorMessage
+            });
+            
+            document.getElementById('errorMessage').value = '';
+            showNotification(`Validation rule added: ${validationType}`, 'success');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Account Opening Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .form-label { min-width: 120px; font-weight: bold; font-size: 11px; }
+        .form-input, .form-select { flex: 1; padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; } .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Account Opening Console - Customer Service Interface</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Account</span>
+            <span class="menu-item">KYC</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn">New Account</button>
+            <button class="toolbar-btn">Search Customer</button>
+            <button class="toolbar-btn">KYC Check</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Save Draft</button>
+            <button class="toolbar-btn">Submit</button>
+            <button class="toolbar-btn">Print</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Calculator</button>
+            <button class="toolbar-btn">Documents</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Account Services</div>
+                <div class="tree-node selected" onclick="selectAccountModule(this, 'opening')">
+                    <div>🆕</div> New Account Opening
+                </div>
+                <div class="tree-node" onclick="selectAccountModule(this, 'pending')">
+                    <div>⏳</div> Pending Applications
+                </div>
+                <div class="tree-node" onclick="selectAccountModule(this, 'approved')">
+                    <div>✅</div> Approved Accounts
+                </div>
+                <div class="tree-node" onclick="selectAccountModule(this, 'rejected')">
+                    <div>❌</div> Rejected Applications
+                </div>
+                <div class="tree-node" onclick="selectAccountModule(this, 'types')">
+                    <div>📋</div> Account Types
+                </div>
+                <div class="tree-node" onclick="selectAccountModule(this, 'reports')">
+                    <div>📊</div> Opening Reports
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Account Opening Processing</div>
+                <div class="p-4" id="account-content">
+                    <!-- Account Opening Form -->
+                    <div class="config-section">
+                        <div class="config-header">New Account Application</div>
+                        <div class="p-3">
+                            <form action="/cso/account-opening" method="post" th:action="@{/cso/account-opening}">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                
+                                <!-- Customer Information -->
+                                <fieldset>
+                                    <legend>Customer Information</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Search:</span>
+                                        <input type="text" class="form-input" id="customerSearch" placeholder="Search by phone, email, or ID">
+                                        <button type="button" class="java-btn" onclick="searchExistingCustomer()">Search</button>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">First Name:</span>
+                                        <input type="text" class="form-input" id="firstName" name="firstName" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Last Name:</span>
+                                        <input type="text" class="form-input" id="lastName" name="lastName" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Full Name:</span>
+                                        <input type="text" class="form-input" id="customerName" name="customerName" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Phone Number:</span>
+                                        <input type="tel" class="form-input" id="phoneNumber" name="phoneNumber" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Email Address:</span>
+                                        <input type="email" class="form-input" id="emailAddress" name="emailAddress">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Date of Birth:</span>
+                                        <input type="date" class="form-input" id="dateOfBirth" name="dateOfBirth" required>
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Account Details -->
+                                <fieldset>
+                                    <legend>Account Details</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Account Type:</span>
+                                        <select class="form-select" id="accountType" name="accountType" required onchange="updateAccountFeatures()">
+                                            <option value="">Select Account Type</option>
+                                            <option value="savings">Savings Account</option>
+                                            <option value="current">Current Account</option>
+                                            <option value="fixed_deposit">Fixed Deposit</option>
+                                            <option value="student">Student Account</option>
+                                            <option value="business">Business Account</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Currency:</span>
+                                        <select class="form-select" id="currency" name="currency" required>
+                                            <option value="NGN">Nigerian Naira (NGN)</option>
+                                            <option value="USD">US Dollar (USD)</option>
+                                            <option value="EUR">Euro (EUR)</option>
+                                            <option value="GBP">British Pound (GBP)</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Initial Deposit:</span>
+                                        <input type="number" class="form-input" id="initialDeposit" name="initialDeposit" min="0" step="0.01">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Branch:</span>
+                                        <select class="form-select" id="branch" name="branch" required>
+                                            <option value="">Select Branch</option>
+                                            <option value="MAIN">Main Branch - Lagos</option>
+                                            <option value="ABUJA">Abuja Branch</option>
+                                            <option value="KANO">Kano Branch</option>
+                                            <option value="PHC">Port Harcourt Branch</option>
+                                        </select>
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- KYC Information -->
+                                <fieldset>
+                                    <legend>KYC Information</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Legal ID Type:</span>
+                                        <select class="form-select" id="legalIdType" name="legalIdType" required>
+                                            <option value="">Select ID Type</option>
+                                            <option value="BVN">Bank Verification Number (BVN)</option>
+                                            <option value="NIN">National ID Number (NIN)</option>
+                                            <option value="PASSPORT">International Passport</option>
+                                            <option value="DRIVERS_LICENSE">Driver's License</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Legal ID Number:</span>
+                                        <input type="text" class="form-input" id="legalId" name="legalId" required>
+                                        <button type="button" class="java-btn" onclick="verifyLegalId()">Verify</button>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">KYC Status:</span>
+                                        <select class="form-select" id="kycStatus" name="kycStatus" required>
+                                            <option value="BASIC">Basic KYC</option>
+                                            <option value="ENHANCED">Enhanced KYC</option>
+                                            <option value="PREMIUM">Premium KYC</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Address:</span>
+                                        <textarea class="form-input" id="address" name="address" rows="3"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Occupation:</span>
+                                        <input type="text" class="form-input" id="occupation" name="occupation">
+                                    </div>
+                                </fieldset>
+                                
+                                <div class="text-center mt-5">
+                                    <button type="submit" class="java-btn primary">Submit Application</button>
+                                    <button type="button" class="java-btn" onclick="saveDraft()">Save as Draft</button>
+                                    <button type="button" class="java-btn" onclick="clearForm()">Clear Form</button>
+                                    <button type="button" class="java-btn" onclick="previewAccount()">Preview</button>
+                                </div>
+                            </form>
+                            
+                            <div th:if="${result}" class="mt-4 p-3 bg-blue-100 border border-blue-300 rounded text-blue-800">
+                                <strong>Result:</strong> <span th:text="${result}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Account Opening Console Ready | Applications Today: <span id="applicationsToday">8</span> | Pending Approval: <span id="pendingApproval">15</span></span>
+            <span>CSO: <span sec:authentication="name">cso@xypay.com</span> | Session: Active</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectAccountModule(element, moduleType) {
+            document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const content = document.getElementById('account-content');
+            switch(moduleType) {
+                case 'pending':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Pending Applications</div><div class="p-3"><table class="java-table"><tr><th>ID</th><th>Customer</th><th>Type</th><th>Date</th><th>Status</th></tr><tr><td>ACC001234</td><td>Jane Smith</td><td>Savings</td><td>2024-01-15</td><td style="color: orange;">Under Review</td></tr></table></div></div>';
+                    break;
+                case 'approved':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Approved Accounts</div><div class="p-3"><table class="java-table"><tr><th>Account</th><th>Customer</th><th>Type</th><th>Balance</th><th>Status</th></tr><tr><td>1234567890</td><td>John Doe</td><td>Savings</td><td>₦5,000</td><td style="color: green;">Active</td></tr></table></div></div>';
+                    break;
+                default:
+                    location.reload();
+            }
+        }
+        
+        function searchExistingCustomer() {
+            const searchTerm = document.getElementById('customerSearch').value;
+            if (searchTerm) {
+                alert('Searching for: ' + searchTerm);
+                document.getElementById('firstName').value = 'John';
+                document.getElementById('lastName').value = 'Doe';
+                document.getElementById('customerName').value = 'John Doe';
+                document.getElementById('phoneNumber').value = '+234-xxx-xxxx';
+                document.getElementById('emailAddress').value = 'john.doe@email.com';
+            }
+        }
+        
+        function updateAccountFeatures() {
+            const accountType = document.getElementById('accountType').value;
+            const initialDepositField = document.getElementById('initialDeposit');
+            const minimumDeposits = { 'savings': 1000, 'current': 5000, 'fixed_deposit': 50000, 'student': 500, 'business': 10000 };
+            if (minimumDeposits[accountType]) {
+                initialDepositField.min = minimumDeposits[accountType];
+                initialDepositField.placeholder = 'Minimum: ₦' + minimumDeposits[accountType].toLocaleString();
+            }
+        }
+        
+        function verifyLegalId() {
+            const legalId = document.getElementById('legalId').value;
+            const idType = document.getElementById('legalIdType').value;
+            if (legalId && idType) {
+                alert('Verifying ' + idType + ': ' + legalId);
+                setTimeout(() => alert('ID verification successful'), 1000);
+            } else {
+                alert('Please select ID type and enter ID number');
+            }
+        }
+        
+        function saveDraft() { alert('Account application saved as draft'); }
+        function clearForm() { document.querySelector('form').reset(); }
+        function previewAccount() {
+            const customerName = document.getElementById('customerName').value;
+            const accountType = document.getElementById('accountType').value;
+            if (customerName && accountType) {
+                alert('Preview: ' + accountType + ' account for ' + customerName);
+            } else {
+                alert('Please fill in customer name and account type first');
+            }
+        }
+        
+        // Auto-populate full name
+        document.getElementById('firstName').addEventListener('input', updateFullName);
+        document.getElementById('lastName').addEventListener('input', updateFullName);
+        function updateFullName() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            document.getElementById('customerName').value = (firstName + ' ' + lastName).trim();
+        }
+        
+        window.onload = function() {
+            document.getElementById('applicationsToday').textContent = '8';
+            document.getElementById('pendingApproval').textContent = '15';
+        };
+    </script>
+</body>
+</html>

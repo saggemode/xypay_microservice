@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitoring - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6 flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">📊 System Monitoring</h2>
+                    <p class="mt-1 text-sm text-gray-600">Real-time system performance, metrics, and activity monitoring</p>
+                </div>
+                <button class="bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-200" onclick="location.reload()">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div class="bg-gradient-to-r from-banking-blue to-blue-600 text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100">Total Users</p>
+                        <p class="text-3xl font-bold" th:text="${totalUsers ?: '0'}">0</p>
+                    </div>
+                    <i class="fas fa-users text-4xl text-blue-200"></i>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100">Total Accounts</p>
+                        <p class="text-3xl font-bold" th:text="${totalAccounts ?: '0'}">0</p>
+                    </div>
+                    <i class="fas fa-university text-4xl text-green-200"></i>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100">Total Transactions</p>
+                        <p class="text-3xl font-bold" th:text="${totalTransactions ?: '0'}">0</p>
+                    </div>
+                    <i class="fas fa-exchange-alt text-4xl text-purple-200"></i>
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-r from-yellow-500 to-yellow-600 text-white p-6 rounded-lg shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100">Audit Logs</p>
+                        <p class="text-3xl font-bold" th:text="${totalAuditLogs ?: '0'}">0</p>
+                    </div>
+                    <i class="fas fa-clipboard-list text-4xl text-yellow-200"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- System Metrics -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">🖥️ System Metrics</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div th:each="metric : ${metrics ?: {}}" class="bg-gray-50 p-4 rounded-lg border-l-4 border-banking-blue">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="font-medium text-gray-900" th:text="${metric.name}">CPU Usage</span>
+                                    <span class="text-2xl" th:text="${metric.icon}">💻</span>
+                                </div>
+                                <div class="text-xl font-bold text-banking-blue" th:text="${metric.value}">45%</div>
+                                <div class="text-sm text-green-600" th:text="${metric.status}">Normal</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance Metrics -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">⚡ Performance Metrics</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div th:each="perf : ${performanceMetrics ?: {}}" class="text-center bg-gray-50 p-4 rounded-lg">
+                                <div class="text-2xl font-bold text-banking-blue" th:text="${perf.value}">250ms</div>
+                                <div class="text-sm text-gray-600" th:text="${perf.name}">Response Time</div>
+                                <div class="text-xs text-green-600 font-medium" th:text="${perf.status}">Good</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- System Alerts -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">🚨 System Alerts</h3>
+                        <div class="space-y-3 max-h-80 overflow-y-auto">
+                            <div th:each="alert : ${alerts ?: {}}" 
+                                 th:class="'p-3 rounded-lg border-l-4 ' + 
+                                          (${alert.type} == 'WARNING' ? 'bg-yellow-50 border-yellow-400' : 
+                                           ${alert.type} == 'INFO' ? 'bg-blue-50 border-blue-400' : 
+                                           'bg-green-50 border-green-400')">
+                                <div class="font-medium text-gray-900" th:text="${alert.title}">System Update</div>
+                                <div class="text-sm text-gray-600" th:text="${alert.message}">System updated successfully</div>
+                                <div class="text-xs text-gray-500 mt-1" th:text="${alert.timestamp}">2 minutes ago</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">📝 Recent Activity</h3>
+                        
+                        <!-- Search and Export -->
+                        <div class="mb-4 space-y-2">
+                            <input type="text" id="logSearch" placeholder="Search activity logs..." 
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue"
+                                   onkeyup="filterLogs()">
+                            <div class="flex justify-between items-center">
+                                <button class="bg-gray-100 text-gray-700 px-3 py-1 rounded text-sm hover:bg-gray-200" onclick="exportLogsCSV()">
+                                    Export CSV
+                                </button>
+                                <div class="text-xs text-green-600 font-medium">System Online | DB Connected</div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-3 max-h-80 overflow-y-auto">
+                            <div th:each="log : ${activityLogs ?: {}}" class="bg-gray-50 p-3 rounded-lg border-l-4 border-banking-blue">
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="font-medium text-gray-900" th:text="${log.action}">User Login</span>
+                                    <span class="text-xs text-gray-500" th:text="${log.timestamp}">5 mins ago</span>
+                                </div>
+                                <div class="text-sm text-banking-blue font-medium" th:text="${log.user}">admin@xypay.com</div>
+                                <div class="text-sm text-gray-600" th:text="${log.details}">Successful login from 192.168.1.1</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-6">
+            <a href="/superuser/dashboard" class="bg-gradient-to-r from-pink-500 to-red-500 text-white px-6 py-3 rounded-full hover:from-pink-600 hover:to-red-600 transition duration-200 inline-flex items-center">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // Auto-refresh every 30 seconds
+        setTimeout(function() {
+            location.reload();
+        }, 30000);
+
+        function filterLogs() {
+            var search = document.getElementById('logSearch').value.toLowerCase();
+            var logs = document.querySelectorAll('[th\\:each*="activityLogs"]');
+            logs.forEach(function(log) {
+                var text = log.innerText.toLowerCase();
+                log.style.display = text.includes(search) ? '' : 'none';
+            });
+        }
+
+        function exportLogsCSV() {
+            var csv = 'Time,User,Action,Details\n';
+            var logs = document.querySelectorAll('[th\\:each*="activityLogs"]');
+            logs.forEach(function(log) {
+                if (log.style.display !== 'none') {
+                    var cells = log.querySelectorAll('div');
+                    if (cells.length >= 3) {
+                        var line = '"' + cells[1].innerText + '","' + cells[2].innerText + '","' + cells[0].innerText + '","' + cells[3].innerText + '"';
+                        csv += line + '\n';
+                    }
+                }
+            });
+            var blob = new Blob([csv], {type: 'text/csv'});
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'activity-logs.csv';
+            link.click();
+        }
+    </script>
+</body>
+</html>

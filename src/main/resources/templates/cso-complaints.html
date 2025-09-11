@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Complaints Management Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .form-label { min-width: 120px; font-weight: bold; font-size: 11px; }
+        .form-input, .form-select { flex: 1; padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; } .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Complaints Management Console - Customer Service Interface</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Complaints</span>
+            <span class="menu-item">Resolution</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn">New Complaint</button>
+            <button class="toolbar-btn">Search Customer</button>
+            <button class="toolbar-btn">Escalate</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Save Draft</button>
+            <button class="toolbar-btn">Submit</button>
+            <button class="toolbar-btn">Print</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Templates</button>
+            <button class="toolbar-btn">History</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Complaint Management</div>
+                <div class="tree-node selected" onclick="selectComplaintModule(this, 'new')">
+                    <div>📝</div> New Complaint
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'pending')">
+                    <div>⏳</div> Pending Complaints
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'in-progress')">
+                    <div>🔄</div> In Progress
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'resolved')">
+                    <div>✅</div> Resolved
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'escalated')">
+                    <div>⚠️</div> Escalated
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'categories')">
+                    <div>📋</div> Categories
+                </div>
+                <div class="tree-node" onclick="selectComplaintModule(this, 'reports')">
+                    <div>📊</div> Reports
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Complaint Processing</div>
+                <div class="p-4" id="complaint-content">
+                    <!-- New Complaint Form -->
+                    <div class="config-section">
+                        <div class="config-header">New Customer Complaint</div>
+                        <div class="p-3">
+                            <form action="/cso/complaints" method="post" th:action="@{/cso/complaints}">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                
+                                <!-- Customer Information -->
+                                <fieldset>
+                                    <legend>Customer Information</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Search:</span>
+                                        <input type="text" class="form-input" id="customerSearch" placeholder="Search by account, phone, or email">
+                                        <button type="button" class="java-btn" onclick="searchCustomer()">Search</button>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Name:</span>
+                                        <input type="text" class="form-input" id="customerName" name="customerName" required>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Account Number:</span>
+                                        <input type="text" class="form-input" id="accountNumber" name="accountNumber">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Phone Number:</span>
+                                        <input type="tel" class="form-input" id="phoneNumber" name="phoneNumber">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Email Address:</span>
+                                        <input type="email" class="form-input" id="emailAddress" name="emailAddress">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Complaint Details -->
+                                <fieldset>
+                                    <legend>Complaint Details</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Category:</span>
+                                        <select class="form-select" id="complaintCategory" name="complaintCategory" required onchange="updateSubcategories()">
+                                            <option value="">Select Category</option>
+                                            <option value="TRANSACTION">Transaction Issues</option>
+                                            <option value="ACCOUNT">Account Problems</option>
+                                            <option value="CARD">Card Related</option>
+                                            <option value="SERVICE">Service Quality</option>
+                                            <option value="FEES">Fees and Charges</option>
+                                            <option value="TECHNICAL">Technical Issues</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Subcategory:</span>
+                                        <select class="form-select" id="complaintSubcategory" name="complaintSubcategory">
+                                            <option value="">Select Subcategory</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Priority Level:</span>
+                                        <select class="form-select" id="priorityLevel" name="priorityLevel" required>
+                                            <option value="LOW">Low</option>
+                                            <option value="MEDIUM" selected>Medium</option>
+                                            <option value="HIGH">High</option>
+                                            <option value="URGENT">Urgent</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Subject:</span>
+                                        <input type="text" class="form-input" id="complaintSubject" name="complaintSubject" required placeholder="Brief summary">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Description:</span>
+                                        <textarea class="form-input" id="complaint" name="complaint" rows="6" required placeholder="Detailed description"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Incident Date:</span>
+                                        <input type="datetime-local" class="form-input" id="incidentDate" name="incidentDate">
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Transaction Ref:</span>
+                                        <input type="text" class="form-input" id="transactionRef" name="transactionRef" placeholder="If transaction-related">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Resolution Information -->
+                                <fieldset>
+                                    <legend>Resolution Information</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Expected Resolution:</span>
+                                        <select class="form-select" id="expectedResolution" name="expectedResolution">
+                                            <option value="">Select Expected Resolution</option>
+                                            <option value="REFUND">Refund</option>
+                                            <option value="REVERSAL">Transaction Reversal</option>
+                                            <option value="ACCOUNT_FIX">Account Fix</option>
+                                            <option value="CARD_REPLACEMENT">Card Replacement</option>
+                                            <option value="EXPLANATION">Explanation/Clarification</option>
+                                            <option value="COMPENSATION">Compensation</option>
+                                            <option value="OTHER">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Assigned To:</span>
+                                        <select class="form-select" id="assignedTo" name="assignedTo">
+                                            <option value="">Auto-assign</option>
+                                            <option value="CSO_TEAM">CSO Team</option>
+                                            <option value="TECHNICAL_TEAM">Technical Team</option>
+                                            <option value="OPERATIONS_TEAM">Operations Team</option>
+                                            <option value="MANAGEMENT">Management</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Target Date:</span>
+                                        <input type="date" class="form-input" id="targetResolutionDate" name="targetResolutionDate">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Additional Information -->
+                                <fieldset>
+                                    <legend>Additional Information</legend>
+                                    <div class="form-row">
+                                        <span class="form-label">Channel:</span>
+                                        <select class="form-select" id="communicationChannel" name="communicationChannel">
+                                            <option value="PHONE">Phone Call</option>
+                                            <option value="EMAIL">Email</option>
+                                            <option value="BRANCH">Branch Visit</option>
+                                            <option value="ONLINE">Online Portal</option>
+                                            <option value="MOBILE_APP">Mobile App</option>
+                                            <option value="SOCIAL_MEDIA">Social Media</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Mood:</span>
+                                        <select class="form-select" id="customerMood" name="customerMood">
+                                            <option value="CALM">Calm</option>
+                                            <option value="FRUSTRATED">Frustrated</option>
+                                            <option value="ANGRY">Angry</option>
+                                            <option value="DISAPPOINTED">Disappointed</option>
+                                            <option value="CONFUSED">Confused</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">CSO Notes:</span>
+                                        <textarea class="form-input" id="csoNotes" name="csoNotes" rows="4" placeholder="Internal notes"></textarea>
+                                    </div>
+                                    <div class="form-row">
+                                        <span class="form-label">Attachments:</span>
+                                        <input type="file" class="form-input" id="attachments" name="attachments" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                    </div>
+                                </fieldset>
+                                
+                                <div class="text-center mt-5">
+                                    <button type="submit" class="java-btn primary">Submit Complaint</button>
+                                    <button type="button" class="java-btn" onclick="saveDraft()">Save as Draft</button>
+                                    <button type="button" class="java-btn" onclick="clearForm()">Clear Form</button>
+                                    <button type="button" class="java-btn" onclick="previewComplaint()">Preview</button>
+                                </div>
+                            </form>
+                            
+                            <div th:if="${result}" class="mt-4 p-3 bg-blue-100 border border-blue-300 rounded text-blue-800">
+                                <strong>Result:</strong> <span th:text="${result}"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Complaints Console Ready | Today's Complaints: <span id="todayComplaints">12</span> | Pending Resolution: <span id="pendingResolution">8</span></span>
+            <span>CSO: <span sec:authentication="name">cso@xypay.com</span> | Session: Active</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectComplaintModule(element, moduleType) {
+            document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const content = document.getElementById('complaint-content');
+            switch(moduleType) {
+                case 'pending':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Pending Complaints</div><div class="p-3"><table class="java-table"><tr><th>ID</th><th>Customer</th><th>Category</th><th>Priority</th><th>Date</th><th>Status</th></tr><tr><td>CMP001234</td><td>John Doe</td><td>Transaction</td><td style="color: orange;">Medium</td><td>2024-01-15</td><td style="color: blue;">Pending</td></tr></table></div></div>';
+                    break;
+                case 'in-progress':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">In Progress</div><div class="p-3"><table class="java-table"><tr><th>ID</th><th>Customer</th><th>Category</th><th>Assigned To</th><th>Progress</th><th>Due Date</th></tr><tr><td>CMP001235</td><td>Jane Smith</td><td>Account</td><td>Technical Team</td><td>60%</td><td>2024-01-20</td></tr></table></div></div>';
+                    break;
+                case 'resolved':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Resolved Complaints</div><div class="p-3"><table class="java-table"><tr><th>ID</th><th>Customer</th><th>Category</th><th>Resolution</th><th>Date</th><th>Satisfaction</th></tr><tr><td>CMP001236</td><td>Mike Johnson</td><td>Card</td><td>Card Replaced</td><td>2024-01-10</td><td style="color: green;">Satisfied</td></tr></table></div></div>';
+                    break;
+                case 'categories':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Complaint Categories</div><div class="p-3"><table class="java-table"><tr><th>Category</th><th>Total</th><th>Pending</th><th>Resolved</th><th>Avg Time</th></tr><tr><td>Transaction</td><td>45</td><td>8</td><td>37</td><td>2.3 days</td></tr><tr><td>Account</td><td>32</td><td>5</td><td>27</td><td>1.8 days</td></tr></table></div></div>';
+                    break;
+                default:
+                    location.reload();
+            }
+        }
+        
+        function searchCustomer() {
+            const searchTerm = document.getElementById('customerSearch').value;
+            if (searchTerm) {
+                alert('Searching for customer: ' + searchTerm);
+                document.getElementById('customerName').value = 'Jane Smith';
+                document.getElementById('accountNumber').value = '1234567890';
+                document.getElementById('phoneNumber').value = '+234-xxx-xxxx';
+                document.getElementById('emailAddress').value = 'jane.smith@email.com';
+            }
+        }
+        
+        function updateSubcategories() {
+            const category = document.getElementById('complaintCategory').value;
+            const subcategorySelect = document.getElementById('complaintSubcategory');
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+            
+            const subcategories = {
+                'TRANSACTION': ['Failed Transaction', 'Wrong Amount Debited', 'Duplicate Charge', 'Transaction Not Reflected'],
+                'ACCOUNT': ['Account Blocked', 'Balance Discrepancy', 'Statement Issues', 'Account Closure'],
+                'CARD': ['Card Not Working', 'ATM Issues', 'Card Blocked', 'PIN Problems'],
+                'SERVICE': ['Poor Customer Service', 'Long Wait Time', 'Rude Staff', 'Branch Issues'],
+                'FEES': ['Unexpected Charges', 'High Fees', 'Fee Dispute', 'Commission Issues'],
+                'TECHNICAL': ['App Not Working', 'Website Issues', 'System Downtime', 'Login Problems'],
+                'OTHER': ['General Inquiry', 'Feedback', 'Suggestion', 'Other Issues']
+            };
+            
+            if (subcategories[category]) {
+                subcategories[category].forEach(sub => {
+                    const option = document.createElement('option');
+                    option.value = sub.toUpperCase().replace(/ /g, '_');
+                    option.textContent = sub;
+                    subcategorySelect.appendChild(option);
+                });
+            }
+        }
+        
+        function saveDraft() { alert('Complaint saved as draft'); }
+        function clearForm() { 
+            document.querySelector('form').reset();
+            document.getElementById('complaintSubcategory').innerHTML = '<option value="">Select Subcategory</option>';
+        }
+        function previewComplaint() {
+            const customerName = document.getElementById('customerName').value;
+            const subject = document.getElementById('complaintSubject').value;
+            if (customerName && subject) {
+                alert('Preview: Complaint from ' + customerName + ' - ' + subject);
+            } else {
+                alert('Please fill in customer name and complaint subject first');
+            }
+        }
+        
+        // Set target resolution date based on priority
+        document.getElementById('priorityLevel').addEventListener('change', function() {
+            const priority = this.value;
+            const targetDate = document.getElementById('targetResolutionDate');
+            const today = new Date();
+            const daysToAdd = { 'URGENT': 1, 'HIGH': 2, 'MEDIUM': 5, 'LOW': 10 };
+            
+            if (daysToAdd[priority]) {
+                const targetDateValue = new Date(today);
+                targetDateValue.setDate(today.getDate() + daysToAdd[priority]);
+                targetDate.value = targetDateValue.toISOString().split('T')[0];
+            }
+        });
+        
+        window.onload = function() {
+            document.getElementById('todayComplaints').textContent = '12';
+            document.getElementById('pendingResolution').textContent = '8';
+            
+            // Set default incident date to now
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('incidentDate').value = now.toISOString().slice(0, 16);
+        };
+    </script>
+</body>
+</html>

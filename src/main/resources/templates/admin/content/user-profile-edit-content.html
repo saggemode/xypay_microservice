@@ -1,0 +1,127 @@
+<!-- User Profile Edit Content -->
+<nav class="flex mb-6" aria-label="Breadcrumb">
+    <ol class="inline-flex items-center space-x-1 md:space-x-3">
+        <li class="inline-flex items-center">
+            <a href="/admin/dashboard" class="text-gray-700 hover:text-banking-blue">Home</a>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                <a href="/admin/accounts" class="text-gray-700 hover:text-banking-blue">Accounts</a>
+            </div>
+        </li>
+        <li>
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                <a href="/admin/user-profiles" class="text-gray-700 hover:text-banking-blue">User profiles</a>
+            </div>
+        </li>
+        <li aria-current="page">
+            <div class="flex items-center">
+                <i class="fas fa-chevron-right text-gray-400 mx-1"></i>
+                <span class="text-gray-500" th:text="${user.username + ' - ' + (user.profile != null and user.profile.phone != null ? user.profile.phone : 'No phone')}">smith - +2347038655950</span>
+            </div>
+        </li>
+    </ol>
+</nav>
+
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">User profiles</h1>
+</div>
+
+<div class="bg-white shadow rounded-lg">
+    <form th:action="@{/admin/user-profiles/{id}/edit(id=${user.id})}" method="post" class="p-6">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div class="space-y-6">
+                    <div class="form-group">
+                        <label for="user" class="block text-sm font-medium text-gray-700 mb-2">User <span class="text-red-500">*</span></label>
+                        <div class="flex items-center space-x-2">
+                            <input type="text" id="user" th:value="${user.username}" class="flex-1 border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent" readonly>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600"><i class="fas fa-chevron-down"></i></button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600"><i class="fas fa-pencil-alt"></i></button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="p-2 text-gray-400 hover:text-gray-600"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+                        <input type="text" id="phone" name="phone" th:value="${user.profile != null ? user.profile.phone : ''}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="flex items-center">
+                            <input type="checkbox" id="isVerified" name="isVerified" th:checked="${user.profile != null ? user.profile.isVerified : false}" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                            <label for="isVerified" class="ml-2 block text-sm text-gray-700">Is verified</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="otpCode" class="block text-sm font-medium text-gray-700 mb-2">Otp code</label>
+                        <input type="text" id="otpCode" name="otpCode" th:value="${user.profile != null ? user.profile.otpCode : ''}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Otp expiry</label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="otpExpiryDate" class="block text-xs text-gray-500 mb-1">Date</label>
+                                <input type="date" id="otpExpiryDate" name="otpExpiryDate" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                <a href="#" class="text-xs text-banking-blue hover:underline mt-1 inline-flex items-center"><i class="fas fa-calendar mr-1"></i>Today</a>
+                            </div>
+                            <div>
+                                <label for="otpExpiryTime" class="block text-xs text-gray-500 mb-1">Time</label>
+                                <input type="time" id="otpExpiryTime" name="otpExpiryTime" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                <a href="#" class="text-xs text-banking-blue hover:underline mt-1 inline-flex items-center"><i class="fas fa-clock mr-1"></i>Now</a>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">Note: You are 1 hour ahead of server time.</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Notification Preferences</label>
+                        <div class="space-y-3">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notifyEmail" name="notifyEmail" th:checked="${user.profile != null ? user.profile.notifyEmail : true}" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <label for="notifyEmail" class="ml-2 block text-sm text-gray-700">Notify email</label>
+                                <p class="ml-2 text-xs text-gray-500">Receive notifications via email</p>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notifySms" name="notifySms" th:checked="${user.profile != null ? user.profile.notifySms : false}" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <label for="notifySms" class="ml-2 block text-sm text-gray-700">Notify SMS</label>
+                                <p class="ml-2 text-xs text-gray-500">Receive notifications via SMS</p>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notifyPush" name="notifyPush" th:checked="${user.profile != null ? user.profile.notifyPush : false}" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <label for="notifyPush" class="ml-2 block text-sm text-gray-700">Notify push</label>
+                                <p class="ml-2 text-xs text-gray-500">Receive push notifications</p>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="notifyInApp" name="notifyInApp" th:checked="${user.profile != null ? user.profile.notifyInApp : true}" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <label for="notifyInApp" class="ml-2 block text-sm text-gray-700">Notify in app</label>
+                                <p class="ml-2 text-xs text-gray-500">Receive in-app notifications</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="space-y-3">
+                    <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"><i class="fas fa-save mr-2"></i>Save</button>
+                    <form th:action="@{/admin/user-profiles/{id}/delete(id=${user.id})}" method="post" class="w-full">
+                        <button type="submit" onclick="return confirm('Are you sure you want to delete this user profile?')" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"><i class="fas fa-trash mr-2"></i>Delete</button>
+                    </form>
+                    <button type="submit" name="action" value="save_and_add_another" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"><i class="fas fa-plus mr-2"></i>Save and add another</button>
+                    <button type="submit" name="action" value="save_and_continue" class="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200"><i class="fas fa-edit mr-2"></i>Save and continue editing</button>
+                    <a th:href="@{/admin/user-profiles/{id}/history(id=${user.id})}" class="w-full bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200 inline-block text-center"><i class="fas fa-history mr-2"></i>History</a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<script>
+// Set current date and time for OTP expiry
+</script>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Error - XyPay Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-lg overflow-hidden">
+        <!-- Header -->
+        <div class="bg-red-600 text-white p-6 text-center">
+            <div class="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-2xl"></i>
+            </div>
+            <h1 class="text-xl font-bold">Server Error</h1>
+            <p class="text-red-100 text-sm mt-1">Error 500 - Internal Server Error</p>
+        </div>
+
+        <!-- Content -->
+        <div class="p-6">
+            <div class="text-center mb-6">
+                <h2 class="text-lg font-semibold text-gray-800 mb-2">Something Went Wrong</h2>
+                <p class="text-gray-600 text-sm mb-4">
+                    The XyPay banking system encountered an unexpected error while processing your request. Our technical team has been notified.
+                </p>
+            </div>
+
+            <!-- Error Details -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+                <h3 class="font-medium text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-info-circle mr-2 text-banking-blue"></i>
+                    Error Details
+                </h3>
+                <div class="text-sm text-gray-600 space-y-1">
+                    <div class="flex justify-between">
+                        <span>Status Code:</span>
+                        <span class="font-mono">500</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Error Type:</span>
+                        <span>Internal Server Error</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Timestamp:</span>
+                        <span id="errorTime" class="font-mono"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span>Reference ID:</span>
+                        <span id="errorId" class="font-mono"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Support Information -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 class="font-medium text-blue-800 mb-2 flex items-center">
+                    <i class="fas fa-headset mr-2"></i>
+                    Need Help?
+                </h3>
+                <p class="text-sm text-blue-700 mb-2">
+                    If this error persists, please contact our technical support team with the reference ID above.
+                </p>
+                <div class="text-sm text-blue-600">
+                    <div class="flex items-center mb-1">
+                        <i class="fas fa-phone mr-2"></i>
+                        <span>Support: +1-800-XYPAY-HELP</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-envelope mr-2"></i>
+                        <span>Email: support@xypay.com</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-3">
+                <button onclick="window.location.reload()" 
+                        class="w-full bg-banking-blue text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-redo mr-2"></i>
+                    Try Again
+                </button>
+                <button onclick="window.location.href='/'" 
+                        class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-home mr-2"></i>
+                    Return to Dashboard
+                </button>
+                <button onclick="history.back()" 
+                        class="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-200 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Go Back
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="bg-gray-50 px-6 py-3 border-t border-gray-200">
+            <p class="text-xs text-gray-500 text-center">
+                XyPay Banking System - Technical Support Available 24/7
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Set current timestamp
+        document.getElementById('errorTime').textContent = new Date().toLocaleString();
+        
+        // Generate random error reference ID
+        const errorId = 'ERR-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        document.getElementById('errorId').textContent = errorId;
+    </script>
+</body>
+</html>

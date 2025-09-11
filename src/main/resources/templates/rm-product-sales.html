@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay RM Product Sales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .product-card { border: 1px solid #c0c0c0; background: #f8f8f8; padding: 8px; margin: 4px 0; }
+        .product-header { font-weight: bold; color: #0078d4; margin-bottom: 4px; }
+        .product-details { font-size: 10px; color: #666; }
+        .sales-metric { text-align: center; border: 1px solid #c0c0c0; padding: 8px; background: #f8f8f8; }
+        .sales-value { font-weight: bold; font-size: 16px; }
+        .sales-label { font-size: 10px; color: #666; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay RM Product Sales Management</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Products</span>
+            <span class="menu-item">Sales</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="refreshSales()">Refresh</button>
+            <button class="toolbar-btn" onclick="newSale()">New Sale</button>
+            <button class="toolbar-btn" onclick="searchProducts()">Search</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="exportSales()">Export</button>
+            <button class="toolbar-btn" onclick="generateReport()">Report</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Settings</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Sales Modules</div>
+                
+                <div class="tree-node selected" onclick="selectSalesModule(this, 'dashboard')">
+                    <div class="tree-icon">📊</div>
+                    Sales Dashboard
+                </div>
+                
+                <div class="tree-node" onclick="selectSalesModule(this, 'products')">
+                    <div class="tree-icon">🏦</div>
+                    Banking Products
+                </div>
+                
+                <div class="tree-node" onclick="selectSalesModule(this, 'leads')">
+                    <div class="tree-icon">🎯</div>
+                    Sales Leads
+                </div>
+                
+                <div class="tree-node" onclick="selectSalesModule(this, 'opportunities')">
+                    <div class="tree-icon">💼</div>
+                    Opportunities
+                </div>
+                
+                <div class="tree-node" onclick="selectSalesModule(this, 'performance')">
+                    <div class="tree-icon">📈</div>
+                    Performance
+                </div>
+                
+                <div class="tree-node" onclick="selectSalesModule(this, 'targets')">
+                    <div class="tree-icon">🎯</div>
+                    Sales Targets
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Product Sales Management</div>
+                <div class="details-content">
+                    
+                    <!-- Sales Dashboard -->
+                    <div id="dashboard-module" class="config-section">
+                        <div class="config-header">📊 Sales Dashboard</div>
+                        <div class="config-content">
+                            
+                            <!-- Sales Metrics -->
+                            <fieldset>
+                                <legend>📈 Sales Performance Metrics</legend>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px;">
+                                    <div class="sales-metric">
+                                        <div class="sales-value" style="color: #0078d4;">₦45.2M</div>
+                                        <div class="sales-label">Monthly Sales</div>
+                                    </div>
+                                    <div class="sales-metric">
+                                        <div class="sales-value" style="color: #28a745;">127</div>
+                                        <div class="sales-label">Products Sold</div>
+                                    </div>
+                                    <div class="sales-metric">
+                                        <div class="sales-value" style="color: #ffc107;">89%</div>
+                                        <div class="sales-label">Target Achievement</div>
+                                    </div>
+                                    <div class="sales-metric">
+                                        <div class="sales-value" style="color: #dc3545;">23</div>
+                                        <div class="sales-label">Active Leads</div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Recent Sales -->
+                            <fieldset>
+                                <legend>🔄 Recent Sales Activity</legend>
+                                
+                                <div style="border: 1px inset #c0c0c0; background: white; max-height: 200px; overflow-y: auto;">
+                                    <table class="java-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Client</th>
+                                                <th>Product</th>
+                                                <th>Amount</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>2024-01-15</td>
+                                                <td>ABC Corp</td>
+                                                <td>Corporate Loan</td>
+                                                <td>₦5,000,000</td>
+                                                <td style="color: #28a745;">Approved</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2024-01-15</td>
+                                                <td>XYZ Ltd</td>
+                                                <td>Trade Finance</td>
+                                                <td>₦2,500,000</td>
+                                                <td style="color: #ffc107;">Pending</td>
+                                            </tr>
+                                            <tr>
+                                                <td>2024-01-14</td>
+                                                <td>DEF Industries</td>
+                                                <td>Investment Product</td>
+                                                <td>₦10,000,000</td>
+                                                <td style="color: #28a745;">Completed</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Banking Products -->
+                    <div id="products-module" class="config-section" style="display: none;">
+                        <div class="config-header">🏦 Banking Products Catalog</div>
+                        <div class="config-content">
+                            
+                            <!-- Product Categories -->
+                            <fieldset>
+                                <legend>📋 Product Categories</legend>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="product-card">
+                                        <div class="product-header">💰 Loans & Credit</div>
+                                        <div class="product-details">
+                                            • Corporate Loans<br>
+                                            • Trade Finance<br>
+                                            • Asset Finance<br>
+                                            • Working Capital
+                                        </div>
+                                        <button class="java-btn" style="margin-top: 8px; font-size: 10px;">View Details</button>
+                                    </div>
+                                    
+                                    <div class="product-card">
+                                        <div class="product-header">💳 Cards & Payments</div>
+                                        <div class="product-details">
+                                            • Corporate Cards<br>
+                                            • Payment Solutions<br>
+                                            • POS Services<br>
+                                            • Digital Payments
+                                        </div>
+                                        <button class="java-btn" style="margin-top: 8px; font-size: 10px;">View Details</button>
+                                    </div>
+                                    
+                                    <div class="product-card">
+                                        <div class="product-header">📈 Investment Products</div>
+                                        <div class="product-details">
+                                            • Fixed Deposits<br>
+                                            • Treasury Bills<br>
+                                            • Mutual Funds<br>
+                                            • Portfolio Management
+                                        </div>
+                                        <button class="java-btn" style="margin-top: 8px; font-size: 10px;">View Details</button>
+                                    </div>
+                                    
+                                    <div class="product-card">
+                                        <div class="product-header">🛡️ Insurance & Protection</div>
+                                        <div class="product-details">
+                                            • Life Insurance<br>
+                                            • General Insurance<br>
+                                            • Credit Protection<br>
+                                            • Risk Management
+                                        </div>
+                                        <button class="java-btn" style="margin-top: 8px; font-size: 10px;">View Details</button>
+                                    </div>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Sales Leads -->
+                    <div id="leads-module" class="config-section" style="display: none;">
+                        <div class="config-header">🎯 Sales Leads Management</div>
+                        <div class="config-content">
+                            
+                            <!-- New Lead Form -->
+                            <fieldset>
+                                <legend>➕ Add New Sales Lead</legend>
+                                
+                                <form th:action="@{/rm/product-sales/leads}" method="post">
+                                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                    
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Client Name:</label>
+                                            <input type="text" name="clientName" class="form-input" style="width: 100%;" required>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Contact Person:</label>
+                                            <input type="text" name="contactPerson" class="form-input" style="width: 100%;">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Product Interest:</label>
+                                            <select name="productInterest" class="form-select" style="width: 100%;">
+                                                <option value="corporate_loan">Corporate Loan</option>
+                                                <option value="trade_finance">Trade Finance</option>
+                                                <option value="investment">Investment Products</option>
+                                                <option value="cards">Cards & Payments</option>
+                                                <option value="insurance">Insurance</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Expected Amount:</label>
+                                            <input type="number" name="expectedAmount" class="form-input" style="width: 100%;" step="1000">
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Lead Source:</label>
+                                            <select name="leadSource" class="form-select" style="width: 100%;">
+                                                <option value="referral">Referral</option>
+                                                <option value="cold_call">Cold Call</option>
+                                                <option value="website">Website</option>
+                                                <option value="event">Event/Conference</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style="font-size: 10px; font-weight: bold;">Priority:</label>
+                                            <select name="priority" class="form-select" style="width: 100%;">
+                                                <option value="low">Low</option>
+                                                <option value="medium" selected>Medium</option>
+                                                <option value="high">High</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 12px;">
+                                        <label style="font-size: 10px; font-weight: bold;">Notes:</label>
+                                        <textarea name="notes" class="form-input" style="width: 100%; height: 60px; resize: vertical;"></textarea>
+                                    </div>
+                                    
+                                    <div style="text-align: center; margin-top: 12px;">
+                                        <button type="submit" class="java-btn">Create Lead</button>
+                                        <button type="button" class="java-btn" onclick="clearLeadForm()">Clear</button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Success Message -->
+                    <div th:if="${result}" class="config-section" style="background: #d4edda; border-color: #c3e6cb;">
+                        <div class="config-content">
+                            <div style="color: #155724; font-weight: bold;" th:text="${result}">
+                                Product sales tools and results will be available here.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Sales Tools Ready | Module: <span id="currentModule">Dashboard</span> | Monthly Target: 89%</span>
+            <span>User: <span sec:authentication="name">RM User</span> | Status: Connected</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectSalesModule(element, moduleType) {
+            // Update tree selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            // Hide all modules
+            document.querySelectorAll('[id$="-module"]').forEach(module => {
+                module.style.display = 'none';
+            });
+            
+            // Show selected module
+            const moduleElement = document.getElementById(moduleType + '-module');
+            if (moduleElement) {
+                moduleElement.style.display = 'block';
+            }
+            
+            // Update status bar
+            document.getElementById('currentModule').textContent = moduleType.charAt(0).toUpperCase() + moduleType.slice(1);
+        }
+        
+        function refreshSales() {
+            alert('🔄 Sales Data Refreshed\n\nSales metrics and lead information have been updated successfully.');
+        }
+        
+        function newSale() {
+            alert('➕ New Sale\n\nThis would open a new sales opportunity form in a real implementation.');
+        }
+        
+        function searchProducts() {
+            alert('🔍 Product Search\n\nThis would open product search and filtering options in a real implementation.');
+        }
+        
+        function exportSales() {
+            alert('📤 Export Sales Data\n\nThis would export sales data to Excel, PDF, or CSV format in a real implementation.');
+        }
+        
+        function generateReport() {
+            alert('📊 Generate Sales Report\n\nThis would generate comprehensive sales performance reports in a real implementation.');
+        }
+        
+        function clearLeadForm() {
+            document.querySelector('#leads-module form').reset();
+        }
+        
+        // Initialize
+        window.onload = function() {
+            selectSalesModule(document.querySelector('.tree-node.selected'), 'dashboard');
+        };
+    </script>
+</body>
+</html>

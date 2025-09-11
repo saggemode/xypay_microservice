@@ -1,0 +1,132 @@
+<!-- New Bank Transfer Form Content -->
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Add Bank Transfer</h2>
+                <div class="flex space-x-2">
+                    <a href="/admin/bank-transfers" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to List
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <form th:action="@{/admin/bank-transfers/new}" method="post" class="p-6">
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <div class="mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8">
+                        <button type="button" class="py-2 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">Transfer Details</button>
+                        <button type="button" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Status</button>
+                        <button type="button" class="py-2 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Timestamps</button>
+                    </nav>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="reference" class="block text-sm font-medium text-gray-700 mb-2">Reference</label>
+                        <input type="text" id="reference" name="reference" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Auto-generated if empty">
+                    </div>
+                    <div>
+                        <label for="userId" class="block text-sm font-medium text-gray-700 mb-2">User *</label>
+                        <div class="relative">
+                            <select id="userId" name="userId" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="">----------</option>
+                                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.firstName + ' ' + user.lastName + ' (' + user.email + ')'}">User Name</option>
+                            </select>
+                            <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                                <i class="fas fa-pencil-alt text-gray-400 text-sm"></i>
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 mt-2">
+                            <button type="button" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-plus mr-1"></i>Add</button>
+                            <button type="button" class="text-blue-600 hover:text-blue-800 text-sm"><i class="fas fa-eye mr-1"></i>View</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                        <select id="status" name="status" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="pending">pending</option>
+                            <option value="processing">processing</option>
+                            <option value="successful">successful</option>
+                            <option value="completed">completed</option>
+                            <option value="failed">failed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="bankName" class="block text-sm font-medium text-gray-700 mb-2">Bank name *</label>
+                        <input type="text" id="bankName" name="bankName" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter bank name">
+                    </div>
+                    <div>
+                        <label for="accountNumber" class="block text-sm font-medium text-gray-700 mb-2">Account number *</label>
+                        <input type="text" id="accountNumber" name="accountNumber" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter account number">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+                        <input type="number" id="amount" name="amount" step="0.01" min="0" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.0">
+                        <p class="mt-1 text-sm text-gray-500">Amount in NGN (Nigerian Naira)</p>
+                    </div>
+                    <div>
+                        <label for="fee" class="block text-sm font-medium text-gray-700 mb-2">Fee *</label>
+                        <input type="number" id="fee" name="fee" step="0.01" min="0" value="0.0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.0">
+                        <p class="mt-1 text-sm text-gray-500">Transfer fee in NGN</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="vat" class="block text-sm font-medium text-gray-700 mb-2">VAT *</label>
+                        <input type="number" id="vat" name="vat" step="0.01" min="0" value="0.0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.0">
+                        <p class="mt-1 text-sm text-gray-500">VAT amount in NGN</p>
+                    </div>
+                    <div>
+                        <label for="levy" class="block text-sm font-medium text-gray-700 mb-2">Levy *</label>
+                        <input type="number" id="levy" name="levy" step="0.01" min="0" value="0.0" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="0.0">
+                        <p class="mt-1 text-sm text-gray-500">Levy amount in NGN</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="transferType" class="block text-sm font-medium text-gray-700 mb-2">Transfer type *</label>
+                        <select id="transferType" name="transferType" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="inter">Inter-bank</option>
+                            <option value="intra">Intra-bank</option>
+                        </select>
+                        <p class="mt-1 text-sm text-gray-500">Type of transfer: intra-bank (internal) or inter-bank (external)</p>
+                    </div>
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="description" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Optional description of the transfer">
+                        <p class="mt-1 text-sm text-gray-500">Optional description of the transfer</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label for="nibssReference" class="block text-sm font-medium text-gray-700 mb-2">Nibss reference</label>
+                    <input type="text" id="nibssReference" name="nibssReference" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="NIBSS transaction reference">
+                    <p class="mt-1 text-sm text-gray-500">NIBSS transaction reference</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+                <a href="/admin/bank-transfers" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50">Cancel</a>
+                <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"><i class="fas fa-save mr-2"></i>Save</button>
+                <button type="submit" name="action" value="save_and_add" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"><i class="fas fa-plus mr-2"></i>Save and add another</button>
+                <button type="submit" name="action" value="save_and_continue" class="px-4 py-2 text-sm font-medium text-white bg-purple-600 border border-transparent rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"><i class="fas fa-edit mr-2"></i>Save and continue editing</button>
+            </div>
+        </form>
+    </div>
+</div>

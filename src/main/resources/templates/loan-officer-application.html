@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Loan Application Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .form-label { min-width: 120px; font-weight: bold; font-size: 11px; }
+        .form-input, .form-select { flex: 1; padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; } .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        .alert-info { padding: 12px; background: #e6f3ff; border: 1px inset #c0c0c0; margin-top: 16px; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        textarea.form-input { resize: vertical; min-height: 60px; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Loan Application Console - Credit Processing Interface</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Application</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Credit</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="selectLoanModule(null, 'application')">New Application</button>
+            <button class="toolbar-btn" onclick="searchCustomer()">Search Customer</button>
+            <button class="toolbar-btn" onclick="runCreditCheck()">Credit Check</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="saveDraft()">Save Draft</button>
+            <button class="toolbar-btn" onclick="submitApplication()">Submit</button>
+            <button class="toolbar-btn" onclick="printApplication()">Print</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="selectLoanModule(null, 'calculator')">Calculator</button>
+            <button class="toolbar-btn">Documents</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Loan Processing</div>
+                
+                <div class="tree-node selected" onclick="selectLoanModule(this, 'application')">
+                    <div class="tree-icon">📝</div>
+                    New Application
+                </div>
+                
+                <div class="tree-node" onclick="selectLoanModule(this, 'pending')">
+                    <div class="tree-icon">⏳</div>
+                    Pending Applications
+                </div>
+                
+                <div class="tree-node" onclick="selectLoanModule(this, 'approved')">
+                    <div class="tree-icon">✅</div>
+                    Approved Loans
+                </div>
+                
+                <div class="tree-node" onclick="selectLoanModule(this, 'rejected')">
+                    <div class="tree-icon">❌</div>
+                    Rejected Applications
+                </div>
+                
+                <div class="tree-node" onclick="selectLoanModule(this, 'calculator')">
+                    <div class="tree-icon">🧮</div>
+                    Loan Calculator
+                </div>
+                
+                <div class="tree-node" onclick="selectLoanModule(this, 'reports')">
+                    <div class="tree-icon">📊</div>
+                    Loan Reports
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Loan Application Processing</div>
+                <div class="details-content" id="loan-content">
+                    
+                    <!-- Loan Application Form -->
+                    <div class="config-section">
+                        <div class="config-header">New Loan Application</div>
+                        <div class="config-content">
+                            <form action="/loan-officer/application" method="post" th:action="@{/loan-officer/application}">
+                                <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                                
+                                <!-- Customer Information -->
+                                <fieldset>
+                                    <legend>Customer Information</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Customer ID:</span>
+                                        <input type="text" class="form-input" id="customerId" name="customerId" placeholder="Enter customer ID or search">
+                                        <button type="button" class="java-btn" onclick="searchCustomer()">Search</button>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Customer Name:</span>
+                                        <input type="text" class="form-input" id="customerName" name="customerName" required>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Phone Number:</span>
+                                        <input type="tel" class="form-input" id="phoneNumber" name="phoneNumber" required>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Email Address:</span>
+                                        <input type="email" class="form-input" id="emailAddress" name="emailAddress">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Loan Details -->
+                                <fieldset>
+                                    <legend>Loan Details</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Loan Type:</span>
+                                        <select class="form-select" id="loanType" name="loanType" required onchange="updateLoanTerms()">
+                                            <option value="">Select Loan Type</option>
+                                            <option value="PERSONAL">Personal Loan</option>
+                                            <option value="BUSINESS">Business Loan</option>
+                                            <option value="MORTGAGE">Mortgage Loan</option>
+                                            <option value="AUTO">Auto Loan</option>
+                                            <option value="EDUCATION">Education Loan</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Loan Amount (₦):</span>
+                                        <input type="number" class="form-input" id="amount" name="amount" required min="10000" max="50000000" onchange="calculateLoan()">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Loan Term (months):</span>
+                                        <select class="form-select" id="loanTerm" name="loanTerm" required onchange="calculateLoan()">
+                                            <option value="">Select Term</option>
+                                            <option value="6">6 months</option>
+                                            <option value="12">12 months</option>
+                                            <option value="18">18 months</option>
+                                            <option value="24">24 months</option>
+                                            <option value="36">36 months</option>
+                                            <option value="48">48 months</option>
+                                            <option value="60">60 months</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Interest Rate (%):</span>
+                                        <input type="number" class="form-input" id="interestRate" name="interestRate" step="0.01" readonly>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Monthly Payment (₦):</span>
+                                        <input type="text" class="form-input" id="monthlyPayment" name="monthlyPayment" readonly>
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Employment Information -->
+                                <fieldset>
+                                    <legend>Employment Information</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Employment Status:</span>
+                                        <select class="form-select" id="employmentStatus" name="employmentStatus" required>
+                                            <option value="">Select Status</option>
+                                            <option value="EMPLOYED">Employed</option>
+                                            <option value="SELF_EMPLOYED">Self Employed</option>
+                                            <option value="BUSINESS_OWNER">Business Owner</option>
+                                            <option value="RETIRED">Retired</option>
+                                            <option value="UNEMPLOYED">Unemployed</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Monthly Income (₦):</span>
+                                        <input type="number" class="form-input" id="monthlyIncome" name="monthlyIncome" required min="50000">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Employer Name:</span>
+                                        <input type="text" class="form-input" id="employerName" name="employerName">
+                                    </div>
+                                </fieldset>
+                                
+                                <!-- Additional Information -->
+                                <fieldset>
+                                    <legend>Additional Information</legend>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Purpose of Loan:</span>
+                                        <textarea class="form-input" id="loanPurpose" name="loanPurpose" rows="3" placeholder="Describe the purpose of this loan"></textarea>
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Collateral (if any):</span>
+                                        <input type="text" class="form-input" id="collateral" name="collateral" placeholder="Describe any collateral offered">
+                                    </div>
+                                    
+                                    <div class="form-row">
+                                        <span class="form-label">Officer Notes:</span>
+                                        <textarea class="form-input" id="officerNotes" name="officerNotes" rows="3" placeholder="Internal notes and observations"></textarea>
+                                    </div>
+                                </fieldset>
+                                
+                                <div style="text-align: center; margin-top: 20px;">
+                                    <button type="submit" class="java-btn primary">Submit Application</button>
+                                    <button type="button" class="java-btn" onclick="saveDraft()">Save as Draft</button>
+                                    <button type="button" class="java-btn" onclick="clearForm()">Clear Form</button>
+                                    <button type="button" class="java-btn" onclick="runCreditCheck()">Run Credit Check</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Application Result -->
+                    <div class="config-section" th:if="${result}">
+                        <div class="config-header">Application Status</div>
+                        <div class="config-content">
+                            <div class="alert-info" th:text="${result}">
+                                Application status will appear here
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Loan Application Console Ready | Applications Today: <span id="applicationsToday">5</span> | Pending Review: <span id="pendingReview">12</span></span>
+            <span>Loan Officer: <span sec:authentication="name">loan.officer@xypay.com</span> | Session: Active</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectLoanModule(element, moduleType) {
+            // Update tree selection
+            if (element) {
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+            
+            // Load module content based on selection
+            const content = document.getElementById('loan-content');
+            
+            switch(moduleType) {
+                case 'pending':
+                    content.innerHTML = getPendingApplicationsContent();
+                    break;
+                case 'approved':
+                    content.innerHTML = getApprovedLoansContent();
+                    break;
+                case 'rejected':
+                    content.innerHTML = getRejectedApplicationsContent();
+                    break;
+                case 'calculator':
+                    content.innerHTML = getLoanCalculatorContent();
+                    break;
+                case 'reports':
+                    content.innerHTML = getLoanReportsContent();
+                    break;
+                default:
+                    // Keep default application form
+                    location.reload();
+                    break;
+            }
+        }
+        
+        function searchCustomer() {
+            const customerId = document.getElementById('customerId').value;
+            if (customerId) {
+                alert('Searching for customer: ' + customerId);
+                // Simulate customer data loading
+                document.getElementById('customerName').value = 'John Doe';
+                document.getElementById('phoneNumber').value = '+234-xxx-xxxx';
+                document.getElementById('emailAddress').value = 'john.doe@email.com';
+                document.getElementById('monthlyIncome').value = '250000';
+                document.getElementById('employerName').value = 'ABC Company Ltd';
+            }
+        }
+        
+        function updateLoanTerms() {
+            const loanType = document.getElementById('loanType').value;
+            const interestRateField = document.getElementById('interestRate');
+            
+            // Set interest rates based on loan type
+            const rates = {
+                'PERSONAL': 15.5,
+                'BUSINESS': 12.0,
+                'MORTGAGE': 8.5,
+                'AUTO': 10.0,
+                'EDUCATION': 6.5
+            };
+            
+            if (rates[loanType]) {
+                interestRateField.value = rates[loanType];
+                calculateLoan();
+            }
+        }
+        
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const term = parseInt(document.getElementById('loanTerm').value);
+            const rate = parseFloat(document.getElementById('interestRate').value);
+            
+            if (amount && term && rate) {
+                const monthlyRate = rate / 100 / 12;
+                const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+                
+                document.getElementById('monthlyPayment').value = '₦' + monthlyPayment.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+        }
+        
+        function saveDraft() {
+            alert('Application saved as draft');
+        }
+        
+        function clearForm() {
+            document.querySelector('form').reset();
+            document.getElementById('interestRate').value = '';
+            document.getElementById('monthlyPayment').value = '';
+        }
+        
+        function runCreditCheck() {
+            const customerName = document.getElementById('customerName').value;
+            if (customerName) {
+                alert('Running credit check for: ' + customerName);
+            } else {
+                alert('Please enter customer information first');
+            }
+        }
+        
+        function submitApplication() {
+            document.querySelector('form').submit();
+        }
+        
+        function printApplication() {
+            window.print();
+        }
+        
+        function getPendingApplicationsContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">Pending Loan Applications</div>
+                    <div class="config-content">
+                        <div class="mb-4 flex gap-2">
+                            <input type="text" class="form-input w-64" placeholder="Search applications..." id="pendingSearch">
+                            <button class="java-btn" onclick="searchPendingApplications()">Search</button>
+                            <button class="java-btn" onclick="refreshPendingApplications()">Refresh</button>
+                        </div>
+                        <table class="java-table">
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Customer Name</th>
+                                <th>Loan Type</th>
+                                <th>Amount</th>
+                                <th>Submitted Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <td>LA001234</td>
+                                <td>Jane Smith</td>
+                                <td>Personal</td>
+                                <td>₦500,000</td>
+                                <td>2024-01-15</td>
+                                <td style="color: orange;">Under Review</td>
+                                <td>
+                                    <button class="java-btn primary" onclick="reviewApplication('LA001234')">Review</button>
+                                    <button class="java-btn" onclick="viewApplicationDetails('LA001234')">View Details</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LA001235</td>
+                                <td>Robert Brown</td>
+                                <td>Business</td>
+                                <td>₦2,000,000</td>
+                                <td>2024-01-14</td>
+                                <td style="color: red;">Requires Documentation</td>
+                                <td>
+                                    <button class="java-btn primary" onclick="reviewApplication('LA001235')">Review</button>
+                                    <button class="java-btn" onclick="requestDocuments('LA001235')">Request Docs</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getApprovedLoansContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">Approved Loans</div>
+                    <div class="config-content">
+                        <table class="java-table">
+                            <tr>
+                                <th>Loan ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Term</th>
+                                <th>Interest Rate</th>
+                                <th>Approved Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <td>LN001234</td>
+                                <td>John Doe</td>
+                                <td>₦1,000,000</td>
+                                <td>24 months</td>
+                                <td>12.0%</td>
+                                <td>2024-01-10</td>
+                                <td style="color: green;">Active</td>
+                                <td>
+                                    <button class="java-btn" onclick="viewLoanDetails('LN001234')">View Details</button>
+                                    <button class="java-btn" onclick="generateLoanSchedule('LN001234')">Schedule</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LN001235</td>
+                                <td>Alice Wilson</td>
+                                <td>₦750,000</td>
+                                <td>18 months</td>
+                                <td>15.5%</td>
+                                <td>2024-01-08</td>
+                                <td style="color: green;">Active</td>
+                                <td>
+                                    <button class="java-btn" onclick="viewLoanDetails('LN001235')">View Details</button>
+                                    <button class="java-btn" onclick="generateLoanSchedule('LN001235')">Schedule</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getRejectedApplicationsContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">Rejected Applications</div>
+                    <div class="config-content">
+                        <table class="java-table">
+                            <tr>
+                                <th>Application ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Rejected Date</th>
+                                <th>Reason</th>
+                                <th>Actions</th>
+                            </tr>
+                            <tr>
+                                <td>LA001236</td>
+                                <td>Mike Johnson</td>
+                                <td>₦2,000,000</td>
+                                <td>2024-01-12</td>
+                                <td>Insufficient income</td>
+                                <td>
+                                    <button class="java-btn" onclick="viewApplicationDetails('LA001236')">View Details</button>
+                                    <button class="java-btn" onclick="sendRejectionLetter('LA001236')">Send Letter</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>LA001237</td>
+                                <td>Sarah Davis</td>
+                                <td>₦500,000</td>
+                                <td>2024-01-11</td>
+                                <td>Poor credit history</td>
+                                <td>
+                                    <button class="java-btn" onclick="viewApplicationDetails('LA001237')">View Details</button>
+                                    <button class="java-btn" onclick="sendRejectionLetter('LA001237')">Send Letter</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function getLoanCalculatorContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">Loan Calculator</div>
+                    <div class="config-content">
+                        <div class="form-row">
+                            <span class="form-label">Principal Amount (₦):</span>
+                            <input type="number" class="form-input" id="calcAmount" onchange="calculateLoanPayment()">
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Interest Rate (%):</span>
+                            <input type="number" class="form-input" id="calcRate" step="0.01" onchange="calculateLoanPayment()">
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Term (months):</span>
+                            <input type="number" class="form-input" id="calcTerm" onchange="calculateLoanPayment()">
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Monthly Payment:</span>
+                            <input type="text" class="form-input" id="calcPayment" readonly>
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Total Interest:</span>
+                            <input type="text" class="form-input" id="calcInterest" readonly>
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Total Amount:</span>
+                            <input type="text" class="form-input" id="calcTotal" readonly>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function calculateLoanPayment() {
+            const amount = parseFloat(document.getElementById('calcAmount').value);
+            const rate = parseFloat(document.getElementById('calcRate').value);
+            const term = parseInt(document.getElementById('calcTerm').value);
+            
+            if (amount && rate && term) {
+                const monthlyRate = rate / 100 / 12;
+                const monthlyPayment = amount * (monthlyRate * Math.pow(1 + monthlyRate, term)) / (Math.pow(1 + monthlyRate, term) - 1);
+                const totalAmount = monthlyPayment * term;
+                const totalInterest = totalAmount - amount;
+                
+                document.getElementById('calcPayment').value = '₦' + monthlyPayment.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                document.getElementById('calcInterest').value = '₦' + totalInterest.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+                document.getElementById('calcTotal').value = '₦' + totalAmount.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+        }
+        
+        function getLoanReportsContent() {
+            return `
+                <div class="config-section">
+                    <div class="config-header">Loan Reports Generator</div>
+                    <div class="config-content">
+                        <div class="form-row">
+                            <span class="form-label">Report Type:</span>
+                            <select class="form-select" id="reportType">
+                                <option>Loan Portfolio Summary</option>
+                                <option>Default Risk Analysis</option>
+                                <option>Monthly Disbursement Report</option>
+                                <option>Interest Income Report</option>
+                                <option>Loan Officer Performance</option>
+                                <option>Delinquency Report</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Date Range:</span>
+                            <input type="date" class="form-input" style="width: 150px;" id="reportStartDate">
+                            <span>to</span>
+                            <input type="date" class="form-input" style="width: 150px;" id="reportEndDate">
+                        </div>
+                        <div class="form-row">
+                            <span class="form-label">Format:</span>
+                            <select class="form-select" style="width: 150px;" id="reportFormat">
+                                <option>PDF</option>
+                                <option>Excel</option>
+                                <option>CSV</option>
+                            </select>
+                        </div>
+                        <div style="text-align: center; margin-top: 16px;">
+                            <button class="java-btn primary" onclick="generateLoanReport()">Generate Report</button>
+                            <button class="java-btn" onclick="scheduleLoanReport()">Schedule Report</button>
+                            <button class="java-btn" onclick="viewReportHistory()">Report History</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="config-section">
+                    <div class="config-header">Quick Statistics</div>
+                    <div class="config-content">
+                        <table class="java-table">
+                            <tr>
+                                <th>Metric</th>
+                                <th>Today</th>
+                                <th>This Week</th>
+                                <th>This Month</th>
+                            </tr>
+                            <tr>
+                                <td>Applications Processed</td>
+                                <td>5</td>
+                                <td>28</td>
+                                <td>124</td>
+                            </tr>
+                            <tr>
+                                <td>Loans Approved</td>
+                                <td>3</td>
+                                <td>18</td>
+                                <td>89</td>
+                            </tr>
+                            <tr>
+                                <td>Total Disbursed</td>
+                                <td>₦2.5M</td>
+                                <td>₦18.7M</td>
+                                <td>₦156.2M</td>
+                            </tr>
+                            <tr>
+                                <td>Approval Rate</td>
+                                <td>60%</td>
+                                <td>64.3%</td>
+                                <td>71.8%</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function generateLoanReport() {
+            alert('Generating loan report...');
+        }
+        
+        function reviewApplication(appId) {
+            alert('Reviewing application: ' + appId);
+        }
+        
+        function viewApplicationDetails(appId) {
+            alert('Viewing application details: ' + appId);
+        }
+        
+        function viewLoanDetails(loanId) {
+            alert('Viewing loan details: ' + loanId);
+        }
+        
+        // Initialize
+        window.onload = function() {
+            document.getElementById('applicationsToday').textContent = '5';
+            document.getElementById('pendingReview').textContent = '12';
+        };
+    </script>
+</body>
+</html>

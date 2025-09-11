@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FX Rates - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ FX Rates</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-exchange-alt mr-2 text-blue-600"></i>Foreign Exchange Rates
+                </h1>
+                <p class="text-gray-600 mt-1">Monitor and manage foreign exchange rates and spreads</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-arrow-up text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">USD/NGN</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦1,547</p>
+                        <p class="text-sm text-green-600">+0.8%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-arrow-down text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">EUR/NGN</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦1,689</p>
+                        <p class="text-sm text-red-600">-0.3%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-minus text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">GBP/NGN</p>
+                        <p class="text-2xl font-semibold text-gray-900">₦1,934</p>
+                        <p class="text-sm text-gray-600">0.0%</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                        <i class="fas fa-clock text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Last Update</p>
+                        <p class="text-lg font-semibold text-gray-900">14:35</p>
+                        <p class="text-sm text-gray-600">UTC</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Live Exchange Rates</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Currency Pair</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bid</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ask</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Mid Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Spread</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Change</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">USD/NGN</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,545.50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,548.50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,547.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-green-600">+0.8%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Update</button>
+                                <button class="text-green-600 hover:text-green-900">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">EUR/NGN</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,687.25</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,690.75</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,689.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">3.50</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-red-600">-0.3%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Update</button>
+                                <button class="text-green-600 hover:text-green-900">Trade</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">GBP/NGN</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,932.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,936.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦1,934.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">4.00</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">0.0%</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Update</button>
+                                <button class="text-green-600 hover:text-green-900">Trade</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Rate Configuration</h3>
+                </div>
+                <div class="p-6">
+                    <form class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Currency Pair</label>
+                            <select class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                                <option>USD/NGN</option>
+                                <option>EUR/NGN</option>
+                                <option>GBP/NGN</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Bid Rate</label>
+                                <input type="number" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="1545.50">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Ask Rate</label>
+                                <input type="number" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="1548.50">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Spread (%)</label>
+                            <input type="number" step="0.01" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" placeholder="0.19">
+                        </div>
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium">
+                            <i class="fas fa-save mr-2"></i>Update Rates
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Market Activity</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-arrow-up text-green-600 mr-3"></i>
+                                <span class="font-medium">High Volatility</span>
+                            </div>
+                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-sm">USD/NGN</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-chart-line text-blue-600 mr-3"></i>
+                                <span class="font-medium">Trending Up</span>
+                            </div>
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">EUR/NGN</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-minus text-yellow-600 mr-3"></i>
+                                <span class="font-medium">Stable</span>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">GBP/NGN</span>
+                        </div>
+                    </div>
+                    <div class="mt-6 pt-4 border-t">
+                        <h4 class="font-medium text-gray-900 mb-2">Daily Statistics</h4>
+                        <div class="space-y-2">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Total Volume:</span>
+                                <span class="font-semibold">$45.2M</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Transactions:</span>
+                                <span class="font-semibold">1,247</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600">Avg Spread:</span>
+                                <span class="font-semibold">0.21%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

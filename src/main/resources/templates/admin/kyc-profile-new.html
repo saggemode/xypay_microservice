@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="layouts/legacy-layout :: layout('New KYC Profile', ~{::section})">
+<section>
+    <div class="max-w-3xl mx-auto">
+        <h1 class="text-2xl font-semibold mb-6">Create KYC Profile</h1>
+
+        <div th:if="${param.error}">
+            <div class="mb-4 p-3 rounded bg-red-100 text-red-700" th:text="${param.error[0]}"></div>
+        </div>
+        <div th:if="${success}">
+            <div class="mb-4 p-3 rounded bg-green-100 text-green-700" th:text="${success}"></div>
+        </div>
+
+        <form th:action="@{/admin/kyc-profiles}" method="post" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">User</label>
+                <select name="userId" class="mt-1 block w-full border rounded p-2" required>
+                    <option value="" disabled selected>Select user</option>
+                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.username}"></option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">BVN</label>
+                    <input type="text" name="bvn" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">NIN</label>
+                    <input type="text" name="nin" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Date of Birth<span class="text-red-500"> *</span></label>
+                    <input type="date" name="dateOfBirth" class="mt-1 block w-full border rounded p-2" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Gender</label>
+                    <select name="gender" class="mt-1 block w-full border rounded p-2">
+                        <option value="" selected>--</option>
+                        <option value="MALE">Male</option>
+                        <option value="FEMALE">Female</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">State</label>
+                    <input type="text" name="state" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">LGA</label>
+                    <input type="text" name="lga" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Area</label>
+                    <input type="text" name="area" class="mt-1 block w-full border rounded p-2" />
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Address<span class="text-red-500"> *</span></label>
+                <input type="text" name="address" class="mt-1 block w-full border rounded p-2" required />
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Telephone Number</label>
+                <input type="text" name="telephoneNumber" class="mt-1 block w-full border rounded p-2" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">KYC Level</label>
+                    <select name="kycLevel" class="mt-1 block w-full border rounded p-2">
+                        <option value="" selected>--</option>
+                        <option value="TIER_1">Tier 1</option>
+                        <option value="TIER_2">Tier 2</option>
+                        <option value="TIER_3">Tier 3</option>
+                    </select>
+                </div>
+                <div class="flex items-center mt-6">
+                    <input id="isApproved" type="checkbox" name="isApproved" value="true" class="mr-2" />
+                    <label for="isApproved" class="text-sm text-gray-700">Approved</label>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Passport Photo (URL)</label>
+                    <input type="text" name="passportPhoto" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Selfie (URL)</label>
+                    <input type="text" name="selfie" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ID Document (URL)</label>
+                    <input type="text" name="idDocument" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Government ID Type</label>
+                    <select name="govtIdType" class="mt-1 block w-full border rounded p-2">
+                        <option value="" selected>--</option>
+                        <option value="NATIONAL_ID">National ID Card</option>
+                        <option value="VOTERS_CARD">Voter's Card</option>
+                        <option value="PASSPORT">International Passport</option>
+                        <option value="DRIVERS_LICENSE">Driver's License</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Government ID Document (URL)</label>
+                    <input type="text" name="govtIdDocument" class="mt-1 block w-full border rounded p-2" />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Proof of Address (URL)</label>
+                    <input type="text" name="proofOfAddress" class="mt-1 block w-full border rounded p-2" />
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Create</button>
+                <a href="/admin/kyc-profiles" class="ml-2 px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Cancel</a>
+            </div>
+        </form>
+    </div>
+</section>
+</html>
+

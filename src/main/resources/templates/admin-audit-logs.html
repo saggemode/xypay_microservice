@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Audit Logs</h2>
+                        <p class="mt-1 text-sm text-gray-600">System activity monitoring and compliance tracking</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="refreshLogs()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-sync-alt mr-1"></i>Refresh
+                        </button>
+                        <button onclick="exportAuditLogsCSV()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-download mr-1"></i>Export CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-list-alt text-banking-blue text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Logs</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="totalLogs">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Critical Events</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="criticalEvents">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Users</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="activeUsers">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-clock text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Today's Events</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="todayEvents">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filters -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label for="auditLogSearch" class="block text-sm font-medium text-gray-700 mb-1">Search Logs</label>
+                        <input type="text" id="auditLogSearch" 
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                               placeholder="Search by user, action, or details..." onkeyup="filterAuditLogs()">
+                    </div>
+                    <div>
+                        <label for="actionFilter" class="block text-sm font-medium text-gray-700 mb-1">Action Type</label>
+                        <select id="actionFilter" onchange="filterAuditLogs()"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <option value="">All Actions</option>
+                            <option value="LOGIN">Login</option>
+                            <option value="LOGOUT">Logout</option>
+                            <option value="CREATE">Create</option>
+                            <option value="UPDATE">Update</option>
+                            <option value="DELETE">Delete</option>
+                            <option value="TRANSACTION">Transaction</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="dateFilter" class="block text-sm font-medium text-gray-700 mb-1">Time Period</label>
+                        <select id="dateFilter" onchange="filterAuditLogs()"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <option value="">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="week">Last 7 days</option>
+                            <option value="month">Last 30 days</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button onclick="clearFilters()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-times mr-1"></i>Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audit Logs Table -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditLogsTable" class="bg-white divide-y divide-gray-200">
+                            <!-- Thymeleaf template data -->
+                            <tr th:each="log : ${logs}" class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${log.timestamp}">2024-01-15 14:30:00</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${log.user}">admin@xypay.com</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800" th:text="${log.action}">LOGIN</span>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-gray-500" th:text="${log.details}">User logged into admin panel</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingLogs" class="text-center py-12 hidden">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">Loading audit logs...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyLogs" class="text-center py-12 hidden">
+                    <i class="fas fa-clipboard-list text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No audit logs found</h3>
+                    <p class="text-gray-500 mb-4">No logs match your current filter criteria.</p>
+                    <button onclick="clearFilters()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-6 text-center">
+            <a href="/superuser/dashboard" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let allLogs = [];
+        let filteredLogs = [];
+
+        function loadInitialData() {
+            // Get logs from Thymeleaf template or set sample data
+            const tableRows = document.querySelectorAll('#auditLogsTable tr');
+            allLogs = Array.from(tableRows).map(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 4) {
+                    return {
+                        timestamp: cells[0].textContent.trim(),
+                        user: cells[1].textContent.trim(),
+                        action: cells[2].textContent.trim(),
+                        details: cells[3].textContent.trim()
+                    };
+                }
+            }).filter(log => log);
+
+            // If no server data, use sample data
+            if (allLogs.length === 0) {
+                allLogs = [
+                    {
+                        timestamp: '2024-01-15 14:30:00',
+                        user: 'admin@xypay.com',
+                        action: 'LOGIN',
+                        details: 'Admin user logged into the system'
+                    },
+                    {
+                        timestamp: '2024-01-15 14:25:00',
+                        user: 'john.doe@customer.com',
+                        action: 'TRANSACTION',
+                        details: 'Wire transfer of $5,000 to account 1234567890'
+                    },
+                    {
+                        timestamp: '2024-01-15 14:20:00',
+                        user: 'system',
+                        action: 'UPDATE',
+                        details: 'Automated system backup completed'
+                    },
+                    {
+                        timestamp: '2024-01-15 14:15:00',
+                        user: 'jane.smith@customer.com',
+                        action: 'CREATE',
+                        details: 'New account created for customer'
+                    },
+                    {
+                        timestamp: '2024-01-15 14:10:00',
+                        user: 'admin@xypay.com',
+                        action: 'DELETE',
+                        details: 'Deleted inactive user account'
+                    }
+                ];
+                renderLogs();
+            }
+
+            filteredLogs = [...allLogs];
+            updateStatistics();
+        }
+
+        function renderLogs() {
+            const tbody = document.getElementById('auditLogsTable');
+            
+            if (filteredLogs.length === 0) {
+                document.getElementById('emptyLogs').classList.remove('hidden');
+                tbody.innerHTML = '';
+                return;
+            }
+
+            document.getElementById('emptyLogs').classList.add('hidden');
+
+            tbody.innerHTML = filteredLogs.map(log => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${log.timestamp}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${log.user}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getActionBadgeClass(log.action)}">
+                            ${log.action}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-500">${log.details}</td>
+                </tr>
+            `).join('');
+        }
+
+        function getActionBadgeClass(action) {
+            switch(action) {
+                case 'LOGIN': return 'bg-green-100 text-green-800';
+                case 'LOGOUT': return 'bg-gray-100 text-gray-800';
+                case 'CREATE': return 'bg-blue-100 text-blue-800';
+                case 'UPDATE': return 'bg-yellow-100 text-yellow-800';
+                case 'DELETE': return 'bg-red-100 text-red-800';
+                case 'TRANSACTION': return 'bg-purple-100 text-purple-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function updateStatistics() {
+            document.getElementById('totalLogs').textContent = allLogs.length;
+            document.getElementById('criticalEvents').textContent = allLogs.filter(log => 
+                log.action === 'DELETE' || log.details.toLowerCase().includes('critical')).length;
+            document.getElementById('activeUsers').textContent = new Set(allLogs.map(log => log.user)).size;
+            
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('todayEvents').textContent = allLogs.filter(log => 
+                log.timestamp.startsWith(today)).length;
+        }
+
+        function filterAuditLogs() {
+            const search = document.getElementById('auditLogSearch').value.toLowerCase();
+            const actionFilter = document.getElementById('actionFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+
+            filteredLogs = allLogs.filter(log => {
+                const matchesSearch = !search || 
+                    log.user.toLowerCase().includes(search) ||
+                    log.action.toLowerCase().includes(search) ||
+                    log.details.toLowerCase().includes(search);
+
+                const matchesAction = !actionFilter || log.action === actionFilter;
+                const matchesDate = !dateFilter || checkDateFilter(log.timestamp, dateFilter);
+
+                return matchesSearch && matchesAction && matchesDate;
+            });
+
+            renderLogs();
+        }
+
+        function checkDateFilter(timestamp, filter) {
+            const logDate = new Date(timestamp);
+            const now = new Date();
+            
+            switch(filter) {
+                case 'today':
+                    return logDate.toDateString() === now.toDateString();
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return logDate >= weekAgo;
+                case 'month':
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return logDate >= monthAgo;
+                default:
+                    return true;
+            }
+        }
+
+        function clearFilters() {
+            document.getElementById('auditLogSearch').value = '';
+            document.getElementById('actionFilter').value = '';
+            document.getElementById('dateFilter').value = '';
+            filteredLogs = [...allLogs];
+            renderLogs();
+        }
+
+        function refreshLogs() {
+            document.getElementById('loadingLogs').classList.remove('hidden');
+            
+            // Simulate API call
+            setTimeout(() => {
+                document.getElementById('loadingLogs').classList.add('hidden');
+                loadInitialData();
+                alert('Audit logs refreshed successfully!');
+            }, 1000);
+        }
+
+        function exportAuditLogsCSV() {
+            const headers = ['Timestamp', 'User', 'Action', 'Details'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredLogs.map(log => [
+                    `"${log.timestamp}"`,
+                    `"${log.user}"`,
+                    `"${log.action}"`,
+                    `"${log.details.replace(/"/g, '""')}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialData();
+        });
+    </script>
+</body>
+</html>

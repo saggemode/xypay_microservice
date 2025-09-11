@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Management - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">Workflow Management</h2>
+                        <p class="mt-1 text-sm text-gray-600">Design and manage business process workflows</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="addStep()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-plus mr-1"></i>Add Step
+                        </button>
+                        <button onclick="saveWorkflow()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-save mr-1"></i>Save Workflow
+                        </button>
+                        <button onclick="runWorkflow()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-play mr-1"></i>Test Workflow
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workflow Builder -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Workflow Steps -->
+            <div class="lg:col-span-2">
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Steps</h3>
+                        <div id="workflowSteps" class="space-y-4">
+                            <!-- Steps will be rendered here -->
+                        </div>
+                        <div class="mt-6 text-center">
+                            <button onclick="addStep()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200 border-2 border-dashed border-gray-300">
+                                <i class="fas fa-plus mr-1"></i>Add New Step
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Workflow Properties -->
+            <div class="space-y-6">
+                <!-- Workflow Info -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Properties</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label for="workflowName" class="block text-sm font-medium text-gray-700 mb-1">Workflow Name</label>
+                                <input type="text" id="workflowName" value="Loan Approval Process" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="workflowDescription" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea id="workflowDescription" rows="3" 
+                                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                                          placeholder="Describe the workflow purpose...">Standard loan approval workflow with manager and compliance checks</textarea>
+                            </div>
+                            <div>
+                                <label for="workflowCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                <select id="workflowCategory" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                    <option value="lending">Lending</option>
+                                    <option value="customer">Customer Management</option>
+                                    <option value="compliance">Compliance</option>
+                                    <option value="operations">Operations</option>
+                                    <option value="risk">Risk Management</option>
+                                </select>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="workflowActive" checked class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <label for="workflowActive" class="ml-2 block text-sm text-gray-900">Active Workflow</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Available Approvers -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Available Approvers</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="font-medium">System</span>
+                                <span class="text-gray-500">Automated</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="font-medium">Branch Manager</span>
+                                <span class="text-green-600">Available</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="font-medium">Compliance Officer</span>
+                                <span class="text-green-600">Available</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="font-medium">Risk Manager</span>
+                                <span class="text-green-600">Available</span>
+                            </div>
+                            <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <span class="font-medium">Senior Manager</span>
+                                <span class="text-yellow-600">Limited</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Workflow Statistics -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-4 py-5 sm:p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Statistics</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Total Executions</span>
+                                <span class="text-sm font-medium">1,247</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Success Rate</span>
+                                <span class="text-sm font-medium text-green-600">94.2%</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Avg. Processing Time</span>
+                                <span class="text-sm font-medium">2.3 days</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Active Instances</span>
+                                <span class="text-sm font-medium text-blue-600">23</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-6 text-center">
+            <a href="/superuser/dashboard" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let steps = [
+            { id: 1, name: 'Application Submission', enabled: true, approver: 'System', description: 'Customer submits loan application' },
+            { id: 2, name: 'Initial Review', enabled: true, approver: 'Loan Officer', description: 'Review application completeness' },
+            { id: 3, name: 'Credit Check', enabled: true, approver: 'System', description: 'Automated credit score verification' },
+            { id: 4, name: 'Manager Approval', enabled: true, approver: 'Branch Manager', description: 'Manager reviews and approves' },
+            { id: 5, name: 'Compliance Check', enabled: true, approver: 'Compliance Officer', description: 'Regulatory compliance verification' },
+            { id: 6, name: 'Final Approval', enabled: true, approver: 'Senior Manager', description: 'Final approval and disbursement' }
+        ];
+
+        let stepIdCounter = 7;
+
+        function renderSteps() {
+            const container = document.getElementById('workflowSteps');
+            container.innerHTML = '';
+
+            steps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = 'workflow-step bg-gray-50 border border-gray-200 rounded-lg p-4 cursor-move transition-all duration-200 hover:shadow-md';
+                stepDiv.draggable = true;
+                stepDiv.dataset.stepIndex = index;
+
+                // Drag and drop handlers
+                stepDiv.addEventListener('dragstart', handleDragStart);
+                stepDiv.addEventListener('dragover', handleDragOver);
+                stepDiv.addEventListener('drop', handleDrop);
+                stepDiv.addEventListener('dragend', handleDragEnd);
+
+                const approverColor = getApproverColor(step.approver);
+
+                stepDiv.innerHTML = `
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-shrink-0">
+                                <div class="w-8 h-8 bg-banking-blue text-white rounded-full flex items-center justify-center text-sm font-medium">
+                                    ${index + 1}
+                                </div>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <input type="text" value="${step.name}" 
+                                       onchange="updateStep(${index}, 'name', this.value)"
+                                       class="block w-full text-sm font-medium text-gray-900 bg-transparent border-0 border-b border-transparent hover:border-gray-300 focus:border-banking-blue focus:outline-none focus:ring-0 p-0">
+                                <p class="text-xs text-gray-500 mt-1">${step.description}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <label class="inline-flex items-center">
+                                <input type="checkbox" ${step.enabled ? 'checked' : ''} 
+                                       onchange="updateStep(${index}, 'enabled', this.checked)"
+                                       class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                <span class="ml-1 text-xs text-gray-600">Enabled</span>
+                            </label>
+                            <button onclick="removeStep(${index})" class="text-red-600 hover:text-red-800 transition duration-200">
+                                <i class="fas fa-trash text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Approver</label>
+                            <select onchange="updateStep(${index}, 'approver', this.value)" 
+                                    class="w-full text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-banking-blue focus:border-transparent">
+                                <option value="System" ${step.approver === 'System' ? 'selected' : ''}>System (Automated)</option>
+                                <option value="Loan Officer" ${step.approver === 'Loan Officer' ? 'selected' : ''}>Loan Officer</option>
+                                <option value="Branch Manager" ${step.approver === 'Branch Manager' ? 'selected' : ''}>Branch Manager</option>
+                                <option value="Compliance Officer" ${step.approver === 'Compliance Officer' ? 'selected' : ''}>Compliance Officer</option>
+                                <option value="Risk Manager" ${step.approver === 'Risk Manager' ? 'selected' : ''}>Risk Manager</option>
+                                <option value="Senior Manager" ${step.approver === 'Senior Manager' ? 'selected' : ''}>Senior Manager</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Status</label>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${approverColor}">
+                                ${step.approver}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <label class="block text-xs font-medium text-gray-700 mb-1">Description</label>
+                        <input type="text" value="${step.description}" 
+                               onchange="updateStep(${index}, 'description', this.value)"
+                               placeholder="Step description..."
+                               class="w-full text-xs px-2 py-1 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-banking-blue focus:border-transparent">
+                    </div>
+                `;
+
+                container.appendChild(stepDiv);
+
+                // Add connector arrow (except for last step)
+                if (index < steps.length - 1) {
+                    const arrow = document.createElement('div');
+                    arrow.className = 'flex justify-center my-2';
+                    arrow.innerHTML = '<i class="fas fa-arrow-down text-gray-400"></i>';
+                    container.appendChild(arrow);
+                }
+            });
+        }
+
+        function getApproverColor(approver) {
+            const colors = {
+                'System': 'bg-blue-100 text-blue-800',
+                'Loan Officer': 'bg-green-100 text-green-800',
+                'Branch Manager': 'bg-purple-100 text-purple-800',
+                'Compliance Officer': 'bg-yellow-100 text-yellow-800',
+                'Risk Manager': 'bg-red-100 text-red-800',
+                'Senior Manager': 'bg-indigo-100 text-indigo-800'
+            };
+            return colors[approver] || 'bg-gray-100 text-gray-800';
+        }
+
+        function updateStep(index, field, value) {
+            steps[index][field] = value;
+        }
+
+        function addStep() {
+            const newStep = {
+                id: stepIdCounter++,
+                name: 'New Step',
+                enabled: true,
+                approver: 'System',
+                description: 'Enter step description...'
+            };
+            steps.push(newStep);
+            renderSteps();
+        }
+
+        function removeStep(index) {
+            if (steps.length > 1) {
+                steps.splice(index, 1);
+                renderSteps();
+            } else {
+                alert('Workflow must have at least one step.');
+            }
+        }
+
+        function saveWorkflow() {
+            const workflowData = {
+                name: document.getElementById('workflowName').value,
+                description: document.getElementById('workflowDescription').value,
+                category: document.getElementById('workflowCategory').value,
+                active: document.getElementById('workflowActive').checked,
+                steps: steps
+            };
+
+            // Simulate API call
+            console.log('Saving workflow:', workflowData);
+            
+            // Show success message
+            const originalText = event.target.textContent;
+            event.target.textContent = 'Saved!';
+            event.target.classList.remove('bg-banking-blue', 'hover:bg-blue-700');
+            event.target.classList.add('bg-green-600');
+            
+            setTimeout(() => {
+                event.target.textContent = originalText;
+                event.target.classList.remove('bg-green-600');
+                event.target.classList.add('bg-banking-blue', 'hover:bg-blue-700');
+            }, 2000);
+        }
+
+        function runWorkflow() {
+            alert('Running workflow test...\n\nWorkflow executed successfully!\n\nSteps processed:\n' + 
+                  steps.map((step, i) => `${i + 1}. ${step.name} (${step.approver})`).join('\n'));
+        }
+
+        // Drag and drop functionality
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            this.style.opacity = '0.5';
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            if (draggedElement !== this) {
+                const draggedIndex = parseInt(draggedElement.dataset.stepIndex);
+                const targetIndex = parseInt(this.dataset.stepIndex);
+
+                // Reorder steps array
+                const draggedStep = steps.splice(draggedIndex, 1)[0];
+                steps.splice(targetIndex, 0, draggedStep);
+
+                renderSteps();
+            }
+
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            this.style.opacity = '1';
+            draggedElement = null;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            renderSteps();
+        });
+    </script>
+</body>
+</html>

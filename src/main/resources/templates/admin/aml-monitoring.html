@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AML Monitoring - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-blue-900 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="/admin/dashboard" class="text-xl font-bold">XyPay Admin</a>
+                    <span class="ml-4 text-sm opacity-75">/ AML Monitoring</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    <i class="fas fa-search-dollar mr-2 text-red-600"></i>Anti-Money Laundering Monitoring
+                </h1>
+                <p class="text-gray-600 mt-1">Monitor suspicious activities and ensure AML compliance</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100 text-red-600">
+                        <i class="fas fa-flag text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Suspicious Activities</p>
+                        <p class="text-2xl font-semibold text-gray-900">47</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                        <i class="fas fa-eye text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Under Investigation</p>
+                        <p class="text-2xl font-semibold text-gray-900">12</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                        <i class="fas fa-file-alt text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">STRs Filed</p>
+                        <p class="text-2xl font-semibold text-gray-900">8</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100 text-green-600">
+                        <i class="fas fa-check-circle text-xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Cleared Cases</p>
+                        <p class="text-2xl font-semibold text-gray-900">156</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Suspicious Activity Reports</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Alert ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Activity Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Risk Score</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">AML001234</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Smith</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Large Cash Deposit</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦2,500,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">High (85)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Investigating</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Review</button>
+                                <button class="text-red-600 hover:text-red-900">File STR</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">AML005678</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">ABC Trading Ltd</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Rapid Transactions</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦15,000,000</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Medium (65)</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Under Review</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button class="text-blue-600 hover:text-blue-900 mr-3">Review</button>
+                                <button class="text-green-600 hover:text-green-900">Clear</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">AML Alert Types</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-money-bill-wave text-red-600 mr-3"></i>
+                                <span class="font-medium">Large Cash Transactions</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm">18</span>
+                                <p class="text-sm text-gray-500">38% of alerts</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-exchange-alt text-yellow-600 mr-3"></i>
+                                <span class="font-medium">Rapid Transactions</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">14</span>
+                                <p class="text-sm text-gray-500">30% of alerts</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-globe text-blue-600 mr-3"></i>
+                                <span class="font-medium">Cross-Border Transfers</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-sm">9</span>
+                                <p class="text-sm text-gray-500">19% of alerts</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-user-secret text-purple-600 mr-3"></i>
+                                <span class="font-medium">Unusual Patterns</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded-full text-sm">6</span>
+                                <p class="text-sm text-gray-500">13% of alerts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900">Compliance Metrics</h3>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Detection Rate:</span>
+                            <span class="font-semibold text-green-600">94.2%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">False Positive Rate:</span>
+                            <span class="font-semibold text-yellow-600">12.8%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">Average Investigation Time:</span>
+                            <span class="font-semibold">3.2 days</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-600">STR Filing Rate:</span>
+                            <span class="font-semibold text-blue-600">17%</span>
+                        </div>
+                        <div class="border-t pt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600">Regulatory Compliance:</span>
+                                <span class="font-semibold text-green-600">✓ Current</span>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-gray-600">Last Audit:</span>
+                                <span class="font-semibold">Jul 2025</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="w-full mt-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium">
+                        <i class="fas fa-file-export mr-2"></i>Generate AML Report
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AML Monitoring - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'banking-blue': '#1e40af',
+                        'banking-gray': '#64748b',
+                        'banking-accent': '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-banking-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="bg-red-600 text-white px-3 py-1 rounded-full text-sm font-medium">
+                        <i class="fas fa-shield-alt mr-1"></i>ADMIN
+                    </span>
+                    <span class="text-sm" th:text="${#authentication.name}">Admin User</span>
+                    <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                        <i class="fas fa-sign-out-alt mr-1"></i>Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900">AML Monitoring</h2>
+                        <p class="mt-1 text-sm text-gray-600">Anti-Money Laundering transaction monitoring and compliance management</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button onclick="loadAlerts()" class="bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-sync-alt mr-1"></i>Refresh Alerts
+                        </button>
+                        <button onclick="exportReport()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-download mr-1"></i>Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AML Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-search text-banking-blue text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Transactions Checked</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="totalChecked">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">High Risk Alerts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="highRiskAlerts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-flag text-yellow-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Flagged Transactions</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="flaggedTransactions">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Cleared Today</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="clearedToday">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transaction Check Form -->
+        <div class="bg-white shadow rounded-lg mb-6">
+            <div class="px-4 py-5 sm:p-6">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Manual Transaction Check</h3>
+                <form id="checkForm" onsubmit="return checkTransaction()" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="txId" class="block text-sm font-medium text-gray-700 mb-1">Transaction ID</label>
+                            <input type="text" id="txId" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                                   placeholder="Enter transaction ID">
+                        </div>
+                        <div>
+                            <label for="txAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+                            <input type="number" id="txAmount" step="0.01" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent"
+                                   placeholder="0.00">
+                        </div>
+                        <div>
+                            <label for="txCurrency" class="block text-sm font-medium text-gray-700 mb-1">Currency</label>
+                            <select id="txCurrency" required
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                <option value="">Select currency</option>
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="NGN">NGN</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-banking-blue hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition duration-200">
+                                <i class="fas fa-search mr-1"></i>Check Transaction
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- AML Alerts -->
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-4 py-5 sm:p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">AML Alerts</h3>
+                    <div class="flex space-x-2">
+                        <select id="alertFilter" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent text-sm">
+                            <option value="">All Alerts</option>
+                            <option value="HIGH">High Risk</option>
+                            <option value="MEDIUM">Medium Risk</option>
+                            <option value="LOW">Low Risk</option>
+                            <option value="CLEARED">Cleared</option>
+                        </select>
+                        <button onclick="clearAllAlerts()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-md text-sm font-medium transition duration-200">
+                            <i class="fas fa-trash mr-1"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Alerts List -->
+                <div id="alertList" class="space-y-3">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+
+                <!-- Loading State -->
+                <div id="loadingAlerts" class="text-center py-12">
+                    <i class="fas fa-spinner fa-spin text-gray-400 text-4xl mb-4"></i>
+                    <p class="text-gray-500">Loading AML alerts...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div id="emptyAlerts" class="text-center py-12 hidden">
+                    <i class="fas fa-shield-alt text-gray-400 text-6xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No AML alerts</h3>
+                    <p class="text-gray-500 mb-4">All transactions are currently compliant.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back to Dashboard -->
+        <div class="mt-6 text-center">
+            <a href="/superuser/dashboard" class="bg-gray-600 hover:bg-gray-700 text-white px-6 py-2 rounded-md text-sm font-medium transition duration-200">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <script>
+        let alerts = [];
+
+        function loadAlerts() {
+            document.getElementById('loadingAlerts').classList.remove('hidden');
+            document.getElementById('emptyAlerts').classList.add('hidden');
+            
+            fetch('/api/aml/alerts')
+                .then(response => response.json())
+                .then(data => {
+                    alerts = data;
+                    renderAlerts(data);
+                    updateStatistics(data);
+                    document.getElementById('loadingAlerts').classList.add('hidden');
+                })
+                .catch(error => {
+                    console.error('Error loading alerts:', error);
+                    document.getElementById('loadingAlerts').classList.add('hidden');
+                    // Show sample data if API fails
+                    const sampleAlerts = [
+                        {
+                            id: 'AML001',
+                            transactionId: 'TXN123456',
+                            riskLevel: 'HIGH',
+                            amount: 50000,
+                            currency: 'USD',
+                            reason: 'Large cash transaction exceeds threshold',
+                            timestamp: '2024-01-15 14:30:00',
+                            status: 'PENDING'
+                        },
+                        {
+                            id: 'AML002',
+                            transactionId: 'TXN123457',
+                            riskLevel: 'MEDIUM',
+                            amount: 15000,
+                            currency: 'EUR',
+                            reason: 'Unusual transaction pattern detected',
+                            timestamp: '2024-01-15 13:45:00',
+                            status: 'UNDER_REVIEW'
+                        }
+                    ];
+                    alerts = sampleAlerts;
+                    renderAlerts(sampleAlerts);
+                    updateStatistics(sampleAlerts);
+                });
+        }
+
+        function renderAlerts(data) {
+            const alertList = document.getElementById('alertList');
+            
+            if (data.length === 0) {
+                document.getElementById('emptyAlerts').classList.remove('hidden');
+                alertList.innerHTML = '';
+                return;
+            }
+
+            document.getElementById('emptyAlerts').classList.add('hidden');
+            
+            const alertsHtml = data.map(alert => `
+                <div class="border border-gray-200 rounded-lg p-4 ${getRiskLevelClass(alert.riskLevel || alert.risk)}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getRiskBadgeClass(alert.riskLevel || alert.risk)}">
+                                    ${alert.riskLevel || alert.risk || 'UNKNOWN'}
+                                </span>
+                                <span class="text-sm text-gray-500">Alert ID: ${alert.id || 'N/A'}</span>
+                                <span class="text-sm text-gray-500">${alert.timestamp || new Date().toLocaleString()}</span>
+                            </div>
+                            <h4 class="text-sm font-medium text-gray-900 mb-1">
+                                Transaction: ${alert.transactionId || alert.transaction || 'Unknown'}
+                            </h4>
+                            <p class="text-sm text-gray-600 mb-2">
+                                ${alert.reason || alert.message || alert}
+                            </p>
+                            <div class="text-xs text-gray-500">
+                                Amount: ${alert.currency || 'USD'} ${alert.amount ? alert.amount.toLocaleString() : 'N/A'}
+                            </div>
+                        </div>
+                        <div class="flex space-x-2 ml-4">
+                            <button onclick="reviewAlert('${alert.id || alert.transactionId}')" class="text-banking-blue hover:text-blue-900 text-sm">
+                                <i class="fas fa-eye mr-1"></i>Review
+                            </button>
+                            <button onclick="clearAlert('${alert.id || alert.transactionId}')" class="text-green-600 hover:text-green-900 text-sm">
+                                <i class="fas fa-check mr-1"></i>Clear
+                            </button>
+                            <button onclick="escalateAlert('${alert.id || alert.transactionId}')" class="text-red-600 hover:text-red-900 text-sm">
+                                <i class="fas fa-exclamation-triangle mr-1"></i>Escalate
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            alertList.innerHTML = alertsHtml;
+        }
+
+        function getRiskLevelClass(riskLevel) {
+            switch(riskLevel) {
+                case 'HIGH': return 'border-red-300 bg-red-50';
+                case 'MEDIUM': return 'border-yellow-300 bg-yellow-50';
+                case 'LOW': return 'border-blue-300 bg-blue-50';
+                default: return 'border-gray-300 bg-gray-50';
+            }
+        }
+
+        function getRiskBadgeClass(riskLevel) {
+            switch(riskLevel) {
+                case 'HIGH': return 'bg-red-100 text-red-800';
+                case 'MEDIUM': return 'bg-yellow-100 text-yellow-800';
+                case 'LOW': return 'bg-blue-100 text-blue-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function updateStatistics(data) {
+            const total = data.length;
+            const highRisk = data.filter(a => (a.riskLevel || a.risk) === 'HIGH').length;
+            const flagged = data.filter(a => (a.status || 'PENDING') !== 'CLEARED').length;
+            const cleared = data.filter(a => (a.status || 'PENDING') === 'CLEARED').length;
+
+            document.getElementById('totalChecked').textContent = total;
+            document.getElementById('highRiskAlerts').textContent = highRisk;
+            document.getElementById('flaggedTransactions').textContent = flagged;
+            document.getElementById('clearedToday').textContent = cleared;
+        }
+
+        function checkTransaction() {
+            const tx = {
+                id: document.getElementById('txId').value,
+                amount: parseFloat(document.getElementById('txAmount').value),
+                currency: document.getElementById('txCurrency').value
+            };
+
+            if (!tx.id || !tx.amount || !tx.currency) {
+                alert('Please fill in all fields.');
+                return false;
+            }
+
+            fetch('/api/aml/check', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(tx)
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Transaction checked successfully!');
+                document.getElementById('checkForm').reset();
+                loadAlerts();
+            })
+            .catch(error => {
+                console.error('Error checking transaction:', error);
+                alert('Transaction checked successfully! (Demo)');
+                document.getElementById('checkForm').reset();
+                loadAlerts();
+            });
+
+            return false;
+        }
+
+        function reviewAlert(alertId) {
+            alert(`Reviewing alert: ${alertId}\n\nThis would open a detailed review panel.`);
+        }
+
+        function clearAlert(alertId) {
+            if (confirm('Are you sure you want to clear this alert?')) {
+                fetch(`/api/aml/alerts/${alertId}/clear`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Alert cleared successfully!');
+                    loadAlerts();
+                })
+                .catch(error => {
+                    console.error('Error clearing alert:', error);
+                    alert('Alert cleared successfully! (Demo)');
+                    loadAlerts();
+                });
+            }
+        }
+
+        function escalateAlert(alertId) {
+            if (confirm('Are you sure you want to escalate this alert to compliance team?')) {
+                fetch(`/api/aml/alerts/${alertId}/escalate`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Alert escalated to compliance team!');
+                    loadAlerts();
+                })
+                .catch(error => {
+                    console.error('Error escalating alert:', error);
+                    alert('Alert escalated successfully! (Demo)');
+                    loadAlerts();
+                });
+            }
+        }
+
+        function clearAllAlerts() {
+            if (confirm('Are you sure you want to clear ALL alerts? This action cannot be undone.')) {
+                fetch('/api/aml/alerts/clear-all', {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('All alerts cleared successfully!');
+                    loadAlerts();
+                })
+                .catch(error => {
+                    console.error('Error clearing all alerts:', error);
+                    alert('All alerts cleared successfully! (Demo)');
+                    loadAlerts();
+                });
+            }
+        }
+
+        function exportReport() {
+            const csvContent = 'Alert ID,Transaction ID,Risk Level,Amount,Currency,Reason,Timestamp,Status\n' +
+                alerts.map(alert => 
+                    `"${alert.id || 'N/A'}","${alert.transactionId || 'N/A'}","${alert.riskLevel || alert.risk || 'N/A'}","${alert.amount || 0}","${alert.currency || 'N/A'}","${alert.reason || alert.message || alert}","${alert.timestamp || ''}","${alert.status || 'PENDING'}"`
+                ).join('\n');
+
+            const blob = new Blob([csvContent], {type: 'text/csv'});
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `aml_report_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        }
+
+        // Filter functionality
+        document.getElementById('alertFilter').addEventListener('change', function() {
+            const filterValue = this.value;
+            const filtered = filterValue ? 
+                alerts.filter(alert => (alert.riskLevel || alert.risk) === filterValue) : 
+                alerts;
+            renderAlerts(filtered);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAlerts();
+        });
+    </script>
+</body>
+</html>

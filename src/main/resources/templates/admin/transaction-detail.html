@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaction Details - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-100">
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="w-72 bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-30 overflow-y-auto">
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between h-16 px-6 bg-gray-900 text-white">
+                <div class="flex items-center">
+                    <i class="fas fa-university text-2xl mr-3"></i>
+                    <span class="text-xl font-bold">A Fintech Bank</span>
+                </div>
+            </div>
+            
+            <!-- User Info -->
+            <div class="px-6 py-4 bg-gray-800 text-white">
+                <div class="flex items-center">
+                    <i class="fas fa-user-circle text-2xl mr-3"></i>
+                    <span>admin</span>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <!-- Dashboard -->
+                <div class="mb-6">
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Dashboard</h4>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="/superuser/dashboard" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-th-large mr-3"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Authentication and Authorization -->
+                <div class="mb-6">
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Authentication and Authorization</h4>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="/admin/groups" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-users mr-3"></i>
+                                Groups
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/users" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-user mr-3"></i>
+                                Users
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Bank -->
+                <div class="mb-6">
+                    <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Bank</h4>
+                    <ul class="space-y-1">
+                        <li>
+                            <a href="/admin/wallets" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-wallet mr-3"></i>
+                                Wallets
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/transactions" class="flex items-center px-3 py-2 text-sm font-medium text-green-600 bg-green-50 rounded-md">
+                                <i class="fas fa-exchange-alt mr-3"></i>
+                                Transactions
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/admin/bank-transfers" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-university mr-3"></i>
+                                Bank Transfers
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#" class="flex items-center px-3 py-2 text-sm font-medium text-gray-700 rounded-md hover:bg-gray-100">
+                                <i class="fas fa-file-invoice-dollar mr-3"></i>
+                                Bill Payments
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="flex-1 ml-72">
+            <!-- Header -->
+            <header class="bg-white shadow-sm border-b border-gray-200">
+                <div class="px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <nav class="flex" aria-label="Breadcrumb">
+                                <ol class="flex items-center space-x-4">
+                                    <li>
+                                        <div class="flex items-center">
+                                            <a href="/superuser/dashboard" class="text-gray-400 hover:text-gray-500">
+                                                <i class="fas fa-home"></i>
+                                            </a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                            <a href="#" class="text-gray-400 hover:text-gray-500">Bank</a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                            <a href="/admin/transactions/list" class="text-gray-400 hover:text-gray-500">Transactions</a>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="flex items-center">
+                                            <i class="fas fa-chevron-right text-gray-400 mx-2"></i>
+                                            <span class="text-gray-900 font-medium">Transaction Details</span>
+                                        </div>
+                                    </li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <main class="p-6">
+                <!-- Page Header -->
+                <div class="mb-6 flex justify-between items-center">
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">Transaction Details</h1>
+                        <p class="text-gray-600 mt-1" th:text="${transaction.reference}">TXN123456789</p>
+                    </div>
+                    <div class="flex space-x-3">
+                        <a href="/admin/transactions/list" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-arrow-left mr-2"></i>Back to Transactions
+                        </a>
+                        <a th:href="@{/admin/transactions/{id}/edit(id=${transaction.id})}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-edit mr-2"></i>Edit Transaction
+                        </a>
+                        <button onclick="printTransaction()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                            <i class="fas fa-print mr-2"></i>Print
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Status Banner -->
+                <div class="mb-6">
+                    <div class="rounded-lg p-4" 
+                         th:class="${transaction.status == 'SUCCESS' ? 'bg-green-50 border border-green-200' : 
+                                    transaction.status == 'PENDING' ? 'bg-yellow-50 border border-yellow-200' : 
+                                    'bg-red-50 border border-red-200'}">
+                        <div class="flex items-center">
+                            <i class="text-2xl mr-3"
+                               th:class="${transaction.status == 'SUCCESS' ? 'fas fa-check-circle text-green-600' : 
+                                          transaction.status == 'PENDING' ? 'fas fa-clock text-yellow-600' : 
+                                          'fas fa-exclamation-circle text-red-600'}"></i>
+                            <div>
+                                <h3 class="text-lg font-semibold" 
+                                    th:class="${transaction.status == 'SUCCESS' ? 'text-green-800' : 
+                                               transaction.status == 'PENDING' ? 'text-yellow-800' : 
+                                               'text-red-800'}"
+                                    th:text="'Transaction ' + ${transaction.status}">Transaction SUCCESS</h3>
+                                <p class="text-sm" 
+                                   th:class="${transaction.status == 'SUCCESS' ? 'text-green-600' : 
+                                              transaction.status == 'PENDING' ? 'text-yellow-600' : 
+                                              'text-red-600'}"
+                                   th:text="${transaction.status == 'SUCCESS' ? 'This transaction was completed successfully.' : 
+                                             transaction.status == 'PENDING' ? 'This transaction is currently being processed.' : 
+                                             'This transaction failed to complete.'}">This transaction was completed successfully.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction Information -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Basic Information -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                                Transaction Information
+                            </h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Reference</label>
+                                    <div class="mt-1 text-sm text-gray-900 font-mono" th:text="${transaction.reference}">TXN123456789</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Type</label>
+                                    <div class="mt-1">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                                              th:class="${transaction.type == 'CREDIT' ? 'bg-green-100 text-green-800' : 
+                                                         transaction.type == 'DEBIT' ? 'bg-red-100 text-red-800' : 
+                                                         'bg-blue-100 text-blue-800'}"
+                                              th:text="${transaction.type}">CREDIT</span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Amount</label>
+                                    <div class="mt-1 text-lg font-semibold text-gray-900" 
+                                         th:text="${transaction.currency + ' ' + #numbers.formatDecimal(transaction.amount, 1, 'COMMA', 2, 'POINT')}">NGN 10,000.00</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Currency</label>
+                                    <div class="mt-1 text-sm text-gray-900" th:text="${transaction.currency}">NGN</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Channel</label>
+                                    <div class="mt-1 text-sm text-gray-900" th:text="${transaction.channel ?: 'N/A'}">TRANSFER</div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Fee</label>
+                                    <div class="mt-1 text-sm text-gray-900" 
+                                         th:text="${transaction.fee != null ? transaction.currency + ' ' + #numbers.formatDecimal(transaction.fee, 1, 'COMMA', 2, 'POINT') : 'N/A'}">NGN 50.00</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Account Information -->
+                    <div class="bg-white shadow rounded-lg">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-medium text-gray-900">
+                                <i class="fas fa-university text-green-600 mr-2"></i>
+                                Account Information
+                            </h3>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">From Account</label>
+                                <div class="mt-1 text-sm text-gray-900 font-mono" th:text="${transaction.fromAccount ?: 'N/A'}">7038655955</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">To Account</label>
+                                <div class="mt-1 text-sm text-gray-900 font-mono" th:text="${transaction.toAccount ?: 'N/A'}">8774879296</div>
+                            </div>
+                            <div th:if="${transaction.beneficiaryName}">
+                                <label class="block text-sm font-medium text-gray-700">Beneficiary Name</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${transaction.beneficiaryName}">John Doe</div>
+                            </div>
+                            <div th:if="${transaction.beneficiaryBank}">
+                                <label class="block text-sm font-medium text-gray-700">Beneficiary Bank</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${transaction.beneficiaryBank}">First Bank</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Transaction Timeline -->
+                <div class="bg-white shadow rounded-lg mb-6">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-clock text-blue-600 mr-2"></i>
+                            Transaction Timeline
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="flow-root">
+                            <ul class="-mb-8">
+                                <li>
+                                    <div class="relative pb-8">
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-plus text-white text-xs"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">Transaction initiated</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time th:text="${#temporals.format(transaction.createdAt, 'MMM d, yyyy h:mm a')}">Aug 1, 2025 9:23 PM</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li th:if="${transaction.processedAt}">
+                                    <div class="relative pb-8">
+                                        <span class="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200"></span>
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full bg-yellow-500 flex items-center justify-center ring-8 ring-white">
+                                                    <i class="fas fa-cog text-white text-xs"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500">Transaction processed</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time th:text="${#temporals.format(transaction.processedAt, 'MMM d, yyyy h:mm a')}">Aug 1, 2025 9:24 PM</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li th:if="${transaction.completedAt}">
+                                    <div class="relative">
+                                        <div class="relative flex space-x-3">
+                                            <div>
+                                                <span class="h-8 w-8 rounded-full flex items-center justify-center ring-8 ring-white"
+                                                      th:class="${transaction.status == 'SUCCESS' ? 'bg-green-500' : 'bg-red-500'}">
+                                                    <i class="text-white text-xs"
+                                                       th:class="${transaction.status == 'SUCCESS' ? 'fas fa-check' : 'fas fa-times'}"></i>
+                                                </span>
+                                            </div>
+                                            <div class="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                                                <div>
+                                                    <p class="text-sm text-gray-500" th:text="'Transaction ' + ${transaction.status.toLowerCase()}">Transaction completed</p>
+                                                </div>
+                                                <div class="text-right text-sm whitespace-nowrap text-gray-500">
+                                                    <time th:text="${#temporals.format(transaction.completedAt, 'MMM d, yyyy h:mm a')}">Aug 1, 2025 9:25 PM</time>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Additional Details -->
+                <div class="bg-white shadow rounded-lg">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900">
+                            <i class="fas fa-list text-purple-600 mr-2"></i>
+                            Additional Details
+                        </h3>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Description</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${transaction.description ?: 'No description provided'}">Transfer to savings account</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Narration</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${transaction.narration ?: 'No narration provided'}">Monthly savings transfer</div>
+                            </div>
+                            <div th:if="${transaction.externalReference}">
+                                <label class="block text-sm font-medium text-gray-700">External Reference</label>
+                                <div class="mt-1 text-sm text-gray-900 font-mono" th:text="${transaction.externalReference}">EXT123456</div>
+                            </div>
+                            <div th:if="${transaction.sessionId}">
+                                <label class="block text-sm font-medium text-gray-700">Session ID</label>
+                                <div class="mt-1 text-sm text-gray-900 font-mono" th:text="${transaction.sessionId}">SES789012</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Created By</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${transaction.createdBy ?: 'System'}">admin</div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Last Updated</label>
+                                <div class="mt-1 text-sm text-gray-900" th:text="${#temporals.format(transaction.updatedAt, 'MMM d, yyyy h:mm a')}">Aug 1, 2025 9:25 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <script>
+        function printTransaction() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

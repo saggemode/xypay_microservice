@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay CRM Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .form-row { display: flex; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .form-label { min-width: 120px; font-weight: bold; font-size: 11px; }
+        .form-input, .form-select { flex: 1; padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; } .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Customer Relationship Management Console - CSO Interface</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Contacts</span>
+            <span class="menu-item">Activities</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn">New Contact</button>
+            <button class="toolbar-btn">Search Customer</button>
+            <button class="toolbar-btn">Add Activity</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Call Log</button>
+            <button class="toolbar-btn">Email</button>
+            <button class="toolbar-btn">Schedule</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Reports</button>
+            <button class="toolbar-btn">Export</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">CRM Modules</div>
+                <div class="tree-node selected" onclick="selectModule(this, 'contacts')">
+                    <div>👥</div> Customer Contacts
+                </div>
+                <div class="tree-node" onclick="selectModule(this, 'activities')">
+                    <div>📋</div> Activities
+                </div>
+                <div class="tree-node" onclick="selectModule(this, 'calls')">
+                    <div>📞</div> Call Logs
+                </div>
+                <div class="tree-node" onclick="selectModule(this, 'emails')">
+                    <div>📧</div> Email History
+                </div>
+                <div class="tree-node" onclick="selectModule(this, 'opportunities')">
+                    <div>💰</div> Opportunities
+                </div>
+                <div class="tree-node" onclick="selectModule(this, 'reports')">
+                    <div>📊</div> CRM Reports
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Customer Relationship Management</div>
+                <div class="p-4" id="main-content">
+                    <div class="config-section">
+                        <div class="config-header">Customer Contact Management</div>
+                        <div class="p-3">
+                            <div class="mb-4 flex gap-2">
+                                <input type="text" class="form-input w-64" placeholder="Search customers..." id="searchInput">
+                                <button class="java-btn" onclick="searchCustomers()">Search</button>
+                                <button class="java-btn primary" onclick="addNewContact()">Add Contact</button>
+                            </div>
+                            
+                            <table class="java-table">
+                                <thead>
+                                    <tr>
+                                        <th>Customer ID</th>
+                                        <th>Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Account Type</th>
+                                        <th>Last Contact</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>CUS001234</td>
+                                        <td>John Doe</td>
+                                        <td>+234-801-234-5678</td>
+                                        <td>john.doe@email.com</td>
+                                        <td>Savings</td>
+                                        <td>2024-01-15</td>
+                                        <td style="color: green;">Active</td>
+                                        <td>
+                                            <button class="java-btn primary" onclick="viewCustomer('CUS001234')">View</button>
+                                            <button class="java-btn" onclick="callCustomer('CUS001234')">Call</button>
+                                            <button class="java-btn" onclick="emailCustomer('CUS001234')">Email</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>CUS001235</td>
+                                        <td>Jane Smith</td>
+                                        <td>+234-802-345-6789</td>
+                                        <td>jane.smith@email.com</td>
+                                        <td>Current</td>
+                                        <td>2024-01-12</td>
+                                        <td style="color: orange;">Follow-up</td>
+                                        <td>
+                                            <button class="java-btn primary" onclick="viewCustomer('CUS001235')">View</button>
+                                            <button class="java-btn" onclick="callCustomer('CUS001235')">Call</button>
+                                            <button class="java-btn" onclick="emailCustomer('CUS001235')">Email</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>CRM Console Ready | Active Customers: <span id="activeCount">245</span> | Today's Activities: <span id="activitiesCount">12</span></span>
+            <span>CSO: <span sec:authentication="name">cso@xypay.com</span> | Session: Active</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectModule(element, moduleType) {
+            document.querySelectorAll('.tree-node').forEach(node => node.classList.remove('selected'));
+            element.classList.add('selected');
+            
+            const content = document.getElementById('main-content');
+            switch(moduleType) {
+                case 'activities':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Customer Activities</div><div class="p-3"><table class="java-table"><tr><th>Activity ID</th><th>Customer</th><th>Type</th><th>Description</th><th>Date</th><th>Status</th></tr><tr><td>ACT001</td><td>John Doe</td><td>Call</td><td>Account inquiry</td><td>2024-01-15</td><td style="color: green;">Completed</td></tr></table></div></div>';
+                    break;
+                case 'calls':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Call Logs</div><div class="p-3"><table class="java-table"><tr><th>Call ID</th><th>Customer</th><th>Duration</th><th>Type</th><th>Date</th><th>Notes</th></tr><tr><td>CALL001</td><td>Jane Smith</td><td>5:30</td><td>Inbound</td><td>2024-01-15</td><td>Balance inquiry</td></tr></table></div></div>';
+                    break;
+                case 'emails':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Email History</div><div class="p-3"><table class="java-table"><tr><th>Email ID</th><th>Customer</th><th>Subject</th><th>Type</th><th>Date</th><th>Status</th></tr><tr><td>EMAIL001</td><td>Mike Johnson</td><td>Account Statement</td><td>Outbound</td><td>2024-01-14</td><td style="color: green;">Delivered</td></tr></table></div></div>';
+                    break;
+                case 'opportunities':
+                    content.innerHTML = '<div class="config-section"><div class="config-header">Sales Opportunities</div><div class="p-3"><table class="java-table"><tr><th>Opportunity ID</th><th>Customer</th><th>Product</th><th>Value</th><th>Stage</th><th>Close Date</th></tr><tr><td>OPP001</td><td>Sarah Wilson</td><td>Fixed Deposit</td><td>₦500,000</td><td style="color: orange;">Proposal</td><td>2024-01-25</td></tr></table></div></div>';
+                    break;
+                default:
+                    location.reload();
+            }
+        }
+        
+        function searchCustomers() {
+            const searchTerm = document.getElementById('searchInput').value;
+            alert('Searching for: ' + searchTerm);
+        }
+        
+        function addNewContact() {
+            alert('Opening new contact form...');
+        }
+        
+        function viewCustomer(customerId) {
+            alert('Viewing customer profile: ' + customerId);
+        }
+        
+        function callCustomer(customerId) {
+            alert('Initiating call to customer: ' + customerId);
+        }
+        
+        function emailCustomer(customerId) {
+            alert('Opening email composer for customer: ' + customerId);
+        }
+        
+        window.onload = function() {
+            document.getElementById('activeCount').textContent = '245';
+            document.getElementById('activitiesCount').textContent = '12';
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="layout (pageTitle, contentTemplate)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle} + ' - XyPay Banking System'">XyPay Banking System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-transition {
+            transition: width 0.3s ease-in-out;
+        }
+        .main-transition {
+            transition: margin-left 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="modernDashboard()">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Left side - Logo and Hamburger -->
+                <div class="flex items-center">
+                    <!-- Hamburger Menu -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <div class="flex items-center ml-4 lg:ml-0">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-university text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h1 class="text-xl font-bold text-gray-900">XyPay</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center - Top Navbar Menu -->
+                <div class="hidden md:flex items-center space-x-6 ml-8">
+                    <a href="/superuser/dashboard" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+
+                    <!-- Accounts Dropdown -->
+                    <div class="relative" x-data="{open:false}">
+                        <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                            Accounts <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open=false" class="absolute mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                            <a href="/admin/user-profiles" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Profiles</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Audit Logs</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Security Alerts</a>
+                            <a href="/admin/user-sessions" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Sessions</a>
+                            <a href="/admin/kyc-profiles" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">KYC Profiles</a>
+                        </div>
+                    </div>
+
+                    <!-- Bank Dropdown -->
+                    <div class="relative" x-data="{open:false}">
+                        <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                            Bank <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open=false" class="absolute mt-2 w-[22rem] bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50 grid grid-cols-1">
+                            <a href="/admin/wallets" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Wallets</a>
+                            <a href="/admin/transactions" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transactions</a>
+                            <a href="/admin/bank-transfers" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bank Transfers</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bill Payments</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Virtual Cards</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side - Controls -->
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
+                    </button>
+                    
+                    <!-- User Profile -->
+                    <div class="relative">
+                        <button @click="userMenuOpen = !userMenuOpen" class="flex items-center p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        </button>
+                        
+                        <!-- User Dropdown -->
+                        <div x-show="userMenuOpen" @click.away="userMenuOpen = false" 
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" 
+             class="fixed inset-0 z-20 bg-gray-600 bg-opacity-75 lg:hidden"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"></div>
+
+        <!-- Sidebar -->
+        <aside :class="[
+            'bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-30 overflow-y-auto transform transition-all duration-300 ease-in-out lg:static lg:inset-0',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+            sidebarCollapsed ? 'w-16' : 'w-64'
+        ]">
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <i class="fas fa-university text-xl text-blue-600"></i>
+                    <span x-show="!sidebarCollapsed" class="ml-3 text-lg font-semibold text-gray-900">XyPay</span>
+                </div>
+                <button @click="sidebarCollapsed = !sidebarCollapsed" 
+                        class="hidden lg:block p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                    <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'" class="text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-4 py-4 space-y-6">
+                <!-- Dashboard -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Dashboard</h4>
+                    <a href="/superuser/dashboard" :class="linkClass('/superuser/dashboard') + ' font-medium'" :title="sidebarCollapsed ? 'Dashboard' : ''">
+                        <i class="fas fa-home text-lg" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span x-show="!sidebarCollapsed">Dashboard</span>
+                    </a>
+                </div>
+
+                <!-- Accounts -->
+                <div>
+                    <button @click="toggleGroup('accounts')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Accounts</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('accounts') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('accounts')">
+                        <a href="/admin/user-profiles" :class="linkClass('/admin/user-profiles')"><i class="fas fa-user-circle mr-3"></i><span x-show="!sidebarCollapsed">User profiles</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-clipboard-list mr-3"></i><span x-show="!sidebarCollapsed">Audit logs</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-bell mr-3"></i><span x-show="!sidebarCollapsed">Security alerts</span></a>
+                        <a href="/admin/kyc-profiles" :class="linkClass('/admin/kyc-profiles')"><i class="fas fa-id-card mr-3"></i><span x-show="!sidebarCollapsed">KYC Profiles</span></a>
+                        <a href="/admin/user-sessions" :class="linkClass('/admin/user-sessions')"><i class="fas fa-clock mr-3"></i><span x-show="!sidebarCollapsed">User sessions</span></a>
+                    </div>
+                </div>
+
+                <!-- Bank -->
+                <div>
+                    <button @click="toggleGroup('bank')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Bank</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('bank') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('bank')">
+                        <a href="/admin/wallets" :class="linkClass('/admin/wallets')"><i class="fas fa-wallet mr-3"></i><span x-show="!sidebarCollapsed">Wallets</span></a>
+                        <a href="/admin/transactions" :class="linkClass('/admin/transactions')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">Transactions</span></a>
+                        <a href="/admin/bank-transfers" :class="linkClass('/admin/bank-transfers')"><i class="fas fa-university mr-3"></i><span x-show="!sidebarCollapsed">Bank Transfers</span></a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main :class="sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'" class="flex-1 ml-64 lg:ml-64 main-transition">
+            <div class="px-4 sm:px-6 lg:px-8 py-8">
+                <!-- Page Content Block -->
+                <div th:replace="${contentTemplate}"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function modernDashboard() {
+            return {
+                sidebarOpen: false,
+                sidebarCollapsed: false,
+                userMenuOpen: false,
+                openGroups: JSON.parse(localStorage.getItem('openGroups') || '{}'),
+                
+                init() {
+                    // Initialize defaults if missing
+                    if (Object.keys(this.openGroups).length === 0) {
+                        this.openGroups = { accounts: true, bank: true };
+                        localStorage.setItem('openGroups', JSON.stringify(this.openGroups));
+                    }
+                },
+
+                linkClass(path) {
+                    const isActive = window.location.pathname === path;
+                    const base = 'flex items-center px-3 py-2 text-sm rounded ';
+                    return base + (isActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-100 text-gray-700');
+                },
+
+                toggleGroup(key) {
+                    this.openGroups[key] = !this.openGroups[key];
+                    localStorage.setItem('openGroups', JSON.stringify(this.openGroups));
+                },
+
+                isOpen(key) {
+                    return !!this.openGroups[key];
+                }
+            }
+        }
+    </script>
+</body>
+</html>

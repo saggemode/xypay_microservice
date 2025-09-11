@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISO 20022 Management - XyPay Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bank-blue': '#1e40af',
+                        'bank-green': '#059669',
+                        'bank-red': '#dc2626',
+                        'bank-yellow': '#d97706',
+                        'bank-gray': '#6b7280'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-bank-blue text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold">XyPay Admin</h1>
+                    <span class="text-blue-200">ISO 20022 Management</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <span class="text-sm" sec:authentication="name">Admin User</span>
+                    <a href="/logout" class="bg-blue-600 hover:bg-blue-700 px-3 py-2 rounded text-sm">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 py-6">
+        <!-- Header Section -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900 mb-2">ISO 20022 Message Management</h2>
+            <p class="text-gray-600">Import, export, and validate ISO 20022 financial messages for international payments</p>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-code text-bank-blue text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Total Messages</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="totalMessages">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-upload text-bank-green text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Imported Today</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="importedToday">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-download text-bank-yellow text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Exported Today</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="exportedToday">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-bank-red text-2xl"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Validation Errors</p>
+                        <p class="text-2xl font-semibold text-gray-900" id="validationErrors">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Export Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        <i class="fas fa-download text-bank-blue mr-2"></i>Export ISO 20022 Messages
+                    </h3>
+                    <p class="text-gray-600">Generate and download ISO 20022 XML messages for payment processing</p>
+                </div>
+                <div class="p-6">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                            <select id="exportMessageType" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                <option value="pain.001">Customer Credit Transfer (pain.001)</option>
+                                <option value="pain.002">Payment Status Report (pain.002)</option>
+                                <option value="pain.008">Customer Direct Debit (pain.008)</option>
+                                <option value="camt.053">Bank Statement (camt.053)</option>
+                                <option value="camt.054">Debit/Credit Notification (camt.054)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                            <div class="grid grid-cols-2 gap-2">
+                                <input type="date" id="exportFromDate" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                                <input type="date" id="exportToDate" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue">
+                            </div>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button onclick="downloadXml()" class="flex-1 bg-bank-blue hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-file-download mr-2"></i>Download Sample
+                            </button>
+                            <button onclick="exportMessages()" class="flex-1 bg-bank-green hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-download mr-2"></i>Export Messages
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Section -->
+            <div class="bg-white rounded-lg shadow">
+                <div class="p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">
+                        <i class="fas fa-upload text-bank-green mr-2"></i>Import ISO 20022 Messages
+                    </h3>
+                    <p class="text-gray-600">Upload and process ISO 20022 XML messages from external sources</p>
+                </div>
+                <div class="p-6">
+                    <form id="importForm" onsubmit="return uploadXml()">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">XML Content</label>
+                                <textarea id="xmlInput" rows="8" required
+                                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-bank-blue"
+                                          placeholder="Paste ISO 20022 XML here..."></textarea>
+                            </div>
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" id="validateOnImport" checked class="mr-2">
+                                    <span class="text-sm text-gray-700">Validate XML against ISO 20022 schema</span>
+                                </label>
+                            </div>
+                            <button type="submit" class="w-full bg-bank-green hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                                <i class="fas fa-upload mr-2"></i>Import XML
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">
+                    <i class="fas fa-list-alt text-bank-gray mr-2"></i>Processing Results
+                </h3>
+            </div>
+            <div class="p-6">
+                <div id="importResult" class="hidden">
+                    <!-- Results will be displayed here -->
+                </div>
+                <div id="emptyResults" class="text-center py-8">
+                    <i class="fas fa-inbox text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No processing results yet</h3>
+                    <p class="text-gray-500">Import or export ISO 20022 messages to see results here.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Messages Table -->
+        <div class="mt-6 bg-white rounded-lg shadow">
+            <div class="p-6 border-b border-gray-200">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-medium text-gray-900">
+                        <i class="fas fa-history text-bank-gray mr-2"></i>Recent Messages
+                    </h3>
+                    <button onclick="loadRecentMessages()" class="text-bank-blue hover:text-blue-700">
+                        <i class="fas fa-refresh mr-1"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Direction</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200" id="messagesTableBody">
+                        <!-- Dynamic content will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load messages on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadRecentMessages();
+            updateStatistics();
+            setDefaultDates();
+        });
+
+        function setDefaultDates() {
+            const today = new Date().toISOString().split('T')[0];
+            const lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+            document.getElementById('exportFromDate').value = lastWeek;
+            document.getElementById('exportToDate').value = today;
+        }
+
+        function downloadXml() {
+            const messageType = document.getElementById('exportMessageType').value;
+            fetch(`/api/iso20022/sample/${messageType}`)
+                .then(r => r.text())
+                .then(xml => {
+                    const blob = new Blob([xml], {type: 'application/xml'});
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `iso20022-${messageType}-sample.xml`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('Sample XML downloaded successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to download sample XML', 'error');
+                });
+        }
+
+        function exportMessages() {
+            const messageType = document.getElementById('exportMessageType').value;
+            const fromDate = document.getElementById('exportFromDate').value;
+            const toDate = document.getElementById('exportToDate').value;
+            
+            if (!fromDate || !toDate) {
+                showNotification('Please select date range for export', 'error');
+                return;
+            }
+            
+            const params = new URLSearchParams({
+                messageType: messageType,
+                fromDate: fromDate,
+                toDate: toDate
+            });
+            
+            fetch(`/api/iso20022/export?${params}`)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `iso20022-export-${messageType}-${fromDate}-to-${toDate}.xml`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('Messages exported successfully', 'success');
+                    updateStatistics();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to export messages', 'error');
+                });
+        }
+
+        function uploadXml() {
+            const xml = document.getElementById('xmlInput').value;
+            const validate = document.getElementById('validateOnImport').checked;
+            
+            if (!xml.trim()) {
+                showNotification('Please paste XML content', 'error');
+                return false;
+            }
+            
+            const importResult = document.getElementById('importResult');
+            const emptyResults = document.getElementById('emptyResults');
+            
+            importResult.innerHTML = '<div class="text-center py-4"><i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i><p class="text-gray-500 mt-2">Processing XML...</p></div>';
+            importResult.classList.remove('hidden');
+            emptyResults.classList.add('hidden');
+            
+            fetch('/api/iso20022/import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/xml',
+                    'X-Validate': validate.toString()
+                },
+                body: xml
+            })
+            .then(response => response.text())
+            .then(message => {
+                importResult.innerHTML = `
+                    <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <div class="flex">
+                            <i class="fas fa-check-circle text-green-400 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="text-green-800 font-medium">Import Successful</h4>
+                                <p class="text-green-700 mt-1">${message}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                updateStatistics();
+                loadRecentMessages();
+                document.getElementById('xmlInput').value = '';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                importResult.innerHTML = `
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <div class="flex">
+                            <i class="fas fa-exclamation-circle text-red-400 mt-1 mr-3"></i>
+                            <div>
+                                <h4 class="text-red-800 font-medium">Import Failed</h4>
+                                <p class="text-red-700 mt-1">An error occurred while processing the XML file.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            return false;
+        }
+
+        function loadRecentMessages() {
+            const tbody = document.getElementById('messagesTableBody');
+            
+            fetch('/api/iso20022/messages/recent')
+                .then(response => response.json())
+                .then(messages => {
+                    if (messages.length === 0) {
+                        tbody.innerHTML = `
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-inbox text-2xl mb-2"></i>
+                                    <p>No recent messages found</p>
+                                </td>
+                            </tr>
+                        `;
+                        return;
+                    }
+                    
+                    const rows = messages.map(message => `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${message.id}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${message.type}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${message.direction === 'INBOUND' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'}">
+                                    ${message.direction}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(message.status)}">
+                                    ${message.status}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${new Date(message.timestamp).toLocaleString()}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick="viewMessage('${message.id}')" class="text-bank-blue hover:text-blue-700 mr-3">
+                                    <i class="fas fa-eye mr-1"></i>View
+                                </button>
+                                <button onclick="downloadMessage('${message.id}')" class="text-bank-green hover:text-green-700">
+                                    <i class="fas fa-download mr-1"></i>Download
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    tbody.innerHTML = rows;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-red-500">
+                                <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                                <p>Failed to load messages</p>
+                            </td>
+                        </tr>
+                    `;
+                });
+        }
+
+        function getStatusClass(status) {
+            switch(status) {
+                case 'PROCESSED': return 'bg-green-100 text-green-800';
+                case 'FAILED': return 'bg-red-100 text-red-800';
+                case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function updateStatistics() {
+            fetch('/api/iso20022/statistics')
+                .then(response => response.json())
+                .then(stats => {
+                    document.getElementById('totalMessages').textContent = stats.totalMessages || 0;
+                    document.getElementById('importedToday').textContent = stats.importedToday || 0;
+                    document.getElementById('exportedToday').textContent = stats.exportedToday || 0;
+                    document.getElementById('validationErrors').textContent = stats.validationErrors || 0;
+                })
+                .catch(error => {
+                    console.error('Error loading statistics:', error);
+                });
+        }
+
+        function viewMessage(messageId) {
+            fetch(`/api/iso20022/messages/${messageId}`)
+                .then(response => response.json())
+                .then(message => {
+                    alert(`Message ID: ${message.id}\nType: ${message.type}\nStatus: ${message.status}\nTimestamp: ${new Date(message.timestamp).toLocaleString()}`);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to load message details', 'error');
+                });
+        }
+
+        function downloadMessage(messageId) {
+            fetch(`/api/iso20022/messages/${messageId}/download`)
+                .then(response => response.blob())
+                .then(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `iso20022-message-${messageId}.xml`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    showNotification('Message downloaded successfully', 'success');
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to download message', 'error');
+                });
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            } text-white`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

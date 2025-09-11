@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Teller Dashboard Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .dashboard-card { border: 1px solid #c0c0c0; background: #f8f8f8; }
+        .card-header { background: #e8e8e8; padding: 8px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .card-content { padding: 12px; }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; padding: 4px 0; border-bottom: 1px dotted #ccc; }
+        .stat-label { font-weight: bold; }
+        .stat-value { color: #0078d4; font-weight: bold; }
+        .notification-item { padding: 8px; border-left: 4px solid #0078d4; background: #f0f8ff; margin-bottom: 8px; font-size: 11px; }
+        .notification-item.warning { border-left-color: #ffa500; background: #fff8dc; }
+        .notification-item.error { border-left-color: #dc3545; background: #ffe6e6; }
+        .quick-action { display: inline-block; margin: 4px; padding: 8px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; text-decoration: none; color: black; }
+        .quick-action:hover { background: #d0d0d0; }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Teller Console - Dashboard</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Transaction</span>
+            <span class="menu-item">Customer</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="refreshDashboard()">🔄 Refresh</button>
+            <button class="toolbar-btn" onclick="quickDeposit()">💵 Quick Deposit</button>
+            <button class="toolbar-btn" onclick="quickWithdrawal()">💸 Quick Withdrawal</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="accountLookup()">🔍 Account Lookup</button>
+            <button class="toolbar-btn" onclick="balanceInquiry()">💰 Balance Inquiry</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="showReports()">📊 Reports</button>
+            <button class="toolbar-btn">❓ Help</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Teller Operations</div>
+                
+                <div class="tree-node selected" onclick="selectOperation(this, 'dashboard')">
+                    <div class="tree-icon">📊</div>
+                    Dashboard
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'deposit')">
+                    <div class="tree-icon">💵</div>
+                    Deposit
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'withdrawal')">
+                    <div class="tree-icon">💸</div>
+                    Withdrawal
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'check-cashing')">
+                    <div class="tree-icon">📄</div>
+                    Check Cashing
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'account-lookup')">
+                    <div class="tree-icon">🔍</div>
+                    Account Lookup
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'balance-inquiry')">
+                    <div class="tree-icon">💰</div>
+                    Balance Inquiry
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'transaction-history')">
+                    <div class="tree-icon">📋</div>
+                    Transaction History
+                </div>
+                
+                <div class="tree-node" onclick="selectOperation(this, 'customer-service')">
+                    <div class="tree-icon">👥</div>
+                    Customer Service
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Teller Dashboard - <span th:text="${#authentication.name}">Current User</span></div>
+                <div class="details-content" id="dashboardContent">
+                    
+                    <!-- Dashboard Overview -->
+                    <div class="dashboard-grid">
+                        <!-- Today's Statistics -->
+                        <div class="dashboard-card">
+                            <div class="card-header">📊 Today's Statistics</div>
+                            <div class="card-content">
+                                <div class="stat-item">
+                                    <span class="stat-label">Transactions Processed:</span>
+                                    <span class="stat-value" id="transactionsToday">47</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Deposits:</span>
+                                    <span class="stat-value" id="depositsToday">₦1,245,680.50</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Total Withdrawals:</span>
+                                    <span class="stat-value" id="withdrawalsToday">₦856,420.75</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Checks Cashed:</span>
+                                    <span class="stat-value" id="checksToday">12</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Average Transaction:</span>
+                                    <span class="stat-value" id="avgTransaction">₦44,685.25</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Cash Position -->
+                        <div class="dashboard-card">
+                            <div class="card-header">💰 Cash Position</div>
+                            <div class="card-content">
+                                <div class="stat-item">
+                                    <span class="stat-label">Opening Balance:</span>
+                                    <span class="stat-value">₦2,500,000.00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Current Balance:</span>
+                                    <span class="stat-value" id="currentCash">₦1,889,259.75</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Cash Limit:</span>
+                                    <span class="stat-value">₦3,000,000.00</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-label">Available Limit:</span>
+                                    <span class="stat-value" id="availableLimit">₦1,110,740.25</span>
+                                </div>
+                                <div style="text-align: center; margin-top: 12px;">
+                                    <button class="java-btn" onclick="requestCash()">Request Cash</button>
+                                    <button class="java-btn" onclick="depositCash()">Deposit Cash</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Transactions -->
+                    <div class="config-section">
+                        <div class="config-header">📋 Recent Transactions</div>
+                        <div class="config-content">
+                            <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+                                <thead>
+                                    <tr style="background: #e8e8e8;">
+                                        <th style="border: 1px solid #c0c0c0; padding: 4px; text-align: left;">Time</th>
+                                        <th style="border: 1px solid #c0c0c0; padding: 4px; text-align: left;">Type</th>
+                                        <th style="border: 1px solid #c0c0c0; padding: 4px; text-align: left;">Account</th>
+                                        <th style="border: 1px solid #c0c0c0; padding: 4px; text-align: right;">Amount</th>
+                                        <th style="border: 1px solid #c0c0c0; padding: 4px; text-align: left;">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentTransactions">
+                                    <tr>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">14:32</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">Deposit</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">1234567890</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; text-align: right;">₦125,000.00</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; color: green;">✅ Completed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">14:28</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">Withdrawal</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">9876543210</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; text-align: right;">₦50,000.00</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; color: green;">✅ Completed</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">14:15</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">Check Cash</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px;">5555666677</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; text-align: right;">₦75,500.00</td>
+                                        <td style="border: 1px solid #c0c0c0; padding: 4px; color: green;">✅ Completed</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style="text-align: center; margin-top: 12px;">
+                                <button class="java-btn" onclick="loadMoreTransactions()">Load More</button>
+                                <button class="java-btn" onclick="exportTransactions()">Export</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notifications and Alerts -->
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <div class="card-header">🔔 Notifications</div>
+                            <div class="card-content" id="notifications">
+                                <div class="notification-item">
+                                    <strong>System Update:</strong> New security patch installed successfully.
+                                </div>
+                                <div class="notification-item warning">
+                                    <strong>Cash Warning:</strong> Cash balance approaching daily limit.
+                                </div>
+                                <div class="notification-item">
+                                    <strong>Training:</strong> New compliance training available in portal.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <div class="card-header">⚡ Quick Actions</div>
+                            <div class="card-content">
+                                <a href="/teller/deposit" class="quick-action">💵 New Deposit</a>
+                                <a href="/teller/withdrawal" class="quick-action">💸 New Withdrawal</a>
+                                <a href="/teller/check-cashing" class="quick-action">📄 Cash Check</a>
+                                <a href="/teller/account-lookup" class="quick-action">🔍 Account Lookup</a>
+                                <button class="quick-action" onclick="balanceInquiry()">💰 Balance Inquiry</button>
+                                <button class="quick-action" onclick="printReport()">📊 Daily Report</button>
+                                <button class="quick-action" onclick="endOfDay()">🔚 End of Day</button>
+                                <button class="quick-action" onclick="helpDesk()">❓ Help Desk</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Teller Console Ready | User: <span th:text="${#authentication.name}">Current User</span> | Session: Active | Time: <span id="currentTime"></span></span>
+            <span>Status: <span id="operationStatus">Dashboard Active</span></span>
+        </div>
+    </div>
+    
+    <script>
+        function selectOperation(element, operationType) {
+            // Update tree selection
+            if (element) {
+                document.querySelectorAll('.tree-node').forEach(node => {
+                    node.classList.remove('selected');
+                });
+                element.classList.add('selected');
+            }
+            
+            // Update status
+            document.getElementById('operationStatus').textContent = 'Operation: ' + operationType.replace('-', ' ').toUpperCase();
+            
+            // Navigate to different operations
+            switch(operationType) {
+                case 'deposit':
+                    window.location.href = '/teller/deposit';
+                    break;
+                case 'withdrawal':
+                    window.location.href = '/teller/withdrawal';
+                    break;
+                case 'check-cashing':
+                    window.location.href = '/teller/check-cashing';
+                    break;
+                case 'account-lookup':
+                    window.location.href = '/teller/account-lookup';
+                    break;
+                case 'balance-inquiry':
+                    balanceInquiry();
+                    break;
+                case 'transaction-history':
+                    showTransactionHistory();
+                    break;
+                case 'customer-service':
+                    showCustomerService();
+                    break;
+                default:
+                    // Stay on dashboard
+                    break;
+            }
+        }
+        
+        function refreshDashboard() {
+            document.getElementById('operationStatus').textContent = 'Refreshing dashboard...';
+            
+            // Simulate data refresh
+            setTimeout(() => {
+                // Update statistics with random values
+                document.getElementById('transactionsToday').textContent = Math.floor(Math.random() * 100) + 30;
+                document.getElementById('depositsToday').textContent = '₦' + (Math.random() * 2000000 + 1000000).toFixed(2);
+                document.getElementById('withdrawalsToday').textContent = '₦' + (Math.random() * 1500000 + 500000).toFixed(2);
+                document.getElementById('checksToday').textContent = Math.floor(Math.random() * 20) + 5;
+                
+                document.getElementById('operationStatus').textContent = 'Dashboard Refreshed';
+                alert('✅ Dashboard refreshed successfully!');
+            }, 1500);
+        }
+        
+        function quickDeposit() {
+            window.location.href = '/teller/deposit';
+        }
+        
+        function quickWithdrawal() {
+            window.location.href = '/teller/withdrawal';
+        }
+        
+        function accountLookup() {
+            const accountNumber = prompt('Enter account number:');
+            if (accountNumber) {
+                window.location.href = '/teller/account-lookup?account=' + accountNumber;
+            }
+        }
+        
+        function balanceInquiry() {
+            const accountNumber = prompt('Enter account number for balance inquiry:');
+            if (accountNumber) {
+                document.getElementById('operationStatus').textContent = 'Processing balance inquiry...';
+                
+                setTimeout(() => {
+                    const balance = (Math.random() * 500000 + 50000).toFixed(2);
+                    alert('💰 Balance Inquiry Result\\n\\nAccount: ' + accountNumber + '\\nAvailable Balance: ₦' + balance + '\\nAccount Status: Active');
+                    document.getElementById('operationStatus').textContent = 'Balance inquiry completed';
+                }, 1000);
+            }
+        }
+        
+        function showTransactionHistory() {
+            alert('📋 Transaction History\\n\\nThis would show detailed transaction history in a real implementation.');
+        }
+        
+        function showCustomerService() {
+            alert('👥 Customer Service\\n\\nThis would open customer service tools in a real implementation.');
+        }
+        
+        function requestCash() {
+            const amount = prompt('Enter cash request amount:');
+            if (amount && !isNaN(amount)) {
+                alert('💰 Cash Request Submitted\\n\\nAmount: ₦' + parseFloat(amount).toFixed(2) + '\\nStatus: Pending approval');
+            }
+        }
+        
+        function depositCash() {
+            const amount = prompt('Enter cash deposit amount:');
+            if (amount && !isNaN(amount)) {
+                alert('💵 Cash Deposit Recorded\\n\\nAmount: ₦' + parseFloat(amount).toFixed(2) + '\\nStatus: Recorded');
+            }
+        }
+        
+        function loadMoreTransactions() {
+            alert('📋 Loading more transactions...\\n\\nThis would load additional transaction records.');
+        }
+        
+        function exportTransactions() {
+            alert('📊 Export Transactions\\n\\nThis would export transaction data to Excel/CSV.');
+        }
+        
+        function printReport() {
+            alert('🖨️ Print Daily Report\\n\\nThis would generate and print the daily teller report.');
+        }
+        
+        function endOfDay() {
+            if (confirm('Start End of Day process?\\n\\nThis will close the teller session and generate reports.')) {
+                alert('🔚 End of Day Process Started\\n\\nGenerating reports and closing session...');
+            }
+        }
+        
+        function helpDesk() {
+            alert('❓ Help Desk\\n\\nContact: IT Support\\nPhone: +234-800-HELP\\nEmail: support@xypay.com');
+        }
+        
+        function showReports() {
+            alert('📊 Reports\\n\\nThis would open the reports module in a real implementation.');
+        }
+        
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString();
+        }
+        
+        function addNotification(message, type = 'info') {
+            const notificationsContainer = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = 'notification-item' + (type !== 'info' ? ' ' + type : '');
+            notification.innerHTML = '<strong>New:</strong> ' + message;
+            notificationsContainer.insertBefore(notification, notificationsContainer.firstChild);
+            
+            // Remove old notifications if more than 5
+            const notifications = notificationsContainer.children;
+            if (notifications.length > 5) {
+                notificationsContainer.removeChild(notifications[notifications.length - 1]);
+            }
+        }
+        
+        // Initialize dashboard
+        window.onload = function() {
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            document.getElementById('operationStatus').textContent = 'Dashboard Active';
+            
+            // Simulate periodic notifications
+            setInterval(() => {
+                if (Math.random() > 0.95) { // 5% chance every interval
+                    const messages = [
+                        'New customer registered',
+                        'System backup completed',
+                        'Daily limit warning for cash',
+                        'New transaction processed'
+                    ];
+                    const types = ['info', 'info', 'warning', 'info'];
+                    const index = Math.floor(Math.random() * messages.length);
+                    addNotification(messages[index], types[index]);
+                }
+            }, 30000); // Check every 30 seconds
+        };
+    </script>
+</body>
+</html>

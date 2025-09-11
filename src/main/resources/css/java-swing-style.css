@@ -1,0 +1,432 @@
+/* Java Swing-inspired styling for XyPay Templates */
+* { box-sizing: border-box; }
+
+body { 
+    margin: 0; 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background: #f0f0f0; 
+    color: #333;
+    font-size: 12px;
+}
+
+/* Main container with Java window look */
+.java-window {
+    background: #e8e8e8;
+    border: 2px outset #c0c0c0;
+    margin: 10px;
+    min-height: calc(100vh - 20px);
+}
+
+/* Title bar */
+.title-bar {
+    background: linear-gradient(to bottom, #4a90e2, #357abd);
+    color: white;
+    padding: 8px 12px;
+    font-weight: bold;
+    font-size: 14px;
+    border-bottom: 1px solid #2c5aa0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.window-controls {
+    display: flex;
+    gap: 4px;
+}
+
+.window-btn {
+    width: 16px;
+    height: 16px;
+    border: 1px outset #c0c0c0;
+    background: #e0e0e0;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+    cursor: pointer;
+}
+
+/* Menu bar */
+.menu-bar {
+    background: #f0f0f0;
+    border-bottom: 1px solid #a0a0a0;
+    padding: 4px;
+    font-size: 12px;
+}
+
+.menu-item {
+    display: inline-block;
+    padding: 4px 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.menu-item:hover {
+    border: 1px inset #c0c0c0;
+    background: #d0d0d0;
+}
+
+/* Toolbar */
+.toolbar {
+    background: #f8f8f8;
+    border-bottom: 1px solid #a0a0a0;
+    padding: 6px;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.toolbar-btn {
+    padding: 4px 8px;
+    border: 1px outset #c0c0c0;
+    background: #e8e8e8;
+    font-size: 11px;
+    cursor: pointer;
+    min-width: 60px;
+}
+
+.toolbar-btn:hover {
+    background: #d0d0d0;
+}
+
+.toolbar-btn:active {
+    border: 1px inset #c0c0c0;
+}
+
+.toolbar-separator {
+    width: 1px;
+    height: 20px;
+    background: #a0a0a0;
+    margin: 0 4px;
+}
+
+/* Main content area */
+.content-area {
+    display: flex;
+    height: calc(100vh - 140px);
+}
+
+/* Left panel - Tree view */
+.tree-panel {
+    width: 250px;
+    background: #ffffff;
+    border-right: 1px solid #a0a0a0;
+    border-left: 1px inset #c0c0c0;
+    border-top: 1px inset #c0c0c0;
+    overflow-y: auto;
+}
+
+.tree-header {
+    background: #e8e8e8;
+    padding: 6px 8px;
+    font-weight: bold;
+    font-size: 12px;
+    border-bottom: 1px solid #a0a0a0;
+}
+
+.tree-node {
+    padding: 3px 8px 3px 16px;
+    font-size: 12px;
+    cursor: pointer;
+    border-bottom: 1px dotted #d0d0d0;
+    display: flex;
+    align-items: center;
+}
+
+.tree-node:hover {
+    background: #e0f0ff;
+}
+
+.tree-node.selected {
+    background: #316ac5;
+    color: white;
+}
+
+.tree-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+    background: #ffd700;
+    border: 1px solid #ccc;
+    font-size: 10px;
+    text-align: center;
+    line-height: 14px;
+}
+
+/* Right panel - Details */
+.details-panel {
+    flex: 1;
+    background: #ffffff;
+    border: 1px inset #c0c0c0;
+    display: flex;
+    flex-direction: column;
+}
+
+.details-header {
+    background: #e8e8e8;
+    padding: 6px 8px;
+    font-weight: bold;
+    font-size: 12px;
+    border-bottom: 1px solid #a0a0a0;
+}
+
+.details-content {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+}
+
+/* Java-style buttons */
+.java-btn {
+    padding: 6px 16px;
+    border: 2px outset #c0c0c0;
+    background: #e8e8e8;
+    font-size: 11px;
+    cursor: pointer;
+    margin: 2px;
+}
+
+.java-btn:hover {
+    background: #d0d0d0;
+}
+
+.java-btn:active {
+    border: 2px inset #c0c0c0;
+}
+
+.java-btn.primary {
+    background: #4a90e2;
+    color: white;
+    border-color: #357abd;
+}
+
+.java-btn.danger {
+    background: #dc3545;
+    color: white;
+    border-color: #c82333;
+}
+
+.java-btn.success {
+    background: #28a745;
+    color: white;
+    border-color: #1e7e34;
+}
+
+/* Status bar */
+.status-bar {
+    background: #f0f0f0;
+    border-top: 1px solid #a0a0a0;
+    padding: 4px 8px;
+    font-size: 11px;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Configuration panels */
+.config-section {
+    margin-bottom: 16px;
+    border: 1px solid #a0a0a0;
+    background: #f8f8f8;
+}
+
+.config-header {
+    background: #e0e0e0;
+    padding: 6px 8px;
+    font-weight: bold;
+    font-size: 12px;
+    border-bottom: 1px solid #a0a0a0;
+}
+
+.config-content {
+    padding: 8px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+}
+
+.form-label {
+    width: 120px;
+    font-weight: bold;
+}
+
+.form-input {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px inset #c0c0c0;
+    font-size: 11px;
+}
+
+.form-select {
+    flex: 1;
+    padding: 2px 4px;
+    border: 1px inset #c0c0c0;
+    font-size: 11px;
+    background: white;
+}
+
+/* Table styling */
+.java-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    border: 1px solid #a0a0a0;
+}
+
+.java-table th {
+    background: #e0e0e0;
+    padding: 4px 8px;
+    border: 1px solid #a0a0a0;
+    font-weight: bold;
+    text-align: left;
+}
+
+.java-table td {
+    padding: 4px 8px;
+    border: 1px solid #d0d0d0;
+}
+
+.java-table tr:nth-child(even) {
+    background: #f8f8f8;
+}
+
+.java-table tr:hover {
+    background: #e0f0ff;
+}
+
+/* Panel styling */
+.java-panel {
+    background: #f0f0f0;
+    border: 1px inset #c0c0c0;
+    padding: 8px;
+    margin: 4px;
+}
+
+.java-panel-header {
+    background: #e0e0e0;
+    padding: 4px 8px;
+    font-weight: bold;
+    font-size: 12px;
+    border-bottom: 1px solid #a0a0a0;
+    margin: -8px -8px 8px -8px;
+}
+
+/* Text areas */
+.java-textarea {
+    padding: 4px;
+    border: 1px inset #c0c0c0;
+    font-size: 11px;
+    font-family: 'Courier New', monospace;
+    background: white;
+    resize: vertical;
+}
+
+/* Checkboxes and radio buttons */
+.java-checkbox, .java-radio {
+    margin-right: 6px;
+}
+
+/* Progress bars */
+.java-progress {
+    width: 100%;
+    height: 16px;
+    border: 1px inset #c0c0c0;
+    background: #f0f0f0;
+    position: relative;
+}
+
+.java-progress-bar {
+    height: 100%;
+    background: linear-gradient(to bottom, #4a90e2, #357abd);
+    transition: width 0.3s ease;
+}
+
+/* Tabs */
+.java-tabs {
+    border-bottom: 1px solid #a0a0a0;
+}
+
+.java-tab {
+    display: inline-block;
+    padding: 6px 12px;
+    border: 1px outset #c0c0c0;
+    background: #e8e8e8;
+    cursor: pointer;
+    font-size: 11px;
+    margin-right: 2px;
+}
+
+.java-tab.active {
+    background: #f0f0f0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.java-tab:hover {
+    background: #d0d0d0;
+}
+
+/* Scrollbars (webkit) */
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    border: 1px inset #c0c0c0;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d0d0d0;
+    border: 1px outset #c0c0c0;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #b0b0b0;
+}
+
+/* Dialog boxes */
+.java-dialog {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #e8e8e8;
+    border: 2px outset #c0c0c0;
+    min-width: 300px;
+    z-index: 1000;
+}
+
+.java-dialog-header {
+    background: linear-gradient(to bottom, #4a90e2, #357abd);
+    color: white;
+    padding: 6px 8px;
+    font-weight: bold;
+    font-size: 12px;
+}
+
+.java-dialog-content {
+    padding: 12px;
+}
+
+.java-dialog-buttons {
+    text-align: right;
+    padding: 8px 12px;
+    border-top: 1px solid #a0a0a0;
+}
+
+/* Utility classes */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-left { text-align: left; }
+.font-bold { font-weight: bold; }
+.font-small { font-size: 10px; }
+.margin-small { margin: 4px; }
+.padding-small { padding: 4px; }
+.border-inset { border: 1px inset #c0c0c0; }
+.border-outset { border: 1px outset #c0c0c0; }
+.bg-light { background: #f8f8f8; }
+.bg-dark { background: #e0e0e0; }

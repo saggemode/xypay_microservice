@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Banking Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-transition {
+            transition: width 0.3s ease-in-out;
+        }
+        .main-transition {
+            transition: margin-left 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="modernDashboard()">
+    <!-- Top Navigation -->
+    <nav class="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-0 right-0 z-50">
+        <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Left side - Logo and Hamburger -->
+                <div class="flex items-center">
+                    <!-- Hamburger Menu -->
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-gray-500">
+                        <i class="fas fa-bars text-xl"></i>
+                    </button>
+                    
+                    <!-- Logo -->
+                    <div class="flex items-center ml-4 lg:ml-0">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-university text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h1 class="text-xl font-bold text-gray-900">XyPay</h1>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center - Top Navbar Menu -->
+                <div class="hidden md:flex items-center space-x-6 ml-8">
+                    <a href="/superuser/dashboard" class="text-gray-700 hover:text-blue-600 font-medium">Home</a>
+
+                    <!-- Accounts Dropdown -->
+                    <div class="relative" x-data="{open:false}">
+                        <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                            Accounts <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open=false" class="absolute mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Profiles</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Audit Logs</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Security Alerts</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">User Sessions</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Kyc Profiles</a>
+                        </div>
+                    </div>
+
+                    <!-- Bank Dropdown -->
+                    <div class="relative" x-data="{open:false}">
+                        <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                            Bank <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open=false" class="absolute mt-2 w-[22rem] bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50 grid grid-cols-1">
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Wallets</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transactions</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bank Transfers</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Bill Payments</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Virtual Cards</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Vat Charges</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Cbn Levies</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transaction Charges</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transfer Charge Controls</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Roles</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Profiles</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transaction Approvals</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Customer Escalations</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Staff Activities</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Night Guard Settings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Large Transaction Shield Settings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Location Guard Settings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Merchant Settlement Accounts</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Transfer Failures</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Accounts</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Transactions</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Goals</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Investments</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Xysave Settings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Accounts</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Transactions</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Spend And Save Settings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Savings</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Saving Deposits</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Target Saving Withdrawals</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Accounts</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Transactions</a>
+                            <a href="#" class="px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Fixed Savings Settings</a>
+                        </div>
+                    </div>
+
+                    <!-- Order Dropdown -->
+                    <div class="relative" x-data="{open:false}">
+                        <button @click="open=!open" class="flex items-center text-gray-700 hover:text-blue-600 font-medium">
+                            Order <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        </button>
+                        <div x-show="open" @click.away="open=false" class="absolute mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Order Items</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Orders</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Payments</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right side - Controls -->
+                <div class="flex items-center space-x-4">
+                    <!-- Dark Mode Toggle -->
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-moon text-lg"></i>
+                    </button>
+                    
+                    <!-- Fullscreen -->
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-expand text-lg"></i>
+                    </button>
+                    
+                    <!-- Language -->
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-globe text-lg"></i>
+                    </button>
+                    
+                    <!-- Notifications -->
+                    <button class="relative p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
+                    </button>
+                    
+                    <!-- Currency -->
+                    <button class="p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                        <i class="fas fa-dollar-sign text-lg"></i>
+                    </button>
+                    
+                    <!-- User Profile -->
+                    <div class="relative">
+                        <button @click="userMenuOpen = !userMenuOpen" class="flex items-center p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-white text-sm"></i>
+                            </div>
+                        </button>
+                        
+                        <!-- User Dropdown -->
+                        <div x-show="userMenuOpen" @click.away="userMenuOpen = false" 
+                             class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Settings</a>
+                            <a href="/logout" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex pt-16">
+        <!-- Mobile Overlay -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false" 
+             class="fixed inset-0 z-20 bg-gray-600 bg-opacity-75 lg:hidden"
+             x-transition:enter="transition-opacity ease-linear duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition-opacity ease-linear duration-300"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"></div>
+
+        <!-- Sidebar -->
+        <aside :class="[
+            'bg-white border-r border-gray-200 flex flex-col fixed inset-y-0 z-30 overflow-y-auto transform transition-all duration-300 ease-in-out lg:static lg:inset-0',
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+            sidebarCollapsed ? 'w-16' : 'w-64'
+        ]">
+            <!-- Sidebar Header -->
+            <div class="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <i class="fas fa-university text-xl text-blue-600"></i>
+                    <span x-show="!sidebarCollapsed" class="ml-3 text-lg font-semibold text-gray-900">XyPay</span>
+                </div>
+                <button @click="sidebarCollapsed = !sidebarCollapsed" 
+                        class="hidden lg:block p-1 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100">
+                    <i :class="sidebarCollapsed ? 'fas fa-chevron-right' : 'fas fa-chevron-left'" class="text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Sidebar Search (when expanded) -->
+            <div x-show="!sidebarCollapsed" class="p-4 border-b border-gray-200">
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-400 text-sm"></i>
+                    </div>
+                    <input type="text" placeholder="Search..." 
+                           class="block w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+            </div>
+
+            <!-- Navigation (replicated from legacy sidebar) -->
+            <nav class="flex-1 px-4 py-4 space-y-6">
+                <!-- Dashboard -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Dashboard</h4>
+                    <a href="/superuser/dashboard" :class="linkClass('/superuser/dashboard') + ' font-medium'" :title="sidebarCollapsed ? 'Dashboard' : ''">
+                        <i class="fas fa-home text-lg" :class="sidebarCollapsed ? '' : 'mr-3'"></i>
+                        <span x-show="!sidebarCollapsed">Dashboard</span>
+                    </a>
+                </div>
+
+                <!-- Authentication and Authorization -->
+                <div>
+                    <button @click="toggleGroup('auth')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Authentication and Authorization</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('auth') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('auth')">
+                        <a href="/admin/groups" :class="linkClass('/admin/groups')"><i class="fas fa-users mr-3"></i><span x-show="!sidebarCollapsed">Groups</span></a>
+                        <a href="/admin/users" :class="linkClass('/admin/users')"><i class="fas fa-user mr-3"></i><span x-show="!sidebarCollapsed">Users</span></a>
+                    </div>
+                </div>
+
+                <!-- Accounts -->
+                <div>
+                    <button @click="toggleGroup('accounts')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Accounts</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('accounts') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('accounts')">
+                        <a href="/admin/user-profiles" :class="linkClass('/admin/user-profiles')"><i class="fas fa-user-circle mr-3"></i><span x-show="!sidebarCollapsed">User profiles</span></a>
+                        <a href="/admin/audit-logs" :class="linkClass('/admin/audit-logs')"><i class="fas fa-clipboard-list mr-3"></i><span x-show="!sidebarCollapsed">Audit logs</span></a>
+                        <a href="/admin/security-alerts" :class="linkClass('/admin/security-alerts')"><i class="fas fa-bell mr-3"></i><span x-show="!sidebarCollapsed">Security alerts</span></a>
+                        <a href="/admin/kyc-profiles" :class="linkClass('/admin/kyc-profiles')"><i class="fas fa-id-card mr-3"></i><span x-show="!sidebarCollapsed">KYC Profiles</span></a>
+                        <a href="/admin/user-sessions" :class="linkClass('/admin/user-sessions')"><i class="fas fa-clock mr-3"></i><span x-show="!sidebarCollapsed">User sessions</span></a>
+                        <a href="/admin/security-dashboard" :class="linkClass('/admin/security-dashboard')"><i class="fas fa-tachometer-alt mr-3"></i><span x-show="!sidebarCollapsed">Security Dashboard</span></a>
+                        <a href="/admin/user-analytics" :class="linkClass('/admin/user-analytics')"><i class="fas fa-chart-line mr-3"></i><span x-show="!sidebarCollapsed">User Analytics</span></a>
+                        <a href="/admin/system-monitoring" :class="linkClass('/admin/system-monitoring')"><i class="fas fa-heartbeat mr-3"></i><span x-show="!sidebarCollapsed">System Monitoring</span></a>
+                        <a href="/admin/compliance-report" :class="linkClass('/admin/compliance-report')"><i class="fas fa-file-alt mr-3"></i><span x-show="!sidebarCollapsed">Compliance Report</span></a>
+                    </div>
+                </div>
+
+                <!-- Address -->
+                <div>
+                    <button @click="toggleGroup('address')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Address</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('address') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('address')">
+                        <a href="/admin/email-addresses" :class="linkClass('/admin/email-addresses')"><i class="fas fa-envelope mr-3"></i><span x-show="!sidebarCollapsed">Email addresses</span></a>
+                        <a href="/admin/shipping-addresses" :class="linkClass('/admin/shipping-addresses')"><i class="fas fa-map-marker-alt mr-3"></i><span x-show="!sidebarCollapsed">Shipping Addresses</span></a>
+                    </div>
+                </div>
+
+                <!-- Bank -->
+                <div>
+                    <button @click="toggleGroup('bank')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Bank</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('bank') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('bank')">
+                        <a href="/admin/bank-transfers" :class="linkClass('/admin/bank-transfers')"><i class="fas fa-university mr-3"></i><span x-show="!sidebarCollapsed">Bank Transfers</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-file-invoice-dollar mr-3"></i><span x-show="!sidebarCollapsed">Bill Payments</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-balance-scale mr-3"></i><span x-show="!sidebarCollapsed">CBN Levies</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-users-cog mr-3"></i><span x-show="!sidebarCollapsed">Customer escalations</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-piggy-bank mr-3"></i><span x-show="!sidebarCollapsed">Fixed Savings Accounts</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-cogs mr-3"></i><span x-show="!sidebarCollapsed">Fixed Savings Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">Fixed Savings Transactions</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-shield-alt mr-3"></i><span x-show="!sidebarCollapsed">Large Transaction Shield Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-map-pin mr-3"></i><span x-show="!sidebarCollapsed">Location Guard Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-hand-holding-usd mr-3"></i><span x-show="!sidebarCollapsed">Merchant settlement accounts</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-moon mr-3"></i><span x-show="!sidebarCollapsed">Night Guard Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-piggy-bank mr-3"></i><span x-show="!sidebarCollapsed">Spend and Save Accounts</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-cogs mr-3"></i><span x-show="!sidebarCollapsed">Spend and Save Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">Spend and Save Transactions</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-user-tie mr-3"></i><span x-show="!sidebarCollapsed">Staff Activities</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-user-circle mr-3"></i><span x-show="!sidebarCollapsed">Staff profiles</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-user-shield mr-3"></i><span x-show="!sidebarCollapsed">Staff roles</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-piggy-bank mr-3"></i><span x-show="!sidebarCollapsed">Target Saving Deposits</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-money-bill-wave mr-3"></i><span x-show="!sidebarCollapsed">Target Saving Withdrawals</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-bullseye mr-3"></i><span x-show="!sidebarCollapsed">Target Savings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-credit-card mr-3"></i><span x-show="!sidebarCollapsed">Transaction Charges</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-check-circle mr-3"></i><span x-show="!sidebarCollapsed">Transaction approvals</span></a>
+                        <a href="/admin/transactions/" :class="linkClass('/admin/transactions')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">Transactions</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-sliders-h mr-3"></i><span x-show="!sidebarCollapsed">Transfer Charge Controls</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-exclamation-triangle mr-3"></i><span x-show="!sidebarCollapsed">Transfer Failures</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-building mr-3"></i><span x-show="!sidebarCollapsed">VAT Charges</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-circle mr-3"></i><span x-show="!sidebarCollapsed">VAT Charges</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-credit-card mr-3"></i><span x-show="!sidebarCollapsed">Virtual Cards</span></a>
+                        <a href="/admin/wallets" :class="linkClass('/admin/wallets')"><i class="fas fa-wallet mr-3"></i><span x-show="!sidebarCollapsed">Wallets</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-circle mr-3"></i><span x-show="!sidebarCollapsed">XySave Accounts</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-bullseye mr-3"></i><span x-show="!sidebarCollapsed">XySave Goals</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-chart-line mr-3"></i><span x-show="!sidebarCollapsed">XySave Investments</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-cogs mr-3"></i><span x-show="!sidebarCollapsed">XySave Settings</span></a>
+                        <a href="#" :class="linkClass('#')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">XySave Transactions</span></a>
+                    </div>
+                </div>
+
+                <!-- Order -->
+                <div>
+                    <button @click="toggleGroup('order')" class="w-full flex items-center justify-between text-left">
+                        <span class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Order</span>
+                        <i class="fas fa-chevron-down text-gray-400" x-show="!sidebarCollapsed" :class="isOpen('order') ? 'rotate-0' : '-rotate-90'"></i>
+                    </button>
+                    <div x-show="isOpen('order')">
+                        <a href="/admin/wallets" :class="linkClass('/admin/wallets')"><i class="fas fa-wallet mr-3"></i><span x-show="!sidebarCollapsed">Wallets</span></a>
+                        <a href="/admin/transactions" :class="linkClass('/admin/transactions')"><i class="fas fa-exchange-alt mr-3"></i><span x-show="!sidebarCollapsed">Transactions</span></a>
+                        <a href="/admin/bank-transfers" :class="linkClass('/admin/bank-transfers')"><i class="fas fa-university mr-3"></i><span x-show="!sidebarCollapsed">Bank Transfers</span></a>
+                    </div>
+                </div>
+
+                <!-- Product -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Product</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-tags mr-3"></i><span x-show="!sidebarCollapsed">Categories</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-ticket-alt mr-3"></i><span x-show="!sidebarCollapsed">Coupon usages</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-percent mr-3"></i><span x-show="!sidebarCollapsed">Coupons</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-bolt mr-3"></i><span x-show="!sidebarCollapsed">Flash sale items</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-fire mr-3"></i><span x-show="!sidebarCollapsed">Flash sales</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-tag mr-3"></i><span x-show="!sidebarCollapsed">Product Discounts</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-star mr-3"></i><span x-show="!sidebarCollapsed">Product Reviews</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-layer-group mr-3"></i><span x-show="!sidebarCollapsed">Product variants</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-cube mr-3"></i><span x-show="!sidebarCollapsed">Products</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-sitemap mr-3"></i><span x-show="!sidebarCollapsed">Subcategories</span></a>
+                </div>
+
+                <!-- Report -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Report</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-chart-line mr-3"></i><span x-show="!sidebarCollapsed">Reports</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-chart-bar mr-3"></i><span x-show="!sidebarCollapsed">Sales reports</span></a>
+                </div>
+
+                <!-- Sites -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Sites</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-globe mr-3"></i><span x-show="!sidebarCollapsed">Sites</span></a>
+                </div>
+
+                <!-- Social Accounts -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Social Accounts</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-share-alt mr-3"></i><span x-show="!sidebarCollapsed">Social accounts</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-key mr-3"></i><span x-show="!sidebarCollapsed">Social application tokens</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-mobile-alt mr-3"></i><span x-show="!sidebarCollapsed">Social applications</span></a>
+                </div>
+
+                <!-- Admin_Honeypot -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Admin_Honeypot</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-sign-in-alt mr-3"></i><span x-show="!sidebarCollapsed">Login attempts</span></a>
+                </div>
+
+                <!-- Auth Token -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Auth Token</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-key mr-3"></i><span x-show="!sidebarCollapsed">Tokens</span></a>
+                </div>
+
+                <!-- Cart -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Cart</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-shopping-cart mr-3"></i><span x-show="!sidebarCollapsed">Carts</span></a>
+                </div>
+
+                <!-- Cities_Light -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Cities_Light</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-city mr-3"></i><span x-show="!sidebarCollapsed">Cities</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-flag mr-3"></i><span x-show="!sidebarCollapsed">Countries</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-map mr-3"></i><span x-show="!sidebarCollapsed">Regions/states</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-map-marked-alt mr-3"></i><span x-show="!sidebarCollapsed">SubRegions</span></a>
+                </div>
+
+                <!-- Django APScheduler -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Django APScheduler</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-tasks mr-3"></i><span x-show="!sidebarCollapsed">Django job executions</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-clock mr-3"></i><span x-show="!sidebarCollapsed">Django jobs</span></a>
+                </div>
+
+                <!-- Notification -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Notification</h4>
+                    <a href="/admin/notifications" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-bell mr-3"></i><span x-show="!sidebarCollapsed">Notifications</span></a>
+                </div>
+
+                <!-- Store -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Store</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-chart-line mr-3"></i><span x-show="!sidebarCollapsed">Customer Lifetime Values</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-chart-bar mr-3"></i><span x-show="!sidebarCollapsed">Store Analytics</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-user-tie mr-3"></i><span x-show="!sidebarCollapsed">Store Staff</span></a>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-store mr-3"></i><span x-show="!sidebarCollapsed">Stores</span></a>
+                </div>
+
+                <!-- Wishlist -->
+                <div>
+                    <h4 class="text-xs font-semibold text-gray-400 uppercase mb-2" x-show="!sidebarCollapsed">Wishlist</h4>
+                    <a href="#" class="flex items-center px-3 py-2 text-sm rounded hover:bg-gray-100 text-gray-700"><i class="fas fa-heart mr-3"></i><span x-show="!sidebarCollapsed">Wishlists</span></a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main :class="sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'" class="flex-1 ml-64 lg:ml-64 main-transition">
+            <div class="px-4 sm:px-6 lg:px-8 py-8">
+                <h1 class="text-2xl font-bold text-gray-900 mb-4">Dashboard</h1>
+                <div class="bg-white rounded-lg shadow p-8 text-gray-600">
+                    This is a clean dashboard placeholder. Use the left sidebar or the top navbar to navigate to the sections you need.
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function modernDashboard() {
+            return {
+                sidebarOpen: false,
+                sidebarCollapsed: false,
+                userMenuOpen: false,
+                openGroups: JSON.parse(localStorage.getItem('openGroups') || '{}'),
+                panelSrc: '',
+                
+                init() {
+                    this.initializeChart();
+                    // Initialize defaults if missing
+                    if (Object.keys(this.openGroups).length === 0) {
+                        this.openGroups = { auth: true, accounts: true, address: true, bank: true, order: true };
+                        localStorage.setItem('openGroups', JSON.stringify(this.openGroups));
+                    }
+                },
+
+                linkClass(path) {
+                    const isActive = window.location.pathname === path;
+                    const base = 'flex items-center px-3 py-2 text-sm rounded ';
+                    return base + (isActive ? 'bg-blue-50 text-blue-700' : 'hover:bg-gray-100 text-gray-700');
+                },
+
+                navigateToPage(url) {
+                    window.location.href = url;
+                },
+
+                toggleGroup(key) {
+                    this.openGroups[key] = !this.openGroups[key];
+                    localStorage.setItem('openGroups', JSON.stringify(this.openGroups));
+                },
+
+                isOpen(key) {
+                    return !!this.openGroups[key];
+                },
+
+                initializeChart() {
+                    const chartElement = document.getElementById('statisticsChart');
+                    if (!chartElement) {
+                        console.log('Chart element not found, skipping chart initialization');
+                        return;
+                    }
+                    
+                    const ctx = chartElement.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Transfer', 'Cash-In', 'Cash-Out', 'Other'],
+                            datasets: [{
+                                data: [35, 25, 20, 20],
+                                backgroundColor: [
+                                    '#3B82F6',
+                                    '#F59E0B',
+                                    '#EF4444',
+                                    '#8B5CF6'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom',
+                                    labels: {
+                                        padding: 20,
+                                        usePointStyle: true
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+            }
+        }
+    </script>
+</body>
+</html>

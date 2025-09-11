@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XyPay Loan Officer Risk Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .java-window { font-family: 'Segoe UI', sans-serif; font-size: 12px; background: #f0f0f0; border: 2px outset #c0c0c0; }
+        .title-bar { background: linear-gradient(to bottom, #0078d4, #106ebe); color: white; padding: 4px 8px; font-weight: bold; display: flex; justify-content: space-between; }
+        .window-btn { width: 16px; height: 14px; background: #c0c0c0; border: 1px outset #c0c0c0; text-align: center; line-height: 12px; cursor: pointer; font-size: 10px; }
+        .menu-bar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 2px; display: flex; gap: 16px; }
+        .menu-item { padding: 4px 8px; cursor: pointer; } .menu-item:hover { background: #e0e0e0; }
+        .toolbar { background: #f0f0f0; border-bottom: 1px solid #c0c0c0; padding: 4px; display: flex; gap: 4px; }
+        .toolbar-btn { padding: 4px 8px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .toolbar-separator { width: 1px; height: 20px; background: #c0c0c0; margin: 0 4px; }
+        .content-area { display: flex; height: calc(100vh - 120px); }
+        .tree-panel { width: 250px; background: #f8f8f8; border-right: 1px solid #c0c0c0; overflow-y: auto; }
+        .tree-header { background: #e0e0e0; padding: 6px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .tree-node { padding: 6px 12px; cursor: pointer; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #f0f0f0; }
+        .tree-node:hover { background: #e8e8e8; } .tree-node.selected { background: #316ac5; color: white; }
+        .tree-icon { font-size: 14px; }
+        .details-panel { flex: 1; background: white; overflow-y: auto; }
+        .details-header { background: #e0e0e0; padding: 8px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .details-content { padding: 16px; }
+        .config-section { border: 1px solid #c0c0c0; margin-bottom: 16px; }
+        .config-header { background: #e8e8e8; padding: 6px 12px; font-weight: bold; border-bottom: 1px solid #c0c0c0; }
+        .config-content { padding: 12px; }
+        .java-btn { padding: 4px 12px; background: #e8e8e8; border: 1px outset #c0c0c0; cursor: pointer; font-size: 11px; }
+        .java-btn:hover { background: #d0d0d0; }
+        .java-btn.primary { background: #0078d4; color: white; border: 1px outset #0078d4; }
+        .java-btn.warning { background: #ffc107; color: black; border: 1px outset #ffc107; }
+        .java-btn.danger { background: #dc3545; color: white; border: 1px outset #dc3545; }
+        .java-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        .java-table th, .java-table td { border: 1px solid #c0c0c0; padding: 4px 6px; text-align: left; }
+        .java-table th { background: #e8e8e8; font-weight: bold; }
+        .status-bar { background: #f0f0f0; border-top: 1px solid #c0c0c0; padding: 4px 8px; font-size: 11px; display: flex; justify-content: space-between; }
+        fieldset { border: 1px inset #c0c0c0; padding: 12px; margin-bottom: 16px; background: #f8f8f8; }
+        legend { font-weight: bold; font-size: 12px; padding: 0 4px; }
+        .form-input { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; width: 100%; }
+        .form-select { padding: 2px 4px; border: 1px inset #c0c0c0; font-size: 11px; background: white; width: 100%; }
+        .risk-low { color: #28a745; font-weight: bold; }
+        .risk-medium { color: #ffc107; font-weight: bold; }
+        .risk-high { color: #dc3545; font-weight: bold; }
+        .risk-score { font-size: 18px; font-weight: bold; text-align: center; padding: 12px; border: 2px solid #c0c0c0; background: white; }
+        .risk-factors { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .factor-card { border: 1px solid #c0c0c0; padding: 8px; background: white; }
+        .factor-label { font-weight: bold; font-size: 10px; color: #666; }
+        .factor-value { font-size: 12px; margin-top: 4px; }
+        .progress-bar { width: 100%; height: 16px; background: #f0f0f0; border: 1px inset #c0c0c0; }
+        .progress-fill { height: 100%; background: linear-gradient(to right, #28a745, #ffc107, #dc3545); }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="java-window min-h-screen">
+        <!-- Title Bar -->
+        <div class="title-bar">
+            <span>XyPay Loan Officer Risk Assessment</span>
+            <div class="flex gap-1">
+                <div class="window-btn">_</div>
+                <div class="window-btn">□</div>
+                <div class="window-btn">×</div>
+            </div>
+        </div>
+        
+        <!-- Menu Bar -->
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Assessment</span>
+            <span class="menu-item">Risk</span>
+            <span class="menu-item">Reports</span>
+            <span class="menu-item">Tools</span>
+            <span class="menu-item">Help</span>
+        </div>
+        
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <button class="toolbar-btn" onclick="newAssessment()">New Assessment</button>
+            <button class="toolbar-btn" onclick="loadAssessment()">Load</button>
+            <button class="toolbar-btn" onclick="saveAssessment()">Save</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn" onclick="calculateRisk()">Calculate Risk</button>
+            <button class="toolbar-btn" onclick="generateReport()">Report</button>
+            <div class="toolbar-separator"></div>
+            <button class="toolbar-btn">Settings</button>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="content-area">
+            <!-- Left Navigation Panel -->
+            <div class="tree-panel">
+                <div class="tree-header">Risk Assessment</div>
+                
+                <div class="tree-node selected" onclick="selectRiskModule(this, 'assessment')">
+                    <div class="tree-icon">📊</div>
+                    Risk Assessment
+                </div>
+                
+                <div class="tree-node" onclick="selectRiskModule(this, 'credit')">
+                    <div class="tree-icon">💳</div>
+                    Credit Risk
+                </div>
+                
+                <div class="tree-node" onclick="selectRiskModule(this, 'financial')">
+                    <div class="tree-icon">💰</div>
+                    Financial Analysis
+                </div>
+                
+                <div class="tree-node" onclick="selectRiskModule(this, 'collateral')">
+                    <div class="tree-icon">🏠</div>
+                    Collateral Evaluation
+                </div>
+                
+                <div class="tree-node" onclick="selectRiskModule(this, 'market')">
+                    <div class="tree-icon">📈</div>
+                    Market Risk
+                </div>
+                
+                <div class="tree-node" onclick="selectRiskModule(this, 'history')">
+                    <div class="tree-icon">📋</div>
+                    Assessment History
+                </div>
+            </div>
+            
+            <!-- Right Details Panel -->
+            <div class="details-panel">
+                <div class="details-header">Risk Assessment Tools</div>
+                <div class="details-content">
+                    
+                    <!-- Risk Assessment Form -->
+                    <div id="assessment-module" class="config-section">
+                        <div class="config-header">⚠️ Risk Assessment</div>
+                        <div class="config-content">
+                            
+                            <!-- Customer Information -->
+                            <fieldset>
+                                <legend>👤 Customer Information</legend>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div>
+                                        <label style="font-weight: bold; font-size: 11px;">Customer Name:</label>
+                                        <input type="text" class="form-input" id="customerName" placeholder="Enter customer name">
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: bold; font-size: 11px;">Account Number:</label>
+                                        <input type="text" class="form-input" id="accountNumber" placeholder="Enter account number">
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: bold; font-size: 11px;">Loan Amount:</label>
+                                        <input type="number" class="form-input" id="loanAmount" placeholder="Enter loan amount">
+                                    </div>
+                                    <div>
+                                        <label style="font-weight: bold; font-size: 11px;">Loan Purpose:</label>
+                                        <select class="form-select" id="loanPurpose">
+                                            <option value="">Select purpose</option>
+                                            <option value="BUSINESS">Business</option>
+                                            <option value="PERSONAL">Personal</option>
+                                            <option value="MORTGAGE">Mortgage</option>
+                                            <option value="VEHICLE">Vehicle</option>
+                                            <option value="EDUCATION">Education</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Risk Factors -->
+                            <fieldset>
+                                <legend>📊 Risk Factors</legend>
+                                
+                                <div class="risk-factors">
+                                    <div class="factor-card">
+                                        <div class="factor-label">Credit Score</div>
+                                        <div class="factor-value">
+                                            <input type="number" class="form-input" id="creditScore" placeholder="Enter credit score" min="300" max="850" onchange="updateRiskScore()">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="factor-card">
+                                        <div class="factor-label">Debt-to-Income Ratio (%)</div>
+                                        <div class="factor-value">
+                                            <input type="number" class="form-input" id="debtToIncome" placeholder="Enter DTI ratio" min="0" max="100" onchange="updateRiskScore()">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="factor-card">
+                                        <div class="factor-label">Employment Status</div>
+                                        <div class="factor-value">
+                                            <select class="form-select" id="employmentStatus" onchange="updateRiskScore()">
+                                                <option value="">Select status</option>
+                                                <option value="EMPLOYED">Employed</option>
+                                                <option value="SELF_EMPLOYED">Self-Employed</option>
+                                                <option value="UNEMPLOYED">Unemployed</option>
+                                                <option value="RETIRED">Retired</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="factor-card">
+                                        <div class="factor-label">Monthly Income (₦)</div>
+                                        <div class="factor-value">
+                                            <input type="number" class="form-input" id="monthlyIncome" placeholder="Enter monthly income" onchange="updateRiskScore()">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="factor-card">
+                                        <div class="factor-label">Collateral Value (₦)</div>
+                                        <div class="factor-value">
+                                            <input type="number" class="form-input" id="collateralValue" placeholder="Enter collateral value" onchange="updateRiskScore()">
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="factor-card">
+                                        <div class="factor-label">Years in Business</div>
+                                        <div class="factor-value">
+                                            <input type="number" class="form-input" id="yearsInBusiness" placeholder="Enter years" min="0" onchange="updateRiskScore()">
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Risk Score Display -->
+                            <fieldset>
+                                <legend>🎯 Risk Score</legend>
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: center;">
+                                    <div class="risk-score" id="riskScoreDisplay">
+                                        <div style="font-size: 12px; color: #666;">Overall Risk Score</div>
+                                        <div id="riskScoreValue" style="font-size: 24px; margin-top: 8px;">0</div>
+                                        <div id="riskLevel" class="risk-medium" style="font-size: 14px; margin-top: 4px;">MEDIUM</div>
+                                    </div>
+                                    
+                                    <div>
+                                        <div style="font-weight: bold; margin-bottom: 8px;">Risk Level Indicator</div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill" id="riskProgressBar" style="width: 50%;"></div>
+                                        </div>
+                                        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-top: 4px;">
+                                            <span class="risk-low">LOW (0-30)</span>
+                                            <span class="risk-medium">MEDIUM (31-70)</span>
+                                            <span class="risk-high">HIGH (71-100)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            
+                            <!-- Assessment Actions -->
+                            <fieldset>
+                                <legend>⚡ Actions</legend>
+                                
+                                <div style="text-align: center;">
+                                    <button class="java-btn primary" onclick="performRiskAssessment()">Perform Assessment</button>
+                                    <button class="java-btn" onclick="saveAssessment()">Save Assessment</button>
+                                    <button class="java-btn warning" onclick="generateRiskReport()">Generate Report</button>
+                                    <button class="java-btn" onclick="clearForm()">Clear Form</button>
+                                </div>
+                            </fieldset>
+                        </div>
+                    </div>
+                    
+                    <!-- Result Message -->
+                    <div th:if="${result}" class="config-section" style="background: #fff3cd; border-color: #ffeaa7;">
+                        <div class="config-content">
+                            <div style="color: #856404; font-weight: bold;" th:text="${result}">
+                                Risk assessment tools and results will be available here.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Default Warning Message -->
+                    <div th:unless="${result}" class="config-section" style="background: #fff3cd; border-color: #ffeaa7;">
+                        <div class="config-content">
+                            <div style="color: #856404; font-weight: bold;">
+                                ⚠️ Risk assessment tools and results will be available here.
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>Risk Assessment Ready | Current Score: <span id="currentRiskScore">0</span> | Level: <span id="currentRiskLevel">MEDIUM</span></span>
+            <span>Officer: <span sec:authentication="name">Loan Officer</span> | Status: Connected</span>
+        </div>
+    </div>
+    
+    <script>
+        function selectRiskModule(element, moduleType) {
+            // Update tree selection
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            
+            console.log('Selected risk module:', moduleType);
+        }
+        
+        function updateRiskScore() {
+            const creditScore = parseInt(document.getElementById('creditScore').value) || 0;
+            const debtToIncome = parseFloat(document.getElementById('debtToIncome').value) || 0;
+            const employmentStatus = document.getElementById('employmentStatus').value;
+            const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+            const collateralValue = parseFloat(document.getElementById('collateralValue').value) || 0;
+            const yearsInBusiness = parseInt(document.getElementById('yearsInBusiness').value) || 0;
+            
+            // Simple risk calculation algorithm
+            let riskScore = 50; // Base score
+            
+            // Credit score impact (higher is better)
+            if (creditScore >= 750) riskScore -= 20;
+            else if (creditScore >= 650) riskScore -= 10;
+            else if (creditScore >= 550) riskScore += 0;
+            else if (creditScore > 0) riskScore += 20;
+            
+            // Debt-to-income ratio impact (lower is better)
+            if (debtToIncome <= 20) riskScore -= 10;
+            else if (debtToIncome <= 40) riskScore += 0;
+            else if (debtToIncome <= 60) riskScore += 15;
+            else if (debtToIncome > 60) riskScore += 25;
+            
+            // Employment status impact
+            switch(employmentStatus) {
+                case 'EMPLOYED': riskScore -= 10; break;
+                case 'SELF_EMPLOYED': riskScore += 5; break;
+                case 'UNEMPLOYED': riskScore += 30; break;
+                case 'RETIRED': riskScore += 10; break;
+            }
+            
+            // Income impact
+            if (monthlyIncome >= 500000) riskScore -= 10;
+            else if (monthlyIncome >= 200000) riskScore -= 5;
+            else if (monthlyIncome >= 100000) riskScore += 0;
+            else if (monthlyIncome > 0) riskScore += 10;
+            
+            // Collateral impact
+            const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 1;
+            const collateralRatio = collateralValue / loanAmount;
+            if (collateralRatio >= 1.5) riskScore -= 15;
+            else if (collateralRatio >= 1.0) riskScore -= 10;
+            else if (collateralRatio >= 0.5) riskScore += 5;
+            else riskScore += 15;
+            
+            // Years in business impact
+            if (yearsInBusiness >= 5) riskScore -= 5;
+            else if (yearsInBusiness >= 2) riskScore += 0;
+            else if (yearsInBusiness >= 1) riskScore += 5;
+            else if (yearsInBusiness === 0) riskScore += 10;
+            
+            // Ensure score is within bounds
+            riskScore = Math.max(0, Math.min(100, riskScore));
+            
+            // Update display
+            document.getElementById('riskScoreValue').textContent = Math.round(riskScore);
+            document.getElementById('currentRiskScore').textContent = Math.round(riskScore);
+            
+            // Update risk level
+            let riskLevel, riskClass;
+            if (riskScore <= 30) {
+                riskLevel = 'LOW';
+                riskClass = 'risk-low';
+            } else if (riskScore <= 70) {
+                riskLevel = 'MEDIUM';
+                riskClass = 'risk-medium';
+            } else {
+                riskLevel = 'HIGH';
+                riskClass = 'risk-high';
+            }
+            
+            const riskLevelElement = document.getElementById('riskLevel');
+            riskLevelElement.textContent = riskLevel;
+            riskLevelElement.className = riskClass;
+            document.getElementById('currentRiskLevel').textContent = riskLevel;
+            
+            // Update progress bar
+            document.getElementById('riskProgressBar').style.width = riskScore + '%';
+        }
+        
+        function performRiskAssessment() {
+            updateRiskScore();
+            const riskScore = document.getElementById('riskScoreValue').textContent;
+            const riskLevel = document.getElementById('riskLevel').textContent;
+            
+            alert(`🎯 Risk Assessment Complete\n\nRisk Score: ${riskScore}\nRisk Level: ${riskLevel}\n\nAssessment has been calculated based on provided factors.`);
+        }
+        
+        function newAssessment() {
+            clearForm();
+            alert('📝 New Risk Assessment\n\nForm cleared for new assessment.');
+        }
+        
+        function loadAssessment() {
+            alert('📂 Load Assessment\n\nThis would load a saved risk assessment in a real implementation.');
+        }
+        
+        function saveAssessment() {
+            const customerName = document.getElementById('customerName').value;
+            if (!customerName) {
+                alert('⚠️ Please enter customer name before saving.');
+                return;
+            }
+            alert(`💾 Assessment Saved\n\nRisk assessment for ${customerName} has been saved successfully.`);
+        }
+        
+        function calculateRisk() {
+            performRiskAssessment();
+        }
+        
+        function generateReport() {
+            alert('📊 Generate Risk Report\n\nThis would generate comprehensive risk analysis reports in a real implementation.');
+        }
+        
+        function generateRiskReport() {
+            const customerName = document.getElementById('customerName').value || 'Customer';
+            const riskScore = document.getElementById('riskScoreValue').textContent;
+            const riskLevel = document.getElementById('riskLevel').textContent;
+            
+            alert(`📋 Risk Report Generated\n\nCustomer: ${customerName}\nRisk Score: ${riskScore}\nRisk Level: ${riskLevel}\n\nDetailed report would be generated in a real implementation.`);
+        }
+        
+        function clearForm() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('accountNumber').value = '';
+            document.getElementById('loanAmount').value = '';
+            document.getElementById('loanPurpose').value = '';
+            document.getElementById('creditScore').value = '';
+            document.getElementById('debtToIncome').value = '';
+            document.getElementById('employmentStatus').value = '';
+            document.getElementById('monthlyIncome').value = '';
+            document.getElementById('collateralValue').value = '';
+            document.getElementById('yearsInBusiness').value = '';
+            
+            // Reset risk score display
+            document.getElementById('riskScoreValue').textContent = '0';
+            document.getElementById('currentRiskScore').textContent = '0';
+            document.getElementById('riskLevel').textContent = 'MEDIUM';
+            document.getElementById('riskLevel').className = 'risk-medium';
+            document.getElementById('currentRiskLevel').textContent = 'MEDIUM';
+            document.getElementById('riskProgressBar').style.width = '50%';
+        }
+        
+        // Initialize
+        window.onload = function() {
+            selectRiskModule(document.querySelector('.tree-node.selected'), 'assessment');
+        };
+    </script>
+</body>
+</html>
