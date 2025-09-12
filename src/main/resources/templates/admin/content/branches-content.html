@@ -1,0 +1,146 @@
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold">Branch Management</h1>
+            <p class="text-sm text-gray-600 mt-1">Manage bank branches, locations, and branch operations</p>
+        </div>
+        <a href="/superuser/dashboard/legacy" class="px-3 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200">Back</a>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                    <i class="fas fa-building text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Branches</p>
+                    <p class="text-2xl font-semibold text-gray-900">24</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100 text-green-600">
+                    <i class="fas fa-check-circle text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Active Branches</p>
+                    <p class="text-2xl font-semibold text-gray-900">22</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                    <i class="fas fa-tools text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Under Maintenance</p>
+                    <p class="text-2xl font-semibold text-gray-900">2</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100 text-purple-600">
+                    <i class="fas fa-users text-xl"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-500">Total Staff</p>
+                    <p class="text-2xl font-semibold text-gray-900">456</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch Operations -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Branch Operations</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <a href="/admin/branches/new" class="block text-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium">
+                    <i class="fas fa-plus mr-2"></i>Add New Branch
+                </a>
+                <a href="/admin/branches/locator" class="block text-center bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-md font-medium">
+                    <i class="fas fa-map-marked-alt mr-2"></i>Branch Locator
+                </a>
+                <a href="/admin/branches/reports" class="block text-center bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-3 rounded-md font-medium">
+                    <i class="fas fa-chart-bar mr-2"></i>Performance Reports
+                </a>
+                <a href="/admin/branches/config" class="block text-center bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-md font-medium">
+                    <i class="fas fa-cog mr-2"></i>Branch Configuration
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white shadow rounded-lg">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Branch Types</h3>
+            </div>
+            <div class="p-6">
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">Main Branches</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">8</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">Sub Branches</span>
+                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">12</span>
+                    </div>
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                        <span class="font-medium">ATM Centers</span>
+                        <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">4</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Branch List -->
+    <div class="bg-white shadow rounded-lg">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Branch Directory</h3>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Branch Code</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Branch Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Location</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Manager</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Staff Count</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BR001</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Victoria Island Main</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Lagos, Nigeria</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Adebayo</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">45</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Active</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">BR002</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Ikeja Branch</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Lagos, Nigeria</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Sarah Okafor</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">32</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Maintenance</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -141,4 +141,11 @@ public class AdminSettingsController {
         model.addAttribute("pageTitle", "Merchant Verification");
         return "admin/merchant-verification";
     }
+
+    // Charge Control Management
+    @GetMapping("/charge-control")
+    public String chargeControlManagement(Model model) {
+        model.addAttribute("pageTitle", "Charge Control Management");
+        return "admin/charge-control";
+    }
 }

@@ -143,6 +143,27 @@ public class AdminDashboardController {
         return "admin/branches";
     }
 
+    // Branches sub-pages
+    @GetMapping("/admin/branches/new")
+    public String branchesNew() {
+        return "admin/branches-new";
+    }
+
+    @GetMapping("/admin/branches/locator")
+    public String branchesLocator() {
+        return "admin/branches-locator";
+    }
+
+    @GetMapping("/admin/branches/reports")
+    public String branchesReports() {
+        return "admin/branches-reports";
+    }
+
+    @GetMapping("/admin/branches/config")
+    public String branchesConfig() {
+        return "admin/branches-config";
+    }
+
     @GetMapping("/admin/balances")
     public String balances() {
         return "admin/balances";
@@ -290,6 +311,11 @@ public class AdminDashboardController {
     }
 
     // Payment Systems Templates
+    @GetMapping("/admin/nibss")
+    public String nibss() {
+        return "admin/nibss";
+    }
+
     @GetMapping("/admin/payment-gateways")
     public String paymentGateways() {
         return "admin/payment-gateways";
