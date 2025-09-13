@@ -5,6 +5,7 @@ import com.xypay.xypay.domain.UserProfile;
 import com.xypay.xypay.domain.KYCProfile;
 import com.xypay.xypay.domain.UserSession;
 import com.xypay.xypay.domain.Wallet;
+import com.xypay.xypay.domain.BankTransfer;
 import com.xypay.xypay.repository.AuditLogRepository;
 import com.xypay.xypay.repository.UserRepository;
 import com.xypay.xypay.repository.UserProfileRepository;
@@ -12,7 +13,9 @@ import com.xypay.xypay.repository.KYCProfileRepository;
 import com.xypay.xypay.repository.UserSessionRepository;
 import com.xypay.xypay.repository.WalletRepository;
 import com.xypay.xypay.repository.BankTransferRepository;
-import com.xypay.xypay.domain.BankTransfer;
+import com.xypay.xypay.service.UserCascadeDeleteService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +32,8 @@ import java.util.HashMap;
 @Controller
 @RequestMapping("/admin")
 public class UserManagementController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(UserManagementController.class);
     
     @Autowired
     private UserRepository userRepository;
@@ -53,6 +58,9 @@ public class UserManagementController {
     
     @Autowired
     private BankTransferRepository bankTransferRepository;
+    
+    @Autowired
+    private UserCascadeDeleteService userCascadeDeleteService;
     
     @Autowired
     private com.xypay.xypay.service.BankTransferEventPublisher eventPublisher;
@@ -121,6 +129,7 @@ public class UserManagementController {
     
     @PostMapping("/user-profiles/{id}/edit")
     public String updateUserProfile(@PathVariable Long id, 
+                                  @RequestParam(required = false) String email,
                                   @RequestParam(required = false) String phone,
                                   @RequestParam(required = false) Boolean isVerified,
                                   @RequestParam(required = false) String otpCode,
@@ -131,6 +140,11 @@ public class UserManagementController {
                                   @RequestParam(required = false) Boolean notifyPush,
                                   @RequestParam(required = false) Boolean notifyInApp) {
         User user = userRepository.findByIdWithProfile(id).orElseThrow();
+        
+        // Update user email if provided
+        if (email != null && !email.trim().isEmpty()) {
+            user.setEmail(email.trim());
+        }
         
         // Update user profile if it exists, or create a new one
         UserProfile profile = user.getProfile();
@@ -168,8 +182,22 @@ public class UserManagementController {
     }
     
     @PostMapping("/user-profiles/{id}/delete")
-    public String deleteUserProfile(@PathVariable Long id) {
-        userRepository.deleteById(id);
+    @Transactional
+    public String deleteUserProfile(@PathVariable Long id, org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        try {
+            // Use the cascade delete service to properly clean up all related data
+            boolean deleted = userCascadeDeleteService.deleteUserAndAllRelatedData(id);
+            if (deleted) {
+                logger.info("Successfully deleted user profile and all related data for user ID: {}", id);
+                redirectAttributes.addFlashAttribute("successMessage", "User and all related data have been successfully deleted.");
+            } else {
+                logger.warn("Failed to delete user profile for user ID: {}", id);
+                redirectAttributes.addFlashAttribute("errorMessage", "Failed to delete user. User may not exist or has pending transactions.");
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting user profile for user ID {}: {}", id, e.getMessage(), e);
+            redirectAttributes.addFlashAttribute("errorMessage", "An error occurred while deleting the user: " + e.getMessage());
+        }
         return "redirect:/admin/user-profiles";
     }
     

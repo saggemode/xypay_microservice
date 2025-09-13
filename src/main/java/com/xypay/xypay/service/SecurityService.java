@@ -3,6 +3,7 @@ package com.xypay.xypay.service;
 import com.xypay.xypay.domain.AuditLog;
 import com.xypay.xypay.domain.User;
 import com.xypay.xypay.repository.AuditLogRepository;
+import com.xypay.xypay.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -18,6 +19,9 @@ public class SecurityService {
     
     @Autowired
     private AuditLogRepository auditLogRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     /**
      * Log an audit event for security tracking
@@ -36,14 +40,28 @@ public class SecurityService {
             AuditLog.ActionType actionType = convertStringToActionType(action);
             AuditLog.SeverityLevel severityLevel = convertStringToSeverityLevel(severity);
             
-            AuditLog auditLog = new AuditLog(user, actionType, description, severityLevel, ipAddress, userAgent);
+            // Ensure the user is managed by the entity manager before creating audit log
+            User managedUser = null;
+            if (user != null) {
+                if (user.getId() != null) {
+                    // If user has an ID, fetch the managed instance from database
+                    managedUser = userRepository.findById(user.getId()).orElse(user);
+                } else {
+                    // If user doesn't have an ID, it might be a transient entity
+                    // In this case, we'll log the audit event without the user reference
+                    logger.warn("Audit event logged without user reference - user entity is transient: {}", description);
+                }
+            }
+            
+            AuditLog auditLog = new AuditLog(managedUser, actionType, description, severityLevel, ipAddress, userAgent);
             // Note: timestamp is set automatically via @CreationTimestamp
             
             AuditLog saved = auditLogRepository.save(auditLog);
-            logger.info("Audit event logged: {} - {} - {}", user.getUsername(), action, description);
+            logger.info("Audit event logged: {} - {} - {}", 
+                managedUser != null ? managedUser.getUsername() : "Unknown", action, description);
             return saved;
         } catch (Exception e) {
-            logger.error("Failed to log audit event: {}", e.getMessage());
+            logger.error("Failed to log audit event: {}", e.getMessage(), e);
             return null;
         }
     }

@@ -283,11 +283,283 @@
     </div>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            if (typeof notificationManager === 'function') {
-                // init happens via x-data component
+        function notificationManager() {
+            return {
+                notifications: [],
+                filteredNotifications: [],
+                selectedNotifications: [],
+                selectAll: false,
+                showCreateModal: false,
+                stats: {
+                    totalNotifications: 0,
+                    unreadCount: 0,
+                    urgentCount: 0,
+                    actionableCount: 0
+                },
+                filters: {
+                    type: '',
+                    level: '',
+                    status: '',
+                    search: ''
+                },
+                newNotification: {
+                    title: '',
+                    message: '',
+                    type: 'SYSTEM_ALERT',
+                    level: 'INFO',
+                    channels: []
+                },
+                
+                init() {
+                    this.loadNotifications();
+                    this.loadStats();
+                },
+                
+                async loadNotifications() {
+                    try {
+                        const response = await fetch('/admin/api/notifications', {
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.notifications = data.content || [];
+                            this.applyFilters();
+                        } else {
+                            console.error('Failed to load notifications:', response.status);
+                            this.createSampleNotifications();
+                        }
+                    } catch (error) {
+                        console.error('Error loading notifications:', error);
+                        this.createSampleNotifications();
+                    }
+                },
+                
+                createSampleNotifications() {
+                    this.notifications = [
+                        {
+                            id: 1,
+                            title: 'System Maintenance Scheduled',
+                            message: 'Scheduled maintenance will occur tonight from 2 AM to 4 AM.',
+                            type: 'SYSTEM_ALERT',
+                            level: 'INFO',
+                            status: 'SENT',
+                            isRead: false,
+                            createdAt: new Date().toISOString(),
+                            actionText: 'View Details'
+                        },
+                        {
+                            id: 2,
+                            title: 'Security Alert: Unusual Login',
+                            message: 'Unusual login activity detected from new location.',
+                            type: 'SECURITY_ALERT',
+                            level: 'WARNING',
+                            status: 'PENDING',
+                            isRead: true,
+                            createdAt: new Date(Date.now() - 3600000).toISOString(),
+                            actionText: 'Review Activity'
+                        },
+                        {
+                            id: 3,
+                            title: 'Payment Processed Successfully',
+                            message: 'Payment of ₦50,000 has been processed successfully.',
+                            type: 'PAYMENT_SUCCESS',
+                            level: 'SUCCESS',
+                            status: 'DELIVERED',
+                            isRead: false,
+                            createdAt: new Date(Date.now() - 7200000).toISOString()
+                        }
+                    ];
+                    this.applyFilters();
+                    this.calculateStats();
+                },
+                
+                calculateStats() {
+                    this.stats.totalNotifications = this.notifications.length;
+                    this.stats.unreadCount = this.notifications.filter(n => !n.isRead).length;
+                    this.stats.urgentCount = this.notifications.filter(n => n.level === 'CRITICAL' || n.level === 'ERROR').length;
+                    this.stats.actionableCount = this.notifications.filter(n => n.actionText).length;
+                },
+                
+                applyFilters() {
+                    this.filteredNotifications = this.notifications.filter(notification => {
+                        const matchesType = !this.filters.type || notification.type === this.filters.type;
+                        const matchesLevel = !this.filters.level || notification.level === this.filters.level;
+                        const matchesStatus = !this.filters.status || notification.status === this.filters.status;
+                        const matchesSearch = !this.filters.search || 
+                            notification.title.toLowerCase().includes(this.filters.search.toLowerCase()) ||
+                            notification.message.toLowerCase().includes(this.filters.search.toLowerCase());
+                        
+                        return matchesType && matchesLevel && matchesStatus && matchesSearch;
+                    });
+                },
+                
+                toggleSelectAll() {
+                    if (this.selectAll) {
+                        this.selectedNotifications = this.filteredNotifications.map(n => n.id);
+                    } else {
+                        this.selectedNotifications = [];
+                    }
+                },
+                
+                async createNotification() {
+                    try {
+                        const response = await fetch('/admin/api/notifications', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.newNotification),
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            this.showCreateModal = false;
+                            this.resetNewNotification();
+                            this.loadNotifications();
+                        }
+                    } catch (error) {
+                        console.error('Error creating notification:', error);
+                    }
+                },
+                
+                resetNewNotification() {
+                    this.newNotification = {
+                        title: '',
+                        message: '',
+                        type: 'SYSTEM_ALERT',
+                        level: 'INFO',
+                        channels: []
+                    };
+                },
+                
+                getTypeBadgeClass(type) {
+                    const classes = {
+                        'SYSTEM_ALERT': 'bg-blue-100 text-blue-800',
+                        'BANK_TRANSFER': 'bg-green-100 text-green-800',
+                        'PAYMENT_SUCCESS': 'bg-green-100 text-green-800',
+                        'PAYMENT_FAILED': 'bg-red-100 text-red-800',
+                        'SECURITY_ALERT': 'bg-red-100 text-red-800',
+                        'PROMOTION': 'bg-purple-100 text-purple-800'
+                    };
+                    return classes[type] || 'bg-gray-100 text-gray-800';
+                },
+                
+                getLevelBadgeClass(level) {
+                    const classes = {
+                        'LOW': 'bg-gray-100 text-gray-800',
+                        'INFO': 'bg-blue-100 text-blue-800',
+                        'SUCCESS': 'bg-green-100 text-green-800',
+                        'WARNING': 'bg-yellow-100 text-yellow-800',
+                        'ERROR': 'bg-red-100 text-red-800',
+                        'CRITICAL': 'bg-red-200 text-red-900'
+                    };
+                    return classes[level] || 'bg-gray-100 text-gray-800';
+                },
+                
+                getStatusBadgeClass(status) {
+                    const classes = {
+                        'PENDING': 'bg-yellow-100 text-yellow-800',
+                        'SENT': 'bg-blue-100 text-blue-800',
+                        'DELIVERED': 'bg-green-100 text-green-800',
+                        'READ': 'bg-gray-100 text-gray-800',
+                        'FAILED': 'bg-red-100 text-red-800'
+                    };
+                    return classes[status] || 'bg-gray-100 text-gray-800';
+                },
+                
+                formatDate(dateString) {
+                    return new Date(dateString).toLocaleString();
+                },
+                
+                async loadStats() {
+                    try {
+                        const response = await fetch('/admin/api/notifications/stats', {
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.stats = data;
+                        } else {
+                            this.calculateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error loading stats:', error);
+                        this.calculateStats();
+                    }
+                },
+                
+                async markAllAsRead() {
+                    try {
+                        const response = await fetch('/admin/api/notifications/mark-all-read', {
+                            method: 'POST',
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            this.notifications.forEach(n => n.isRead = true);
+                            this.calculateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error marking all as read:', error);
+                    }
+                },
+                
+                async deleteSelected() {
+                    if (this.selectedNotifications.length === 0) return;
+                    
+                    try {
+                        const response = await fetch('/admin/api/notifications/delete-selected', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ ids: this.selectedNotifications }),
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            this.notifications = this.notifications.filter(n => !this.selectedNotifications.includes(n.id));
+                            this.selectedNotifications = [];
+                            this.selectAll = false;
+                            this.applyFilters();
+                            this.calculateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error deleting notifications:', error);
+                    }
+                },
+                
+                async viewNotification(id) {
+                    console.log('View notification:', id);
+                },
+                
+                async toggleReadStatus(id) {
+                    try {
+                        const notification = this.notifications.find(n => n.id === id);
+                        if (notification) {
+                            notification.isRead = !notification.isRead;
+                            this.calculateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error toggling read status:', error);
+                    }
+                },
+                
+                async deleteNotification(id) {
+                    try {
+                        const response = await fetch(`/admin/api/notifications/${id}`, {
+                            method: 'DELETE',
+                            credentials: 'same-origin'
+                        });
+                        if (response.ok) {
+                            this.notifications = this.notifications.filter(n => n.id !== id);
+                            this.applyFilters();
+                            this.calculateStats();
+                        }
+                    } catch (error) {
+                        console.error('Error deleting notification:', error);
+                    }
+                },
+                
+                async refreshNotifications() {
+                    await this.loadNotifications();
+                    await this.loadStats();
+                }
             }
-        });
+        }
     </script>
 </div>
 

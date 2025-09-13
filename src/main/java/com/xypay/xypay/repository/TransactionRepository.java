@@ -62,7 +62,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
            "(:type IS NULL OR t.type = :type) AND " +
            "(:channel IS NULL OR t.channel = :channel) AND " +
            "(:status IS NULL OR t.status = :status) AND " +
-           "(:search IS NULL OR t.reference LIKE %:search% OR t.description LIKE %:search%) AND " +
+           "(:search IS NULL OR t.reference LIKE CONCAT('%', :search, '%') OR t.description LIKE CONCAT('%', :search, '%')) AND " +
            "(:startDate IS NULL OR t.createdAt >= :startDate) AND " +
            "(:endDate IS NULL OR t.createdAt <= :endDate)")
     Page<Transaction> findWithFilters(
@@ -72,6 +72,21 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
         @Param("search") String search,
         @Param("startDate") LocalDateTime startDate,
         @Param("endDate") LocalDateTime endDate,
+        Pageable pageable
+    );
+    
+    @Query("SELECT t FROM Transaction t WHERE " +
+           "(:type IS NULL OR t.type = :type) AND " +
+           "(:channel IS NULL OR t.channel = :channel) AND " +
+           "(:status IS NULL OR t.status = :status) AND " +
+           "(:currency IS NULL OR t.currency = :currency) AND " +
+           "(:search IS NULL OR t.reference LIKE CONCAT('%', :search, '%') OR t.description LIKE CONCAT('%', :search, '%'))")
+    Page<Transaction> findWithAllFilters(
+        @Param("type") String type,
+        @Param("channel") String channel,
+        @Param("status") String status,
+        @Param("currency") String currency,
+        @Param("search") String search,
         Pageable pageable
     );
 }

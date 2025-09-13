@@ -25,11 +25,11 @@ public class TransferNotificationService {
     @Autowired
     private UserProfileRepository userProfileRepository;
     
-    // TODO: Inject actual email and SMS services when implemented
-    // @Autowired
-    // private EmailService emailService;
-    // @Autowired
-    // private SmsService smsService;
+    @Autowired
+    private EmailNotificationService emailNotificationService;
+    
+    @Autowired
+    private SMSNotificationService smsNotificationService;
     
     /**
      * Send email and SMS notifications for successful transfer.
@@ -60,19 +60,57 @@ public class TransferNotificationService {
         // Email notification for sender
         String senderEmail = sender.getEmail();
         if (senderEmail != null && !senderEmail.isEmpty()) {
-            // TODO: Implement email sending logic
-            logger.info("Would send email to sender {} for transfer {}", senderEmail, transferInstance.getId());
-            // Example: emailService.sendTransferSentNotification(senderEmail, amount, 
-            //     receiverWallet.getAccountNumber(), transferInstance.getReference());
+            try {
+                String subject = "Transfer Sent Successfully";
+                String message = String.format(
+                    "Dear %s,\n\n" +
+                    "Your transfer of %s to account %s has been completed successfully.\n\n" +
+                    "Transfer Details:\n" +
+                    "Amount: %s\n" +
+                    "Recipient Account: %s\n" +
+                    "Reference: %s\n" +
+                    "Date: %s\n\n" +
+                    "Thank you for using XyPay.",
+                    this.getFullNameOrUsername(sender),
+                    amount,
+                    receiverWallet.getAccountNumber(),
+                    amount,
+                    receiverWallet.getAccountNumber(),
+                    transferInstance.getReference(),
+                    java.time.LocalDateTime.now().toString()
+                );
+                
+                boolean emailSent = emailNotificationService.sendEmailNotification(senderEmail, subject, message);
+                if (emailSent) {
+                    logger.info("Transfer sent email notification sent to: {}", senderEmail);
+                } else {
+                    logger.warn("Failed to send transfer sent email to: {}", senderEmail);
+                }
+            } catch (Exception e) {
+                logger.error("Error sending transfer sent email to {}: {}", senderEmail, e.getMessage());
+            }
         }
         
         // SMS notification for sender
         String senderPhone = getUserPhone(sender);
         if (senderPhone != null && !senderPhone.isEmpty()) {
-            // TODO: Implement SMS sending logic
-            logger.info("Would send SMS to sender {} for transfer {}", senderPhone, transferInstance.getId());
-            // Example: smsService.sendTransferSentNotification(senderPhone, amount, 
-            //     receiverWallet.getAccountNumber());
+            try {
+                String smsMessage = String.format(
+                    "XyPay: Transfer of %s to %s completed successfully. Ref: %s",
+                    amount,
+                    receiverWallet.getAccountNumber(),
+                    transferInstance.getReference()
+                );
+                
+                boolean smsSent = smsNotificationService.sendSMSNotification(senderPhone, smsMessage);
+                if (smsSent) {
+                    logger.info("Transfer sent SMS notification sent to: {}", senderPhone);
+                } else {
+                    logger.warn("Failed to send transfer sent SMS to: {}", senderPhone);
+                }
+            } catch (Exception e) {
+                logger.error("Error sending transfer sent SMS to {}: {}", senderPhone, e.getMessage());
+            }
         }
     }
     
@@ -83,19 +121,60 @@ public class TransferNotificationService {
         // Email notification for receiver
         String receiverEmail = receiver.getEmail();
         if (receiverEmail != null && !receiverEmail.isEmpty()) {
-            // TODO: Implement email sending logic
-            logger.info("Would send email to receiver {} for transfer {}", receiverEmail, transferInstance.getId());
-            // Example: emailService.sendTransferReceivedNotification(receiverEmail, amount, 
-            //     senderWallet.getAccountNumber(), transferInstance.getReference());
+            try {
+                String subject = "Money Received";
+                String message = String.format(
+                    "Dear %s,\n\n" +
+                    "You have received %s from account %s.\n\n" +
+                    "Transfer Details:\n" +
+                    "Amount: %s\n" +
+                    "Sender Account: %s\n" +
+                    "Reference: %s\n" +
+                    "Date: %s\n" +
+                    "New Balance: %s\n\n" +
+                    "Thank you for using XyPay.",
+                    this.getFullNameOrUsername(receiver),
+                    amount,
+                    senderWallet.getAccountNumber(),
+                    amount,
+                    senderWallet.getAccountNumber(),
+                    transferInstance.getReference(),
+                    java.time.LocalDateTime.now().toString(),
+                    receiverWallet.getBalance()
+                );
+                
+                boolean emailSent = emailNotificationService.sendEmailNotification(receiverEmail, subject, message);
+                if (emailSent) {
+                    logger.info("Transfer received email notification sent to: {}", receiverEmail);
+                } else {
+                    logger.warn("Failed to send transfer received email to: {}", receiverEmail);
+                }
+            } catch (Exception e) {
+                logger.error("Error sending transfer received email to {}: {}", receiverEmail, e.getMessage());
+            }
         }
         
         // SMS notification for receiver
         String receiverPhone = getUserPhone(receiver);
         if (receiverPhone != null && !receiverPhone.isEmpty()) {
-            // TODO: Implement SMS sending logic
-            logger.info("Would send SMS to receiver {} for transfer {}", receiverPhone, transferInstance.getId());
-            // Example: smsService.sendTransferReceivedNotification(receiverPhone, amount, 
-            //     senderWallet.getAccountNumber());
+            try {
+                String smsMessage = String.format(
+                    "XyPay: You received %s from %s. Ref: %s. New balance: %s",
+                    amount,
+                    senderWallet.getAccountNumber(),
+                    transferInstance.getReference(),
+                    receiverWallet.getBalance()
+                );
+                
+                boolean smsSent = smsNotificationService.sendSMSNotification(receiverPhone, smsMessage);
+                if (smsSent) {
+                    logger.info("Transfer received SMS notification sent to: {}", receiverPhone);
+                } else {
+                    logger.warn("Failed to send transfer received SMS to: {}", receiverPhone);
+                }
+            } catch (Exception e) {
+                logger.error("Error sending transfer received SMS to {}: {}", receiverPhone, e.getMessage());
+            }
         }
     }
     
@@ -106,6 +185,16 @@ public class TransferNotificationService {
         } catch (Exception e) {
             logger.warn("Error getting phone for user {}: {}", user.getId(), e.getMessage());
             return null;
+        }
+    }
+    
+    private String getFullNameOrUsername(User user) {
+        if (user.getFirstName() != null && user.getLastName() != null) {
+            return user.getFirstName() + " " + user.getLastName();
+        } else if (user.getFirstName() != null) {
+            return user.getFirstName();
+        } else {
+            return user.getUsername();
         }
     }
 }

@@ -433,6 +433,14 @@ public class NotificationService {
     }
     
     /**
+     * Get all notifications for admin view
+     */
+    @Transactional(readOnly = true)
+    public Page<Notification> getAllNotifications(Pageable pageable) {
+        return notificationRepository.findAll(pageable);
+    }
+    
+    /**
      * Get unread notifications for a user
      */
     @Transactional(readOnly = true)
@@ -564,6 +572,24 @@ public class NotificationService {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Delete a notification (admin version - no user validation)
+     */
+    @Transactional
+    public boolean deleteNotification(Long notificationId) {
+        try {
+            Notification notification = notificationRepository.findById(notificationId).orElse(null);
+            if (notification != null) {
+                notificationRepository.delete(notification);
+                return true;
+            }
+            return false;
+        } catch (Exception e) {
+            logger.error("Error deleting notification {}: {}", notificationId, e.getMessage());
+            return false;
+        }
     }
     
     /**

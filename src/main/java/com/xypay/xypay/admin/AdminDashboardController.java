@@ -145,7 +145,11 @@ public class AdminDashboardController {
 
     // Branches sub-pages
     @GetMapping("/admin/branches/new")
-    public String branchesNew() {
+    public String branchesNew(Model model) {
+        String generatedBranchCode = generateBranchCode();
+        model.addAttribute("generatedBranchCode", generatedBranchCode);
+        java.util.List<User> users = userRepository.findAll();
+        model.addAttribute("users", users);
         return "admin/branches-new";
     }
 
@@ -415,8 +419,15 @@ public class AdminDashboardController {
         return "admin/workflow";
     }
 
-    @GetMapping("/admin/notifications")
-    public String notifications() {
-        return "admin/notifications";
+    // Notifications route moved to AdminNotificationController
+    // @GetMapping("/admin/notifications")
+    // public String notifications() {
+    //     return "admin/notifications";
+    // }
+
+    private String generateBranchCode() {
+        // Generate code like BR48327 (prefix BR + 5 digits)
+        int code = new java.security.SecureRandom().nextInt(90000) + 10000;
+        return "BR" + code;
     }
 }

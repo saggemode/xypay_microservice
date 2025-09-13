@@ -140,14 +140,48 @@
                 selectedIds: new Set(),
                 bulkAction: '',
                 filters: { type:'', channel:'', status:'', currency:'', hasReversal:'', large:'', suspicious:'', q:'' },
-                async init(){ await this.loadTransactions(); },
+                async init(){ 
+                    await this.testAuth();
+                    await this.loadTransactions(); 
+                },
+                async testAuth(){
+                    try {
+                        const res = await fetch('/admin/api/test-auth', {
+                            credentials: 'same-origin'
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            console.log('Auth test result:', data);
+                        } else {
+                            console.error('Auth test failed:', res.status, res.statusText);
+                        }
+                    } catch (e) {
+                        console.error('Auth test error:', e);
+                    }
+                },
                 async loadTransactions(){
                     try {
                         const params = new URLSearchParams(this.filters).toString();
-                        const res = await fetch(`/admin/api/transactions?${params}`);
+                        const res = await fetch(`/admin/api/transactions?${params}`, {
+                            credentials: 'same-origin' // Include cookies for authentication
+                        });
+                        
+                        if (!res.ok) {
+                            if (res.status === 401 || res.status === 403) {
+                                console.error('Authentication required. Redirecting to login...');
+                                window.location.href = '/login';
+                                return;
+                            }
+                            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+                        }
+                        
                         const data = await res.json();
                         this.transactions = Array.isArray(data) ? data : (data?.content || []);
-                    } catch (e) { console.error(e); }
+                        console.log('Loaded transactions:', this.transactions.length);
+                    } catch (e) { 
+                        console.error('Error loading transactions:', e);
+                        this.transactions = [];
+                    }
                 },
                 toggleSelect(id, ev){ if(ev.target.checked){ this.selectedIds.add(id); } else { this.selectedIds.delete(id); } },
                 toggleSelectAll(ev){ if(ev.target.checked){ this.transactions.forEach(t=>this.selectedIds.add(t.id)); } else { this.selectedIds.clear(); } },

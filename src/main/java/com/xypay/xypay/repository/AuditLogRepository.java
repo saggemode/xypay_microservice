@@ -25,4 +25,8 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     @Modifying
     @Query("UPDATE AuditLog a SET a.user = null WHERE a.user.id = :userId")
     void nullifyUserReferences(@Param("userId") Long userId);
+    
+    @Modifying
+    @Query("DELETE FROM AuditLog a WHERE a.user.id = :userId")
+    void deleteAllByUserId(@Param("userId") Long userId);
 }

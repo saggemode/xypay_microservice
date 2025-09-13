@@ -117,10 +117,10 @@ public class BankTransferProcessingService {
             logger.error("Error processing bank transfer ID: {}: {}", transfer.getId(), e.getMessage());
             
             // Handle transfer failure
-            baseSignalHandler.handleTransferFailure(transfer, StandardizedErrorCodes.PROCESSING_ERROR, e.getMessage());
+            baseSignalHandler.handleTransferFailure(transfer, "PROCESSING_ERROR", e.getMessage());
             
             // Publish transfer failed event
-            eventPublisher.publishTransferFailedEvent(transfer.getId(), StandardizedErrorCodes.PROCESSING_ERROR, e.getMessage());
+            eventPublisher.publishTransferFailedEvent(transfer.getId(), "PROCESSING_ERROR", e.getMessage());
         }
     }
     

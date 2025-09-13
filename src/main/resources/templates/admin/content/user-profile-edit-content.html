@@ -46,6 +46,11 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email <span class="text-red-500">*</span></label>
+                        <input type="email" id="email" name="email" th:value="${user.email}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent" required>
+                    </div>
+
+                    <div class="form-group">
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
                         <input type="text" id="phone" name="phone" th:value="${user.profile != null ? user.profile.phone : ''}" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
                     </div>
