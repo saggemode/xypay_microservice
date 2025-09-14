@@ -59,6 +59,7 @@ public class SecurityConfig {
                 .requestMatchers("/cso/**").hasRole("CUSTOMER_SERVICE_OFFICER")
                 .requestMatchers("/loan-officer/**").hasRole("LOAN_OFFICER")
                 .requestMatchers("/rm/**").hasRole("RELATIONSHIP_MANAGER")
+                .requestMatchers("/admin/cbn-levies/**").permitAll()
                 .requestMatchers("/admin/**").hasAnyRole("SUPERUSER", "ADMIN")
                 .requestMatchers("/api/transactions/**").hasAuthority("SCOPE_transaction")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
