@@ -2,6 +2,7 @@ package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.SecurityAlert;
 import com.xypay.xypay.domain.User;
+import com.xypay.xypay.enums.SecurityLevel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -10,22 +11,23 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Repository for SecurityAlert entity.
  */
 @Repository
-public interface SecurityAlertRepository extends JpaRepository<SecurityAlert, Long> {
+public interface SecurityAlertRepository extends JpaRepository<SecurityAlert, UUID> {
     
     /**
-     * Find alerts by affected user.
+     * Find alerts by user.
      */
-    List<SecurityAlert> findByAffectedUser(User user);
+    List<SecurityAlert> findByUser(User user);
     
     /**
-     * Find alerts by status.
+     * Find alerts by read status.
      */
-    List<SecurityAlert> findByStatus(SecurityAlert.Status status);
+    List<SecurityAlert> findByIsRead(Boolean isRead);
     
     /**
      * Find alerts by alert type.
@@ -35,37 +37,37 @@ public interface SecurityAlertRepository extends JpaRepository<SecurityAlert, Lo
     /**
      * Find alerts by severity level.
      */
-    List<SecurityAlert> findBySeverity(SecurityAlert.SeverityLevel severity);
+    List<SecurityAlert> findBySeverity(SecurityLevel severity);
     
     /**
-     * Find open alerts for a user.
+     * Find alerts for a user by read status.
      */
-    List<SecurityAlert> findByAffectedUserAndStatus(User user, SecurityAlert.Status status);
+    List<SecurityAlert> findByUserAndIsRead(User user, Boolean isRead);
     
     /**
-     * Count alerts by status.
+     * Count alerts by read status.
      */
-    long countByStatus(SecurityAlert.Status status);
+    long countByIsRead(Boolean isRead);
     
     /**
      * Count alerts by timestamp range.
      */
-    long countByTimestampBetween(LocalDateTime start, LocalDateTime end);
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
     
     /**
      * Count alerts by type and timestamp range.
      */
-    long countByAlertTypeAndTimestampBetween(SecurityAlert.AlertType alertType, LocalDateTime start, LocalDateTime end);
+    long countByAlertTypeAndCreatedAtBetween(SecurityAlert.AlertType alertType, LocalDateTime start, LocalDateTime end);
     
     /**
      * Count alerts by severity and timestamp range.
      */
-    long countBySeverityAndTimestampBetween(SecurityAlert.SeverityLevel severity, LocalDateTime start, LocalDateTime end);
+    long countBySeverityAndCreatedAtBetween(SecurityLevel severity, LocalDateTime start, LocalDateTime end);
     
     /**
      * Find recent alerts for a user.
      */
-    @Query("SELECT sa FROM SecurityAlert sa WHERE sa.affectedUser = :user AND sa.timestamp >= :since ORDER BY sa.timestamp DESC")
+    @Query("SELECT sa FROM SecurityAlert sa WHERE sa.user = :user AND sa.createdAt >= :since ORDER BY sa.createdAt DESC")
     List<SecurityAlert> findRecentAlertsByUser(@Param("user") User user, @Param("since") LocalDateTime since);
     
     /**
@@ -77,24 +79,24 @@ public interface SecurityAlertRepository extends JpaRepository<SecurityAlert, Lo
      * Auto-resolve old alerts.
      */
     @Modifying
-    @Query("UPDATE SecurityAlert sa SET sa.status = 'RESOLVED', sa.resolvedAt = :resolvedAt, sa.notes = CONCAT(COALESCE(sa.notes, ''), ' [Auto-resolved due to age]') WHERE sa.status = 'OPEN' AND sa.timestamp < :cutoffDate")
+    @Query("UPDATE SecurityAlert sa SET sa.isResolved = true, sa.readAt = :resolvedAt WHERE sa.isResolved = false AND sa.createdAt < :cutoffDate")
     int autoResolveOldAlerts(@Param("cutoffDate") LocalDateTime cutoffDate, @Param("resolvedAt") LocalDateTime resolvedAt);
     
     /**
      * Auto-resolve old alerts (overloaded for convenience).
      */
     @Modifying
-    @Query("UPDATE SecurityAlert sa SET sa.status = 'RESOLVED', sa.resolvedAt = CURRENT_TIMESTAMP, sa.notes = CONCAT(COALESCE(sa.notes, ''), ' [Auto-resolved due to age]') WHERE sa.status = 'OPEN' AND sa.timestamp < :cutoffDate")
+    @Query("UPDATE SecurityAlert sa SET sa.isResolved = true, sa.readAt = CURRENT_TIMESTAMP WHERE sa.isResolved = false AND sa.createdAt < :cutoffDate")
     int autoResolveOldAlerts(@Param("cutoffDate") LocalDateTime cutoffDate);
     
     /**
      * Find unresolved high-severity alerts.
      */
-    @Query("SELECT sa FROM SecurityAlert sa WHERE sa.status IN ('OPEN', 'INVESTIGATING') AND sa.severity IN ('HIGH', 'CRITICAL') ORDER BY sa.timestamp DESC")
+    @Query("SELECT sa FROM SecurityAlert sa WHERE sa.isResolved = false AND sa.severity IN ('HIGH', 'CRITICAL') ORDER BY sa.createdAt DESC")
     List<SecurityAlert> findUnresolvedHighSeverityAlerts();
     
     /**
      * Count alerts by user and time range.
      */
-    long countByAffectedUserAndTimestampBetween(User user, LocalDateTime start, LocalDateTime end);
+    long countByUserAndCreatedAtBetween(User user, LocalDateTime start, LocalDateTime end);
 }

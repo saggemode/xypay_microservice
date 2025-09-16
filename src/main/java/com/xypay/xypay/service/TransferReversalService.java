@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -22,48 +22,28 @@ public class TransferReversalService {
     private TransferReversalRepository transferReversalRepository;
     
     @Autowired
-    private TransactionRepository transactionRepository;
-    
-    @Autowired
     private BankTransferRepository bankTransferRepository;
-    
-    @Autowired
-    private WalletService walletService;
-    
-    @Autowired
-    private WalletRepository walletRepository;
-    
-    @Autowired
-    private TransactionCreationService transactionCreationService;
     
     @Autowired
     private NotificationService notificationService;
     
-    @Autowired
-    private UserRepository userRepository;
-    
     /**
      * Create a new transfer reversal request
      */
-    public TransferReversal createTransferReversal(Transaction originalTransaction, User initiatedBy, 
-                                                  String reason, TransferReversal.ReversalType reversalType) {
+    public TransferReversal createTransferReversal(BankTransfer originalTransfer, User initiatedBy, 
+                                                  String reason, TransferReversal.ReversalReason reversalReason) {
         try {
             // Validate reversal eligibility
-            validateReversalEligibility(originalTransaction);
+            validateReversalEligibility(originalTransfer);
             
             // Create reversal record
-            TransferReversal reversal = new TransferReversal(
-                originalTransaction, 
-                initiatedBy, 
-                originalTransaction.getAmount(), 
-                reversalType, 
-                reason
-            );
-            
-            // Check if approval is required
-            if (requiresApproval(originalTransaction.getAmount(), reversalType)) {
-                reversal.setApprovalRequired(true);
-            }
+            TransferReversal reversal = new TransferReversal();
+            reversal.setOriginalTransfer(originalTransfer);
+            reversal.setInitiatedBy(initiatedBy);
+            reversal.setAmount(originalTransfer.getAmount());
+            reversal.setReason(reversalReason);
+            reversal.setDescription(reason);
+            reversal.setStatus(TransferStatus.PENDING);
             
             TransferReversal saved = transferReversalRepository.save(reversal);
             
@@ -71,11 +51,11 @@ public class TransferReversalService {
             notificationService.sendNotification(
                 initiatedBy.getId(),
                 "REVERSAL_REQUESTED",
-                String.format("Transfer reversal request %s created", saved.getReversalId())
+                String.format("Transfer reversal request %s created", saved.getId())
             );
             
-            logger.info("Created transfer reversal {} for transaction {}", 
-                saved.getReversalId(), originalTransaction.getId());
+            logger.info("Created transfer reversal {} for transfer {}", 
+                saved.getId(), originalTransfer.getId());
             
             return saved;
             
@@ -88,16 +68,13 @@ public class TransferReversalService {
     /**
      * Approve transfer reversal
      */
-    public TransferReversal approveReversal(Long reversalId, User approver, String approvalNotes) {
+    public TransferReversal approveReversal(UUID reversalId, User approver, String approvalNotes) {
         try {
             TransferReversal reversal = transferReversalRepository.findById(reversalId)
                     .orElseThrow(() -> new RuntimeException("Transfer reversal not found"));
             
-            if (!reversal.requiresApproval()) {
-                throw new RuntimeException("This reversal does not require approval");
-            }
-            
-            reversal.approve(approver, approvalNotes);
+            reversal.setApprovedBy(approver);
+            reversal.setStatus(TransferStatus.APPROVED);
             reversal = transferReversalRepository.save(reversal);
             
             // Process the reversal
@@ -107,10 +84,10 @@ public class TransferReversalService {
             notificationService.sendNotification(
                 reversal.getInitiatedBy().getId(),
                 "REVERSAL_APPROVED",
-                String.format("Transfer reversal %s has been approved", reversal.getReversalId())
+                String.format("Transfer reversal %s has been approved", reversal.getId())
             );
             
-            logger.info("Approved transfer reversal {}", reversal.getReversalId());
+            logger.info("Approved transfer reversal {}", reversal.getId());
             
             return reversal;
             
@@ -125,40 +102,38 @@ public class TransferReversalService {
      */
     public TransferReversal processTransferReversal(TransferReversal reversal) {
         try {
-            reversal.startProcessing();
+            reversal.setStatus(TransferStatus.PROCESSING);
             transferReversalRepository.save(reversal);
             
-            Transaction originalTransaction = reversal.getOriginalTransaction();
+            BankTransfer originalTransfer = reversal.getOriginalTransfer();
             
-            // Create reversal transaction
-            Transaction reversalTransaction = createReversalTransaction(originalTransaction, reversal);
+            // Create reversal transfer
+            BankTransfer reversalTransfer = createReversalTransfer(originalTransfer, reversal);
+            reversal.setReversalTransfer(reversalTransfer);
             
-            // Update wallet balances
-            updateWalletBalances(originalTransaction, reversalTransaction);
-            
-            // Update original transaction status
-            originalTransaction.setStatus("REVERSED");
-            transactionRepository.save(originalTransaction);
+            // Update original transfer status
+            originalTransfer.setStatus("reversed");
             
             // Complete reversal
-            reversal.completeProcessing(reversalTransaction);
+            reversal.setStatus(TransferStatus.COMPLETED);
+            reversal.setProcessedAt(LocalDateTime.now());
             reversal = transferReversalRepository.save(reversal);
             
             // Send notifications
             notificationService.sendNotification(
-                originalTransaction.getWallet().getUser().getId(),
+                originalTransfer.getUser().getId(),
                 "TRANSFER_REVERSED",
                 String.format("Transfer %s has been reversed. Amount: %s", 
-                    originalTransaction.getReference(), reversal.getAmount())
+                    originalTransfer.getReference(), reversal.getAmount())
             );
             
-            logger.info("Processed transfer reversal {} for transaction {}", 
-                reversal.getReversalId(), originalTransaction.getId());
+            logger.info("Processed transfer reversal {} for transfer {}", 
+                reversal.getId(), originalTransfer.getId());
             
             return reversal;
             
         } catch (Exception e) {
-            reversal.markAsFailed(e.getMessage());
+            reversal.setStatus(TransferStatus.FAILED);
             transferReversalRepository.save(reversal);
             
             logger.error("Error processing transfer reversal {}: {}", 
@@ -168,82 +143,44 @@ public class TransferReversalService {
     }
     
     /**
-     * Create reversal transaction
+     * Create reversal transfer
      */
-    private Transaction createReversalTransaction(Transaction originalTransaction, TransferReversal reversal) {
-        Transaction reversalTransaction = new Transaction();
-        reversalTransaction.setWallet(originalTransaction.getWallet());
-        reversalTransaction.setAmount(reversal.getAmount());
-        reversalTransaction.setType(originalTransaction.getType().equals("DEBIT") ? "CREDIT" : "DEBIT");
-        reversalTransaction.setChannel("REVERSAL");
-        reversalTransaction.setDescription("Reversal: " + originalTransaction.getDescription());
-        reversalTransaction.setReference("REV-" + originalTransaction.getReference());
-        reversalTransaction.setStatus("SUCCESS");
-        reversalTransaction.setBalanceAfter(originalTransaction.getWallet().getBalance());
+    private BankTransfer createReversalTransfer(BankTransfer originalTransfer, TransferReversal reversal) {
+        BankTransfer reversalTransfer = new BankTransfer();
+        reversalTransfer.setUser(originalTransfer.getUser());
+        reversalTransfer.setBankName(originalTransfer.getBankName());
+        reversalTransfer.setBankCode(originalTransfer.getBankCode());
+        reversalTransfer.setAccountNumber(originalTransfer.getAccountNumber());
+        reversalTransfer.setAmount(originalTransfer.getAmount());
+        reversalTransfer.setReference("REV-" + originalTransfer.getReference());
+        reversalTransfer.setStatus("completed");
+        reversalTransfer.setTransferType(originalTransfer.getTransferType());
+        reversalTransfer.setDescription("Reversal: " + originalTransfer.getDescription());
         
-        return transactionRepository.save(reversalTransaction);
-    }
-    
-    /**
-     * Update wallet balances
-     */
-    private void updateWalletBalances(Transaction originalTransaction, Transaction reversalTransaction) {
-        Wallet wallet = originalTransaction.getWallet();
-        
-        if (originalTransaction.getType().equals("DEBIT")) {
-            // Original was debit, reversal is credit (add money back)
-            wallet.setBalance(wallet.getBalance().add(reversalTransaction.getAmount()));
-        } else {
-            // Original was credit, reversal is debit (remove money)
-            wallet.setBalance(wallet.getBalance().subtract(reversalTransaction.getAmount()));
-        }
-        
-        walletRepository.save(wallet);
-        reversalTransaction.setBalanceAfter(wallet.getBalance());
-        transactionRepository.save(reversalTransaction);
+        return bankTransferRepository.save(reversalTransfer);
     }
     
     /**
      * Validate reversal eligibility
      */
-    private void validateReversalEligibility(Transaction transaction) {
-        // Check if transaction is already reversed
-        if ("REVERSED".equals(transaction.getStatus())) {
-            throw new RuntimeException("Transaction is already reversed");
+    private void validateReversalEligibility(BankTransfer transfer) {
+        // Check if transfer is already reversed
+        if ("reversed".equals(transfer.getStatus())) {
+            throw new RuntimeException("Transfer is already reversed");
         }
         
-        // Check if transaction is successful
-        if (!"SUCCESS".equals(transaction.getStatus())) {
-            throw new RuntimeException("Only successful transactions can be reversed");
+        // Check if transfer is successful
+        if (!"completed".equals(transfer.getStatus()) && !"successful".equals(transfer.getStatus())) {
+            throw new RuntimeException("Only successful transfers can be reversed");
         }
         
         // Check time limit (24 hours for customer requests)
-        LocalDateTime transactionTime = transaction.getCreatedAt();
-        LocalDateTime timeLimit = transactionTime.plusHours(24);
+        LocalDateTime transferTime = transfer.getCreatedAt();
+        LocalDateTime timeLimit = transferTime.plusHours(24);
         
         if (LocalDateTime.now().isAfter(timeLimit)) {
-            throw new RuntimeException("Transaction is too old to be reversed (24 hour limit)");
+            throw new RuntimeException("Transfer is too old to be reversed (24 hour limit)");
         }
-    }
-    
-    /**
-     * Check if reversal requires approval
-     */
-    private boolean requiresApproval(BigDecimal amount, TransferReversal.ReversalType reversalType) {
-        // High-value reversals require approval
-        BigDecimal highValueThreshold = new BigDecimal("100000.00"); // ₦100,000
-        
-        if (amount.compareTo(highValueThreshold) > 0) {
-            return true;
-        }
-        
-        // Bank-initiated and compliance reversals require approval
-        if (reversalType == TransferReversal.ReversalType.BANK_INITIATED || 
-            reversalType == TransferReversal.ReversalType.COMPLIANCE) {
-            return true;
-        }
-        
-        return false;
     }
     
     /**
@@ -257,13 +194,13 @@ public class TransferReversalService {
      * Get pending reversals requiring approval
      */
     public List<TransferReversal> getPendingReversals() {
-        return transferReversalRepository.findByStatusAndApprovalRequiredTrue(TransferReversal.Status.PENDING);
+        return transferReversalRepository.findByStatus(TransferStatus.PENDING);
     }
     
     /**
      * Get transfer reversal by ID
      */
-    public TransferReversal getTransferReversal(Long id) {
+    public TransferReversal getTransferReversal(UUID id) {
         return transferReversalRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transfer reversal not found"));
     }
@@ -271,18 +208,18 @@ public class TransferReversalService {
     /**
      * Cancel transfer reversal
      */
-    public TransferReversal cancelTransferReversal(Long id, User user) {
+    public TransferReversal cancelTransferReversal(UUID id, User user) {
         TransferReversal reversal = getTransferReversal(id);
         
         if (!reversal.getInitiatedBy().getId().equals(user.getId())) {
             throw new RuntimeException("Only the initiator can cancel this reversal");
         }
         
-        if (reversal.isProcessing() || reversal.isCompleted()) {
+        if (reversal.getStatus() == TransferStatus.PROCESSING || reversal.getStatus() == TransferStatus.COMPLETED) {
             throw new RuntimeException("Cannot cancel reversal that is processing or completed");
         }
         
-        reversal.cancel();
+        reversal.setStatus(TransferStatus.CANCELLED);
         return transferReversalRepository.save(reversal);
     }
     
@@ -294,9 +231,9 @@ public class TransferReversalService {
         
         ReversalStatistics stats = new ReversalStatistics();
         stats.setTotalReversals(allReversals.size());
-        stats.setPendingReversals((int) allReversals.stream().filter(TransferReversal::isPending).count());
-        stats.setCompletedReversals((int) allReversals.stream().filter(TransferReversal::isCompleted).count());
-        stats.setFailedReversals((int) allReversals.stream().filter(TransferReversal::isFailed).count());
+        stats.setPendingReversals((int) allReversals.stream().filter(r -> r.getStatus() == TransferStatus.PENDING).count());
+        stats.setCompletedReversals((int) allReversals.stream().filter(r -> r.getStatus() == TransferStatus.COMPLETED).count());
+        stats.setFailedReversals((int) allReversals.stream().filter(r -> r.getStatus() == TransferStatus.FAILED).count());
         
         return stats;
     }

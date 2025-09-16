@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -273,7 +273,7 @@ public class WorkflowEngineService {
                 step.getWorkflowStep().getStepName());
             
             if (step.getAssignedTo() != null) {
-                notificationService.sendNotification(step.getAssignedTo(), "WORKFLOW_ASSIGNMENT", message);
+                notificationService.sendNotification(UUID.fromString(step.getAssignedTo().toString()), "WORKFLOW_ASSIGNMENT", message);
             }
         } catch (Exception e) {
             // Log notification failure
@@ -285,7 +285,7 @@ public class WorkflowEngineService {
             String message = String.format("Workflow %s: %s", status.toLowerCase(), 
                 instance.getWorkflowDefinition().getName());
             
-            notificationService.sendNotification(instance.getInitiatedBy(), "WORKFLOW_COMPLETION", message);
+            notificationService.sendNotification(UUID.fromString(instance.getInitiatedBy().toString()), "WORKFLOW_COMPLETION", message);
         } catch (Exception e) {
             // Log notification failure
         }
@@ -297,6 +297,8 @@ public class WorkflowEngineService {
                 step.getWorkflowStep().getStepName());
             
             // Notify the escalated role - implementation depends on your user/role system
+            // TODO: Implement role-based notification system
+            System.out.println("Escalation notification: " + message);
         } catch (Exception e) {
             // Log notification failure
         }

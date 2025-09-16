@@ -17,18 +17,8 @@ public class AdminSettingsController {
         return "admin/settings";
     }
 
-    // XySave Account Management
-    @GetMapping("/xysave")
-    public String xySaveManagement(Model model) {
-        model.addAttribute("pageTitle", "XySave Account Management");
-        return "admin/xysave";
-    }
 
-    @GetMapping("/spend-save")
-    public String spendSaveManagement(Model model) {
-        model.addAttribute("pageTitle", "Spend & Save Management");
-        return "admin/spend-save";
-    }
+    // Spend & Save management moved to dedicated SpendAndSaveAdminController
 
     @GetMapping("/target-savings")
     public String targetSavingsManagement(Model model) {
@@ -49,11 +39,6 @@ public class AdminSettingsController {
         return "admin/night-guard";
     }
 
-    @GetMapping("/transaction-shield")
-    public String transactionShieldSettings(Model model) {
-        model.addAttribute("pageTitle", "Large Transaction Shield");
-        return "admin/transaction-shield";
-    }
 
     @GetMapping("/location-guard")
     public String locationGuardSettings(Model model) {

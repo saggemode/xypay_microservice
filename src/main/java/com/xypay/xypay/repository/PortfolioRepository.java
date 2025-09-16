@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
+public interface PortfolioRepository extends JpaRepository<Portfolio, UUID> {
     
-    List<Portfolio> findByBankId(Long bankId);
+    List<Portfolio> findByBankId(UUID bankId);
     
-    List<Portfolio> findByCustomerId(Long customerId);
+    List<Portfolio> findByCustomerId(UUID customerId);
     
     List<Portfolio> findByPortfolioType(Portfolio.PortfolioType portfolioType);
     
@@ -26,7 +27,7 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Long> {
     
     List<Portfolio> findByBaseCurrency(String baseCurrency);
     
-    List<Portfolio> findByPortfolioManagerId(Long portfolioManagerId);
+    List<Portfolio> findByPortfolioManagerId(UUID portfolioManagerId);
     
     List<Portfolio> findByShariaCompliant(Boolean shariaCompliant);
     

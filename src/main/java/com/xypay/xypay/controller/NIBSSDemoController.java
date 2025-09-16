@@ -59,6 +59,6 @@ public class NIBSSDemoController {
                 "0012345678", 10000.0, null);
         demoResults.put("sampleDirectDebitSetup", directDebit);
         
-        return ResponseEntity.ok(new ApiResponse<>(true, "NIBSS demo completed successfully", demoResults));
+        return ResponseEntity.ok(ApiResponse.success(demoResults, "NIBSS demo completed successfully"));
     }
 }

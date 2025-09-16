@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ChartOfAccountsRepository extends JpaRepository<ChartOfAccounts, Long> {
+public interface ChartOfAccountsRepository extends JpaRepository<ChartOfAccounts, UUID> {
     
     List<ChartOfAccounts> findByBankId(Long bankId);
     
@@ -52,10 +53,10 @@ public interface ChartOfAccountsRepository extends JpaRepository<ChartOfAccounts
     
     List<ChartOfAccounts> findByBankIdAndStatutoryReturnsTrue(Long bankId);
     
-    @Query("SELECT c FROM ChartOfAccounts c WHERE c.bank.id = :bankId AND c.accountName LIKE %:searchTerm%")
+    @Query("SELECT c FROM ChartOfAccounts c WHERE c.bank.id = :bankId AND c.accountName LIKE CONCAT('%', :searchTerm, '%')")
     List<ChartOfAccounts> findByBankIdAndAccountNameContaining(@Param("bankId") Long bankId, @Param("searchTerm") String searchTerm);
     
-    @Query("SELECT c FROM ChartOfAccounts c WHERE c.bank.id = :bankId AND (c.accountCode LIKE %:searchTerm% OR c.accountName LIKE %:searchTerm%)")
+    @Query("SELECT c FROM ChartOfAccounts c WHERE c.bank.id = :bankId AND (c.accountCode LIKE CONCAT('%', :searchTerm, '%') OR c.accountName LIKE CONCAT('%', :searchTerm, '%'))")
     List<ChartOfAccounts> searchByCodeOrName(@Param("bankId") Long bankId, @Param("searchTerm") String searchTerm);
     
     @Query("SELECT DISTINCT c.accountLevel FROM ChartOfAccounts c WHERE c.bank.id = :bankId ORDER BY c.accountLevel")

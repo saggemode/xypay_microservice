@@ -3,7 +3,7 @@ package com.xypay.xypay.listener;
 import com.xypay.xypay.domain.Transaction;
 import com.xypay.xypay.event.TransactionEvent;
 import com.xypay.xypay.service.SpendAndSaveService;
-import com.xypay.xypay.service.XySaveAutoSweepService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +24,7 @@ public class TransactionEventListener {
     @Autowired
     private SpendAndSaveService spendAndSaveService;
     
-    @Autowired
-    private XySaveAutoSweepService xySaveAutoSweepService;
-    
-    /**
+       /**
      * Automatically process Spend and Save when a debit transaction is created.
      * Equivalent to Django's process_spend_and_save_on_transaction function.
      */
@@ -62,7 +59,7 @@ public class TransactionEventListener {
                 instance.getId(), instance.getAmount());
             
             // Process the spending transaction for auto-save
-            Object autoSaveTx = spendAndSaveService.processSpendingTransaction(instance);
+            var autoSaveTx = spendAndSaveService.processSpendingTransaction(instance);
             
             if (autoSaveTx != null) {
                 logger.info("✅ Successfully processed auto-save for transaction {}. Auto-save transaction created", 
@@ -82,7 +79,9 @@ public class TransactionEventListener {
     /**
      * Auto-sweep wallet credits to XySave when enabled.
      * Equivalent to Django's auto_sweep_to_xysave_on_credit function.
+     * Temporarily disabled until XySaveAutoSweepService is properly configured.
      */
+    /*
     @EventListener
     @Async
     @Transactional
@@ -122,4 +121,5 @@ public class TransactionEventListener {
                 instance.getId(), e.getMessage());
         }
     }
+    */
 }

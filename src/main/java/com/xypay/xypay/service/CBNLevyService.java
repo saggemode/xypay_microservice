@@ -1,6 +1,7 @@
 package com.xypay.xypay.service;
 
 import com.xypay.xypay.domain.CBNLevy;
+import com.xypay.xypay.enums.TransferType;
 import com.xypay.xypay.repository.CBNLevyRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -44,7 +46,7 @@ public class CBNLevyService {
      * Get CBN levy by ID
      */
     @Transactional(readOnly = true)
-    public Optional<CBNLevy> getLevyById(Long id) {
+    public Optional<CBNLevy> getLevyById(UUID id) {
         return cbnLevyRepository.findById(id);
     }
     
@@ -65,7 +67,7 @@ public class CBNLevyService {
     /**
      * Update an existing CBN levy
      */
-    public CBNLevy updateLevy(Long id, CBNLevy updatedLevy) {
+    public CBNLevy updateLevy(UUID id, CBNLevy updatedLevy) {
         try {
             CBNLevy existingLevy = cbnLevyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("CBN levy not found with id: " + id));
@@ -94,7 +96,7 @@ public class CBNLevyService {
     /**
      * Delete a CBN levy
      */
-    public boolean deleteLevy(Long id) {
+    public boolean deleteLevy(UUID id) {
         try {
             if (cbnLevyRepository.existsById(id)) {
                 cbnLevyRepository.deleteById(id);
@@ -110,7 +112,7 @@ public class CBNLevyService {
     /**
      * Toggle levy active status
      */
-    public CBNLevy toggleLevyStatus(Long id) {
+    public CBNLevy toggleLevyStatus(UUID id) {
         try {
             CBNLevy levy = cbnLevyRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("CBN levy not found with id: " + id));
@@ -182,7 +184,7 @@ public class CBNLevyService {
             CBNLevy defaultLevy = new CBNLevy();
             defaultLevy.setName("CBN Electronic Transfer Levy");
             defaultLevy.setFixedAmount(new BigDecimal("50.00"));
-            defaultLevy.setTransactionType("all");
+            defaultLevy.setTransactionType(TransferType.INTERNAL);
             defaultLevy.setMinAmount(new BigDecimal("10000.00"));
             defaultLevy.setIsActive(true);
             defaultLevy.setEffectiveFrom(LocalDateTime.now());
@@ -190,17 +192,17 @@ public class CBNLevyService {
             defaultLevy.setDescription("Central Bank of Nigeria electronic transfer levy as per CBN regulations");
             createLevy(defaultLevy);
             
-            // International transfer levy
-            CBNLevy internationalLevy = new CBNLevy();
-            internationalLevy.setName("International Transfer Levy");
-            internationalLevy.setFixedAmount(new BigDecimal("100.00"));
-            internationalLevy.setTransactionType("international");
-            internationalLevy.setMinAmount(new BigDecimal("5000.00"));
-            internationalLevy.setIsActive(true);
-            internationalLevy.setEffectiveFrom(LocalDateTime.now());
-            internationalLevy.setRegulationReference("CBN Circular 2023");
-            internationalLevy.setDescription("Additional levy for international money transfers");
-            createLevy(internationalLevy);
+            // External transfer levy
+            CBNLevy externalLevy = new CBNLevy();
+            externalLevy.setName("External Transfer Levy");
+            externalLevy.setFixedAmount(new BigDecimal("100.00"));
+            externalLevy.setTransactionType(TransferType.EXTERNAL);
+            externalLevy.setMinAmount(new BigDecimal("5000.00"));
+            externalLevy.setIsActive(true);
+            externalLevy.setEffectiveFrom(LocalDateTime.now());
+            externalLevy.setRegulationReference("CBN Circular 2023");
+            externalLevy.setDescription("Additional levy for external money transfers");
+            createLevy(externalLevy);
         }
     }
     

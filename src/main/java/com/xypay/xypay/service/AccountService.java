@@ -1,32 +1,38 @@
 package com.xypay.xypay.service;
 
 import com.xypay.xypay.domain.Account;
+import com.xypay.xypay.domain.Wallet;
 import com.xypay.xypay.repository.AccountRepository;
+import com.xypay.xypay.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class AccountService {
     @Autowired
     private AccountRepository accountRepository;
+    
+    @Autowired
+    private WalletRepository walletRepository;
 
     public List<Map<String, Object>> getAllAccountsForOpenBanking() {
-        return accountRepository.findAll().stream().map(a -> {
+        return walletRepository.findAll().stream().map(w -> {
             Map<String, Object> accountMap = new HashMap<>();
-            accountMap.put("accountId", a.getId());
-            accountMap.put("iban", a.getAccountNumber());
-            accountMap.put("currency", a.getCurrency());
-            accountMap.put("type", a.getAccountType());
+            accountMap.put("accountId", w.getId());
+            accountMap.put("iban", w.getAccountNumber());
+            accountMap.put("currency", w.getCurrency());
+            accountMap.put("type", "WALLET");
             return accountMap;
         }).collect(Collectors.toList());
     }
-    public Map<String, Object> getBalanceForOpenBanking(Long accountId) {
-        Account a = accountRepository.findById(accountId).orElse(null);
-        return Map.of("accountId", accountId, "balance", a != null ? a.getLedgerBalance() : BigDecimal.ZERO, "currency", a != null ? a.getCurrency() : "");
+    public Map<String, Object> getBalanceForOpenBanking(UUID accountId) {
+        Wallet w = walletRepository.findById(accountId).orElse(null);
+        return Map.of("accountId", accountId, "balance", w != null ? w.getBalance() : BigDecimal.ZERO, "currency", w != null ? w.getCurrency() : "");
     }
     public Map<String, Object> initiateOpenBankingPayment(Map<String, Object> payment) {
         return Map.of("paymentId", UUID.randomUUID().toString(), "status", "Accepted", "details", payment);

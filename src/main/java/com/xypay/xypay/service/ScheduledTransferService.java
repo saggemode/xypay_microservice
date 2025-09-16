@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -265,7 +266,7 @@ public class ScheduledTransferService {
     /**
      * Pause scheduled transfer
      */
-    public ScheduledTransfer pauseScheduledTransfer(Long id) {
+    public ScheduledTransfer pauseScheduledTransfer(UUID id) {
         ScheduledTransfer scheduledTransfer = scheduledTransferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Scheduled transfer not found"));
         
@@ -276,7 +277,7 @@ public class ScheduledTransferService {
     /**
      * Resume scheduled transfer
      */
-    public ScheduledTransfer resumeScheduledTransfer(Long id) {
+    public ScheduledTransfer resumeScheduledTransfer(UUID id) {
         ScheduledTransfer scheduledTransfer = scheduledTransferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Scheduled transfer not found"));
         
@@ -287,7 +288,7 @@ public class ScheduledTransferService {
     /**
      * Cancel scheduled transfer
      */
-    public ScheduledTransfer cancelScheduledTransfer(Long id) {
+    public ScheduledTransfer cancelScheduledTransfer(UUID id) {
         ScheduledTransfer scheduledTransfer = scheduledTransferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Scheduled transfer not found"));
         
@@ -298,7 +299,7 @@ public class ScheduledTransferService {
     /**
      * Get scheduled transfer by ID
      */
-    public ScheduledTransfer getScheduledTransfer(Long id) {
+    public ScheduledTransfer getScheduledTransfer(UUID id) {
         return scheduledTransferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Scheduled transfer not found"));
     }

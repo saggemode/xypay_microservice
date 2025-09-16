@@ -10,12 +10,13 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
     private UserRepository userRepository;
     
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws Exception {
         try {
             // Get user from security context
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -91,8 +92,8 @@ public class SecurityInterceptor implements HandlerInterceptor {
                     
                     // Create security alert for suspicious activity
                     securityUtilityService.createSecurityAlert(
-                        SecurityAlert.AlertType.UNUSUAL_ACTIVITY,
-                        SecurityAlert.SeverityLevel.MEDIUM,
+                        SecurityAlert.AlertType.SUSPICIOUS_ACTIVITY,
+                        AuditLog.SeverityLevel.MEDIUM,
                         "Suspicious API Access",
                         "Suspicious activity detected: " + String.join(", ", suspiciousResult.getReasons()),
                         user,
@@ -110,7 +111,7 @@ public class SecurityInterceptor implements HandlerInterceptor {
     }
     
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler, @Nullable Exception ex) throws Exception {
         try {
             // Log failed requests
             if (response.getStatus() >= 400) {

@@ -14,6 +14,7 @@ import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
@@ -34,7 +35,7 @@ public class TransactionService {
     private static final long REFERENCE_EXPIRATION_HOURS = 24; // References expire after 24 hours
 
     @Transactional
-    public Transaction processTransaction(Long walletId, BigDecimal amount, String currency, String type, String direction, String reference) {
+    public Transaction processTransaction(UUID walletId, BigDecimal amount, String currency, String type, String direction, String reference) {
         // Clean up expired references
         cleanupExpiredReferences();
         
@@ -75,7 +76,7 @@ public class TransactionService {
         return tx;
     }
     @Transactional
-    public Transaction reverseTransaction(Long transactionId) {
+    public Transaction reverseTransaction(UUID transactionId) {
         Transaction tx = transactionRepository.findById(transactionId).orElse(null);
         if (tx != null) {
             // Get the wallet and update the balance in the opposite direction
@@ -100,7 +101,7 @@ public class TransactionService {
         }
         return tx;
     }
-    public Transaction getTransaction(Long transactionId) {
+    public Transaction getTransaction(UUID transactionId) {
         return transactionRepository.findById(transactionId).orElse(null);
     }
     
@@ -108,9 +109,16 @@ public class TransactionService {
         LocalDateTime expirationThreshold = LocalDateTime.now().minusHours(REFERENCE_EXPIRATION_HOURS);
         processedReferences.entrySet().removeIf(entry -> entry.getValue().isBefore(expirationThreshold));
     }
-    public List<Map<String, Object>> getTransactionsForOpenBanking(Long walletId) {
-        return transactionRepository.findByWalletId(walletId, org.springframework.data.domain.Pageable.unpaged())
-            .stream()
+    public List<Map<String, Object>> getTransactionsForOpenBanking(UUID walletId) {
+        // Find wallet first, then get transactions
+        Optional<Wallet> walletOpt = walletService.getWalletById(walletId);
+        if (walletOpt.isEmpty()) {
+            return new ArrayList<>();
+        }
+        
+        // Use a custom approach to find transactions by wallet
+        return transactionRepository.findAll().stream()
+            .filter(t -> t.getWallet() != null && t.getWallet().getId().equals(walletId))
             .map(t -> {
                 Map<String, Object> transactionMap = new HashMap<>();
                 transactionMap.put("transactionId", String.valueOf(t.getId()));
@@ -121,14 +129,14 @@ public class TransactionService {
             })
             .collect(Collectors.toList());
     }
-    public Transaction deposit(Long walletId, BigDecimal amount, String currency, String reference) {
+    public Transaction deposit(UUID walletId, BigDecimal amount, String currency, String reference) {
         return processTransaction(walletId, amount, currency, "DEPOSIT", "CREDIT", reference);
     }
-    public Transaction withdraw(Long walletId, BigDecimal amount, String currency, String reference) {
+    public Transaction withdraw(UUID walletId, BigDecimal amount, String currency, String reference) {
         return processTransaction(walletId, amount, currency, "WITHDRAWAL", "DEBIT", reference);
     }
     @Transactional
-    public Transaction transfer(Long fromWalletId, Long toWalletId, BigDecimal amount, String currency, String reference) {
+    public Transaction transfer(UUID fromWalletId, UUID toWalletId, BigDecimal amount, String currency, String reference) {
         withdraw(fromWalletId, amount, currency, reference + "-DEBIT");
         return deposit(toWalletId, amount, currency, reference + "-CREDIT");
     }

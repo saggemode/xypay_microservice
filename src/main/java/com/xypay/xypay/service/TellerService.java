@@ -45,8 +45,10 @@ public class TellerService {
     public java.util.List<Transaction> getTransactionHistory(String accountNumber) {
         Optional<Wallet> walletOpt = walletRepository.findByAccountNumberOrAlternativeAccountNumber(accountNumber, accountNumber);
         if (walletOpt.isPresent()) {
-            return transactionRepository.findByWalletId(walletOpt.get().getId(), 
-                org.springframework.data.domain.Pageable.unpaged()).getContent();
+            // Use a custom approach to find transactions by wallet
+            return transactionRepository.findAll().stream()
+                .filter(t -> t.getWallet() != null && t.getWallet().getId().equals(walletOpt.get().getId()))
+                .collect(java.util.stream.Collectors.toList());
         }
         return java.util.Collections.emptyList();
     }

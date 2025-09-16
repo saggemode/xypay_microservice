@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -20,7 +21,7 @@ public class BranchService {
     
     @Autowired
     private BankRepository bankRepository;
-    public Branch createBranch(Long bankId, String name, String code, String address) {
+    public Branch createBranch(UUID bankId, String name, String code, String address) {
         Bank bank = bankRepository.findById(bankId)
             .orElseThrow(() -> new RuntimeException("Bank not found"));
         
@@ -38,11 +39,11 @@ public class BranchService {
         
         return branchRepository.save(branch);
     }
-    public Optional<Branch> getBranch(Long id) {
+    public Optional<Branch> getBranch(UUID id) {
         return branchRepository.findById(id);
     }
     
-    public Branch getBranchById(Long id) {
+    public Branch getBranchById(UUID id) {
         return branchRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Branch not found"));
     }
@@ -54,16 +55,16 @@ public class BranchService {
         return branchRepository.findByIsActiveTrue();
     }
     
-    public List<Branch> listBranchesByBank(Long bankId) {
+    public List<Branch> listBranchesByBank(UUID bankId) {
         return branchRepository.findByBankId(bankId);
     }
-    public void setActive(Long id, boolean active) {
+    public void setActive(UUID id, boolean active) {
         Branch branch = getBranchById(id);
         branch.setIsActive(active);
         branchRepository.save(branch);
     }
     
-    public Branch updateBranch(Long id, String name, String address, String phone, String email) {
+    public Branch updateBranch(UUID id, String name, String address, String phone, String email) {
         Branch branch = getBranchById(id);
         
         if (name != null) branch.setName(name);
@@ -74,14 +75,14 @@ public class BranchService {
         return branchRepository.save(branch);
     }
     
-    public void setBranchLimits(Long id, BigDecimal cashLimit, BigDecimal dailyTransactionLimit) {
+    public void setBranchLimits(UUID id, BigDecimal cashLimit, BigDecimal dailyTransactionLimit) {
         Branch branch = getBranchById(id);
         branch.setCashLimit(cashLimit);
         branch.setDailyTransactionLimit(dailyTransactionLimit);
         branchRepository.save(branch);
     }
     
-    public void setBranchLocation(Long id, BigDecimal latitude, BigDecimal longitude) {
+    public void setBranchLocation(UUID id, BigDecimal latitude, BigDecimal longitude) {
         Branch branch = getBranchById(id);
         branch.setLatitude(latitude);
         branch.setLongitude(longitude);

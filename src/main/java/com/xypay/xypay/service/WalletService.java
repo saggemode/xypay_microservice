@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 @Service
 @Transactional
 public class WalletService {
@@ -87,7 +88,7 @@ public class WalletService {
     /**
      * Credit wallet
      */
-    public Wallet creditWallet(Long walletId, BigDecimal amount, String description) {
+    public Wallet creditWallet(UUID walletId, BigDecimal amount, String description) {
         logger.info("Crediting wallet {} with amount {}", walletId, amount);
 
         Wallet wallet = walletRepository.findById(walletId)
@@ -110,7 +111,7 @@ public class WalletService {
     /**
      * Debit wallet
      */
-    public Wallet debitWallet(Long walletId, BigDecimal amount, String description) {
+    public Wallet debitWallet(UUID walletId, BigDecimal amount, String description) {
         logger.info("Debiting wallet {} with amount {}", walletId, amount);
 
         Wallet wallet = walletRepository.findById(walletId)
@@ -137,7 +138,7 @@ public class WalletService {
     /**
      * Transfer between wallets
      */
-    public void transferBetweenWallets(Long fromWalletId, Long toWalletId, BigDecimal amount, String description) {
+    public void transferBetweenWallets(UUID fromWalletId, UUID toWalletId, BigDecimal amount, String description) {
         logger.info("Transferring {} from wallet {} to wallet {}", amount, fromWalletId, toWalletId);
 
         Wallet fromWallet = walletRepository.findById(fromWalletId)
@@ -166,7 +167,7 @@ public class WalletService {
     /**
      * Freeze wallet
      */
-    public Wallet freezeWallet(Long walletId, String reason) {
+    public Wallet freezeWallet(UUID walletId, String reason) {
         logger.info("Freezing wallet {} for reason: {}", walletId, reason);
 
         Wallet wallet = walletRepository.findById(walletId)
@@ -196,7 +197,7 @@ public class WalletService {
     /**
      * Unfreeze wallet
      */
-    public Wallet unfreezeWallet(Long walletId) {
+    public Wallet unfreezeWallet(UUID walletId) {
         logger.info("Unfreezing wallet {}", walletId);
 
         Wallet wallet = walletRepository.findById(walletId)
@@ -227,7 +228,7 @@ public class WalletService {
      * Get wallet by ID
      */
     @Transactional(readOnly = true)
-    public Optional<Wallet> getWalletById(Long walletId) {
+    public Optional<Wallet> getWalletById(UUID walletId) {
         return walletRepository.findById(walletId);
     }
 
@@ -235,7 +236,7 @@ public class WalletService {
      * Get wallet balance
      */
     @Transactional(readOnly = true)
-    public BigDecimal getWalletBalance(Long walletId) {
+    public BigDecimal getWalletBalance(UUID walletId) {
         Wallet wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new RuntimeException("Wallet not found"));
         return wallet.getBalance();
@@ -245,7 +246,7 @@ public class WalletService {
      * Check if wallet has sufficient balance
      */
     @Transactional(readOnly = true)
-    public boolean hasSufficientBalance(Long walletId, BigDecimal amount) {
+    public boolean hasSufficientBalance(UUID walletId, BigDecimal amount) {
         Wallet wallet = walletRepository.findById(walletId)
             .orElseThrow(() -> new RuntimeException("Wallet not found"));
         return wallet.getBalance().compareTo(amount) >= 0;

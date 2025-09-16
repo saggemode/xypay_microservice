@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -65,7 +66,7 @@ public class RealTimeProcessor extends BaseEntity {
     private Boolean autoFailoverEnabled = true;
     
     @Column(name = "backup_processor_id")
-    private Long backupProcessorId;
+    private UUID backupProcessorId;
     
     // Performance Metrics
     @Column(name = "total_transactions_processed")

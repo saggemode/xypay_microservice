@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface IslamicBankingContractRepository extends JpaRepository<IslamicBankingContract, Long> {
+public interface IslamicBankingContractRepository extends JpaRepository<IslamicBankingContract, UUID> {
     
     List<IslamicBankingContract> findByCustomerId(Long customerId);
     

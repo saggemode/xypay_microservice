@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/charge-control")
@@ -44,7 +45,7 @@ public class ChargeControlAdminController {
     
     @PutMapping("/transfer-control/{id}")
     public ResponseEntity<TransferChargeControl> updateTransferControl(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody TransferChargeControl control) {
         control.setId(id);
         TransferChargeControl updatedControl = transferChargeControlRepository.save(control);
@@ -74,7 +75,7 @@ public class ChargeControlAdminController {
     
     @PutMapping("/vat/{id}")
     public ResponseEntity<VATCharge> updateVatCharge(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody VATCharge vatCharge) {
         vatCharge.setId(id);
         VATCharge updatedVat = vatChargeRepository.save(vatCharge);

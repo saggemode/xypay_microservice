@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${pageTitle}">Spend & Save Activation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .banking-blue { color: #1e40af; }
+        .banking-dark { color: #1e3a8a; }
+        .bg-banking-blue { background-color: #1e40af; }
+        .bg-banking-dark { background-color: #1e3a8a; }
+        .border-banking-blue { border-color: #1e40af; }
+        .ring-banking-blue { --tw-ring-color: #1e40af; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <div class="bg-white shadow-sm border-b">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-piggy-bank text-2xl text-green-600 mr-3"></i>
+                        <h1 class="text-2xl font-semibold text-gray-900">Spend & Save Activation</h1>
+                    </div>
+                    <a href="/dashboard" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition duration-200">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+            
+            <!-- Existing Account Display -->
+            <div th:if="${isExistingAccount}" class="mb-8">
+                <div class="bg-white rounded-lg shadow-sm border p-6">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-check-circle text-2xl text-green-600 mr-3"></i>
+                        <h2 class="text-xl font-semibold text-gray-900">Your Spend & Save Account</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-sm text-gray-500">Account Number</p>
+                            <p class="text-lg font-semibold" th:text="${account.accountNumber}">SS-123456</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Current Balance</p>
+                            <p class="text-lg font-semibold text-green-600" th:text="'₦' + ${#numbers.formatDecimal(account.balance, 0, 0)}">₦0</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Savings Percentage</p>
+                            <p class="text-lg font-semibold" th:text="${account.savingsPercentage} + '%'">5%</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Status</p>
+                            <span th:if="${account.isActive}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Active
+                            </span>
+                            <span th:unless="${account.isActive}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Inactive
+                            </span>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex space-x-4">
+                        <button onclick="showSettingsModal()" class="px-4 py-2 bg-banking-blue text-white rounded-md hover:bg-banking-dark transition duration-200">
+                            <i class="fas fa-cog mr-2"></i>Update Settings
+                        </button>
+                        <button th:if="${account.isActive}" onclick="deactivateAccount()" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200">
+                            <i class="fas fa-pause mr-2"></i>Deactivate
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activation Form -->
+            <div th:unless="${isExistingAccount}">
+                <form id="activationForm" class="space-y-8">
+                    
+                    <!-- User Information Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-user text-banking-blue mr-2"></i>
+                                User Information
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p class="text-sm text-gray-500">Full Name</p>
+                                    <p class="text-lg font-semibold" th:text="${user.firstName + ' ' + user.lastName}">John Doe</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Email</p>
+                                    <p class="text-lg font-semibold" th:text="${user.email}">john@example.com</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Phone</p>
+                                    <p class="text-lg font-semibold" th:text="${user.profile?.phone ?: 'N/A'}">+234 800 000 0000</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Account Status</p>
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                        Active
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-bell text-banking-blue mr-2"></i>
+                                Notification Settings
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="emailNotifications" name="emailNotifications" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                    <label for="emailNotifications" class="ml-3 text-sm font-medium text-gray-700">
+                                        Email Notifications
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="smsNotifications" name="smsNotifications" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded">
+                                    <label for="smsNotifications" class="ml-3 text-sm font-medium text-gray-700">
+                                        SMS Notifications
+                                    </label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="pushNotifications" name="pushNotifications" class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300 rounded" checked>
+                                    <label for="pushNotifications" class="ml-3 text-sm font-medium text-gray-700">
+                                        Push Notifications
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Save Preferences Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-coins text-banking-blue mr-2"></i>
+                                Auto-Save Preferences
+                            </h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label for="savingsPercentage" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Savings Percentage (%)
+                                </label>
+                                <div class="relative">
+                                    <input type="number" id="savingsPercentage" name="savingsPercentage" 
+                                           min="1" max="50" value="5" step="0.1"
+                                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">%</span>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Percentage of each transaction to automatically save</p>
+                            </div>
+
+                            <div>
+                                <label for="minTransactionAmount" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Minimum Transaction Amount (₦)
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2 text-gray-500">₦</span>
+                                    <input type="number" id="minTransactionAmount" name="minTransactionAmount" 
+                                           min="100" value="100" step="10"
+                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Minimum transaction amount to trigger auto-save</p>
+                            </div>
+
+                            <div>
+                                <label for="fundSource" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Funding Source
+                                </label>
+                                <select id="fundSource" name="fundSource" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                    <option value="wallet">Wallet</option>
+                                    <option value="xysave">XySave Account</option>
+                                    <option value="both">Both (Wallet + XySave)</option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">Source of funds for auto-save</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Withdrawal Preferences Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-credit-card text-banking-blue mr-2"></i>
+                                Withdrawal Preferences
+                            </h3>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <div>
+                                <label for="withdrawalDestination" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Default Withdrawal Destination
+                                </label>
+                                <select id="withdrawalDestination" name="withdrawalDestination" 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                    <option value="wallet">Wallet</option>
+                                    <option value="bank">Bank Account</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="autoWithdrawalThreshold" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Auto-Withdrawal Threshold (₦)
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute left-3 top-2 text-gray-500">₦</span>
+                                    <input type="number" id="autoWithdrawalThreshold" name="autoWithdrawalThreshold" 
+                                           min="1000" value="10000" step="1000"
+                                           class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-1">Automatically withdraw when balance reaches this amount</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interest Preferences Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-chart-line text-banking-blue mr-2"></i>
+                                Interest Preferences
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="space-y-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h4 class="font-medium text-gray-900 mb-2">Tiered Interest Rates</h4>
+                                    <div class="space-y-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span>Tier 1 (₦0 - ₦10,000):</span>
+                                            <span class="font-semibold text-green-600">20% p.a</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Tier 2 (₦10,001 - ₦100,000):</span>
+                                            <span class="font-semibold text-blue-600">16% p.a</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span>Tier 3 (Above ₦100,000):</span>
+                                            <span class="font-semibold text-purple-600">8% p.a</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Interest Calculation
+                                    </label>
+                                    <div class="space-y-2">
+                                        <div class="flex items-center">
+                                            <input type="radio" id="dailyCalculation" name="interestCalculation" value="daily" checked
+                                                   class="h-4 w-4 text-banking-blue focus:ring-banking-blue border-gray-300">
+                                            <label for="dailyCalculation" class="ml-3 text-sm font-medium text-gray-700">
+                                                Daily Calculation
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timestamps Section -->
+                    <div class="bg-white rounded-lg shadow-sm border">
+                        <div class="px-6 py-4 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                                <i class="fas fa-clock text-banking-blue mr-2"></i>
+                                Timestamps
+                            </h3>
+                        </div>
+                        <div class="p-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p class="text-sm text-gray-500">Account Creation</p>
+                                    <p class="text-lg font-semibold" id="accountCreation">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Last Updated</p>
+                                    <p class="text-lg font-semibold" id="lastUpdated">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Activation Date</p>
+                                    <p class="text-lg font-semibold" id="activationDate">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-gray-500">Last Auto-Save</p>
+                                    <p class="text-lg font-semibold" id="lastAutoSave">-</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="flex justify-center">
+                        <button type="submit" class="px-8 py-3 bg-banking-blue text-white text-lg font-semibold rounded-md hover:bg-banking-dark focus:outline-none focus:ring-2 focus:ring-banking-blue focus:ring-offset-2 transition duration-200">
+                            <i class="fas fa-piggy-bank mr-2"></i>Activate Spend & Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900">Update Settings</h3>
+                </div>
+                <div class="p-6">
+                    <form id="settingsForm">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="modalSavingsPercentage" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Savings Percentage (%)
+                                </label>
+                                <input type="number" id="modalSavingsPercentage" name="savingsPercentage" 
+                                       min="1" max="50" step="0.1"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            </div>
+                            <div>
+                                <label for="modalMinTransactionAmount" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Minimum Transaction Amount (₦)
+                                </label>
+                                <input type="number" id="modalMinTransactionAmount" name="minTransactionAmount" 
+                                       min="100" step="10"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-end space-x-3">
+                            <button type="button" onclick="hideSettingsModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition duration-200">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-banking-blue text-white rounded-md hover:bg-banking-dark transition duration-200">
+                                Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form submission
+        document.getElementById('activationForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                savingsPercentage: parseFloat(formData.get('savingsPercentage')),
+                fundSource: formData.get('fundSource'),
+                emailNotifications: formData.get('emailNotifications') === 'on',
+                smsNotifications: formData.get('smsNotifications') === 'on',
+                pushNotifications: formData.get('pushNotifications') === 'on',
+                withdrawalDestination: formData.get('withdrawalDestination'),
+                autoWithdrawalThreshold: parseFloat(formData.get('autoWithdrawalThreshold'))
+            };
+            
+            try {
+                const response = await fetch('/spend-save/activate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Spend & Save activated successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showNotification('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error activating Spend & Save: ' + error.message, 'error');
+            }
+        });
+
+        // Settings form submission
+        document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = {
+                savingsPercentage: parseFloat(formData.get('savingsPercentage')),
+                minTransactionAmount: parseFloat(formData.get('minTransactionAmount'))
+            };
+            
+            try {
+                const response = await fetch('/spend-save/account/settings', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Settings updated successfully!', 'success');
+                    hideSettingsModal();
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showNotification('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error updating settings: ' + error.message, 'error');
+            }
+        });
+
+        // Modal functions
+        function showSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('hidden');
+        }
+
+        function hideSettingsModal() {
+            document.getElementById('settingsModal').classList.add('hidden');
+        }
+
+        // Deactivate account
+        async function deactivateAccount() {
+            if (!confirm('Are you sure you want to deactivate your Spend & Save account?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/spend-save/deactivate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showNotification('Spend & Save deactivated successfully!', 'success');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    showNotification('Error: ' + result.message, 'error');
+                }
+            } catch (error) {
+                showNotification('Error deactivating Spend & Save: ' + error.message, 'error');
+            }
+        }
+
+        // Notification function
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+                type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 5000);
+        }
+
+        // Update timestamps when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            const now = new Date().toLocaleString();
+            document.getElementById('accountCreation').textContent = now;
+            document.getElementById('lastUpdated').textContent = now;
+            document.getElementById('activationDate').textContent = '-';
+            document.getElementById('lastAutoSave').textContent = '-';
+        });
+    </script>
+</body>
+</html>

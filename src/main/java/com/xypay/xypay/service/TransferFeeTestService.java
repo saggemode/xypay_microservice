@@ -36,7 +36,7 @@ public class TransferFeeTestService {
         
         // Create default VAT rate if none exists
         if (vatChargeRepository.count() == 0) {
-            VATCharge defaultVat = new VATCharge(new BigDecimal("0.075"), true);
+            VATCharge defaultVat = new VATCharge(new BigDecimal("0.075"), true, java.time.LocalDateTime.now());
             vatChargeRepository.save(defaultVat);
         }
     }

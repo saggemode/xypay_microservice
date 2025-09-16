@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TradeFinanceRepository extends JpaRepository<TradeFinance, Long> {
+public interface TradeFinanceRepository extends JpaRepository<TradeFinance, UUID> {
     
     List<TradeFinance> findByCustomerId(Long customerId);
     

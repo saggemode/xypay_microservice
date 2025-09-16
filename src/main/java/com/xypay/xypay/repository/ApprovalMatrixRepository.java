@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ApprovalMatrixRepository extends JpaRepository<ApprovalMatrix, Long> {
+public interface ApprovalMatrixRepository extends JpaRepository<ApprovalMatrix, UUID> {
     Optional<ApprovalMatrix> findByMatrixCode(String matrixCode);
     List<ApprovalMatrix> findByTransactionType(String transactionType);
     List<ApprovalMatrix> findByIsActive(Boolean isActive);

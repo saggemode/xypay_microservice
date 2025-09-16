@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.UUID;
 
 @Service
 public class MenuConfigurationService {
@@ -61,7 +62,7 @@ public class MenuConfigurationService {
         return menuConfigurationRepository.findAll();
     }
     
-    public Map<String, Object> updateMenuConfiguration(Long id, Map<String, Object> request) {
+    public Map<String, Object> updateMenuConfiguration(UUID id, Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -101,7 +102,7 @@ public class MenuConfigurationService {
         return response;
     }
     
-    public Map<String, Object> deleteMenuConfiguration(Long id) {
+    public Map<String, Object> deleteMenuConfiguration(UUID id) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -165,6 +166,7 @@ public class MenuConfigurationService {
                 return true; // No role restriction
             }
             
+            @SuppressWarnings("unchecked")
             List<String> requiredRoles = objectMapper.readValue(menu.getRequiredRoles(), List.class);
             return requiredRoles.contains(userRole) || requiredRoles.contains("ROLE_" + userRole);
             
@@ -201,6 +203,7 @@ public class MenuConfigurationService {
         Map<String, Object> response = new HashMap<>();
         
         try {
+            @SuppressWarnings("unchecked")
             List<Map<String, Object>> menuOrders = (List<Map<String, Object>>) orderData.get("menuOrders");
             
             for (Map<String, Object> menuOrder : menuOrders) {

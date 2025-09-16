@@ -7,9 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface TransferLimitRepository extends JpaRepository<TransferLimit, Long> {
+public interface TransferLimitRepository extends JpaRepository<TransferLimit, UUID> {
     
     List<TransferLimit> findByUserOrderByCreatedAtDesc(User user);
     

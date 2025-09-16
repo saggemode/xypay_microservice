@@ -1,5 +1,6 @@
 package com.xypay.xypay.domain;
 
+import com.xypay.xypay.enums.IPWhitelistStatus;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,8 +30,9 @@ public class IPWhitelist extends BaseEntity {
     @Column(name = "description", length = 255)
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20, nullable = false)
-    private String status = "PENDING"; // PENDING, APPROVED, REJECTED
+    private IPWhitelistStatus status = IPWhitelistStatus.PENDING;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
@@ -53,18 +55,18 @@ public class IPWhitelist extends BaseEntity {
 
     // Business methods
     public void approve(User approver) {
-        this.status = "APPROVED";
+        this.status = IPWhitelistStatus.APPROVED;
         this.approvedBy = approver;
         this.approvedAt = LocalDateTime.now();
     }
 
     public void reject() {
-        this.status = "REJECTED";
+        this.status = IPWhitelistStatus.REJECTED;
         this.isActive = false;
     }
 
     public boolean isApproved() {
-        return "APPROVED".equals(status) && isActive;
+        return IPWhitelistStatus.APPROVED.equals(status) && isActive;
     }
 
     @Override

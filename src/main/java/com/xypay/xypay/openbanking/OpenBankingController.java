@@ -4,6 +4,7 @@ import com.xypay.xypay.service.AccountService;
 import com.xypay.xypay.service.TransactionService;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/openbanking")
@@ -21,12 +22,12 @@ public class OpenBankingController {
     }
 
     @GetMapping("/accounts/{accountId}/balances")
-    public Map<String, Object> getBalances(@PathVariable Long accountId) {
+    public Map<String, Object> getBalances(@PathVariable UUID accountId) {
         return accountService.getBalanceForOpenBanking(accountId);
     }
 
     @GetMapping("/accounts/{accountId}/transactions")
-    public List<Map<String, Object>> getTransactions(@PathVariable Long accountId) {
+    public List<Map<String, Object>> getTransactions(@PathVariable UUID accountId) {
         return transactionService.getTransactionsForOpenBanking(accountId);
     }
 

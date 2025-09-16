@@ -2,223 +2,111 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "target_savings")
-public class TargetSaving extends BaseEntity {
+public class TargetSaving {
     
-    public enum Category {
-        ACCOMMODATION, EDUCATION, BUSINESS, JAPA, VEHICLE, WEDDING, 
-        EMERGENCY, INVESTMENT, TRAVEL, HOME_RENOVATION, MEDICAL, 
-        ENTERTAINMENT, OTHER
-    }
-    
-    public enum Frequency {
-        DAILY, WEEKLY, MONTHLY
-    }
-    
-    public enum Source {
-        WALLET, XYSAVE, BOTH
-    }
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @Column(name = "name", length = 255)
+    @Column(name = "name", length = 255, nullable = false)
     private String name;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", length = 20)
-    private Category category;
+    @Column(name = "category", length = 20, nullable = false)
+    private TargetSavingCategory category;
     
-    @Column(name = "target_amount", precision = 15, scale = 2)
+    @Column(name = "target_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal targetAmount;
     
-    @Column(name = "account_number", unique = true, length = 20)
+    @Column(name = "account_number", length = 20, unique = true, nullable = false)
     private String accountNumber;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "source", length = 10)
-    private Source source = Source.WALLET;
+    @Column(name = "source", length = 10, nullable = false)
+    private TargetSavingSource source = TargetSavingSource.WALLET;
     
-    @Column(name = "strict_mode")
+    @Column(name = "strict_mode", nullable = false)
     private Boolean strictMode = false;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "frequency", length = 10)
-    private Frequency frequency;
+    @Column(name = "frequency", length = 10, nullable = false)
+    private TargetSavingFrequency frequency;
     
     @Column(name = "preferred_deposit_day", length = 20)
     private String preferredDepositDay;
     
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
     
-    @Column(name = "end_date")
+    @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
     
-    @Column(name = "current_amount", precision = 15, scale = 2)
+    @Column(name = "current_amount", precision = 15, scale = 2, nullable = false)
     private BigDecimal currentAmount = BigDecimal.ZERO;
     
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
     
-    @Column(name = "is_completed")
+    @Column(name = "is_completed", nullable = false)
     private Boolean isCompleted = false;
     
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
-    // Constructors
-    public TargetSaving() {}
+    @OneToMany(mappedBy = "targetSaving", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TargetSavingDeposit> deposits;
     
-    // Getters and Setters
-    public User getUser() {
-        return user;
+    @OneToMany(mappedBy = "targetSaving", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<TargetSavingWithdrawal> withdrawals;
+    
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+        
+        if (accountNumber == null) {
+            accountNumber = generateAccountNumber();
+        }
     }
     
-    public void setUser(User user) {
-        this.user = user;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
     
-    public String getName() {
-        return name;
+    private String generateAccountNumber() {
+        String userId = String.format("%08d", user.getId());
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        return "TS" + userId + uuid;
     }
     
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public Category getCategory() {
-        return category;
-    }
-    
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-    
-    public BigDecimal getTargetAmount() {
-        return targetAmount;
-    }
-    
-    public void setTargetAmount(BigDecimal targetAmount) {
-        this.targetAmount = targetAmount;
-    }
-    
-    public String getAccountNumber() {
-        return accountNumber;
-    }
-    
-    public void setAccountNumber(String accountNumber) {
-        this.accountNumber = accountNumber;
-    }
-    
-    public Source getSource() {
-        return source;
-    }
-    
-    public void setSource(Source source) {
-        this.source = source;
-    }
-    
-    public Boolean getStrictMode() {
-        return strictMode;
-    }
-    
-    public void setStrictMode(Boolean strictMode) {
-        this.strictMode = strictMode;
-    }
-    
-    public Frequency getFrequency() {
-        return frequency;
-    }
-    
-    public void setFrequency(Frequency frequency) {
-        this.frequency = frequency;
-    }
-    
-    public String getPreferredDepositDay() {
-        return preferredDepositDay;
-    }
-    
-    public void setPreferredDepositDay(String preferredDepositDay) {
-        this.preferredDepositDay = preferredDepositDay;
-    }
-    
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-    
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-    
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-    
-    public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-    }
-    
-    public BigDecimal getCurrentAmount() {
-        return currentAmount;
-    }
-    
-    public void setCurrentAmount(BigDecimal currentAmount) {
-        this.currentAmount = currentAmount;
-    }
-    
-    public Boolean getActive() {
-        return isActive;
-    }
-    
-    public void setActive(Boolean active) {
-        isActive = active;
-    }
-    
-    public Boolean getCompleted() {
-        return isCompleted;
-    }
-    
-    public void setCompleted(Boolean completed) {
-        isCompleted = completed;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    // Utility methods
     public BigDecimal getProgressPercentage() {
-        if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) == 0) {
+        if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
-        return currentAmount.multiply(new BigDecimal("100"))
-                .divide(targetAmount, 2, BigDecimal.ROUND_HALF_UP);
+        return currentAmount.divide(targetAmount, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
     }
     
     public BigDecimal getRemainingAmount() {
@@ -233,8 +121,7 @@ public class TargetSaving extends BaseEntity {
             return 0;
         }
         LocalDate today = LocalDate.now();
-        int remaining = (int) java.time.temporal.ChronoUnit.DAYS.between(today, endDate);
-        return Math.max(0, remaining);
+        return Math.max(0, (int) java.time.temporal.ChronoUnit.DAYS.between(today, endDate));
     }
     
     public boolean isOverdue() {
@@ -250,7 +137,7 @@ public class TargetSaving extends BaseEntity {
             return BigDecimal.ZERO;
         }
         BigDecimal remaining = getRemainingAmount();
-        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+        if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
         return remaining.divide(new BigDecimal(daysRemaining), 2, BigDecimal.ROUND_HALF_UP);
@@ -262,7 +149,7 @@ public class TargetSaving extends BaseEntity {
             return BigDecimal.ZERO;
         }
         BigDecimal remaining = getRemainingAmount();
-        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+        if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
         int weeksRemaining = Math.max(1, daysRemaining / 7);
@@ -275,7 +162,7 @@ public class TargetSaving extends BaseEntity {
             return BigDecimal.ZERO;
         }
         BigDecimal remaining = getRemainingAmount();
-        if (remaining.compareTo(BigDecimal.ZERO) == 0) {
+        if (remaining.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
         int monthsRemaining = Math.max(1, daysRemaining / 30);

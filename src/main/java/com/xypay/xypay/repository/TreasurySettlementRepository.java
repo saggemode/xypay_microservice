@@ -10,9 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TreasurySettlementRepository extends JpaRepository<TreasurySettlement, Long> {
+public interface TreasurySettlementRepository extends JpaRepository<TreasurySettlement, UUID> {
     
     List<TreasurySettlement> findByTreasuryOperation(TreasuryOperation treasuryOperation);
     

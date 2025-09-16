@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -26,7 +27,7 @@ public class LoanOfficerService {
     @Autowired
     private LoanProductRepository loanProductRepository;
 
-    public String applyForLoan(Long customerId, Long productId, BigDecimal amount) {
+    public String applyForLoan(UUID customerId, UUID productId, BigDecimal amount) {
         User customer = userRepository.findById(customerId)
             .orElseThrow(() -> new RuntimeException("Customer not found"));
         
@@ -46,7 +47,7 @@ public class LoanOfficerService {
         return "Loan application submitted for customer ID: " + customerId;
     }
 
-    public String creditCheck(Long customerId) {
+    public String creditCheck(UUID customerId) {
         User customer = userRepository.findById(customerId)
             .orElseThrow(() -> new RuntimeException("Customer not found"));
         return "Credit check completed for customer: " + customer.getUsername();
@@ -56,27 +57,27 @@ public class LoanOfficerService {
         return loanRepository.findAll();
     }
 
-    public String riskAssessment(Long customerId) {
+    public String riskAssessment(UUID customerId) {
         User customer = userRepository.findById(customerId)
             .orElseThrow(() -> new RuntimeException("Customer not found"));
         return "Risk assessment completed for customer: " + customer.getUsername();
     }
 
-    public void approveLoan(Long loanId) {
+    public void approveLoan(UUID loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
         loan.setStatus(Loan.LoanStatus.APPROVED);
         loanRepository.save(loan);
     }
 
-    public void rejectLoan(Long loanId) {
+    public void rejectLoan(UUID loanId) {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Loan not found"));
         loan.setStatus(Loan.LoanStatus.REJECTED);
         loanRepository.save(loan);
     }
 
-    public String getRepaymentSchedule(Long loanId) {
+    public String getRepaymentSchedule(UUID loanId) {
         return "Repayment schedule for loan " + loanId + " will be displayed here.";
     }
 

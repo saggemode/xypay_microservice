@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.UUID;
 
 @Service
 public class ScreenConfigurationService {
@@ -53,7 +54,7 @@ public class ScreenConfigurationService {
         return screenConfigurationRepository.findAll();
     }
     
-    public Map<String, Object> updateScreenConfiguration(Long id, Map<String, Object> request) {
+    public Map<String, Object> updateScreenConfiguration(UUID id, Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -88,7 +89,7 @@ public class ScreenConfigurationService {
         return response;
     }
     
-    public Map<String, Object> deleteScreenConfiguration(Long id) {
+    public Map<String, Object> deleteScreenConfiguration(UUID id) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -118,8 +119,11 @@ public class ScreenConfigurationService {
                 return formConfig;
             }
             
+            @SuppressWarnings("unchecked")
             Map<String, Object> layoutConfig = objectMapper.readValue(config.getLayoutConfig(), Map.class);
+            @SuppressWarnings("unchecked")
             Map<String, Object> fieldConfig = objectMapper.readValue(config.getFieldConfig(), Map.class);
+            @SuppressWarnings("unchecked")
             Map<String, Object> validationRules = objectMapper.readValue(config.getValidationRules(), Map.class);
             
             formConfig.put("screenCode", config.getScreenCode());
@@ -150,6 +154,7 @@ public class ScreenConfigurationService {
                 return result;
             }
             
+            @SuppressWarnings("unchecked")
             Map<String, Object> validationRules = objectMapper.readValue(config.getValidationRules(), Map.class);
             
             // Perform validation logic here
@@ -158,6 +163,7 @@ public class ScreenConfigurationService {
                 Object fieldValue = entry.getValue();
                 
                 if (validationRules.containsKey(fieldName)) {
+                    @SuppressWarnings("unchecked")
                     Map<String, Object> fieldRules = (Map<String, Object>) validationRules.get(fieldName);
                     
                     // Required field validation

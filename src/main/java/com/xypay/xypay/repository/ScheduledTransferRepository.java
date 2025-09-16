@@ -7,9 +7,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface ScheduledTransferRepository extends JpaRepository<ScheduledTransfer, Long> {
+public interface ScheduledTransferRepository extends JpaRepository<ScheduledTransfer, UUID> {
     
     List<ScheduledTransfer> findByUserOrderByCreatedAtDesc(User user);
     

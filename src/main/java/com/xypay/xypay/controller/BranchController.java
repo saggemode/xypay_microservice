@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/branches")
@@ -15,12 +16,16 @@ public class BranchController {
 
     @PostMapping("/create")
     public ResponseEntity<Branch> createBranch(@RequestParam Long bankId, @RequestParam String name, @RequestParam String code, @RequestParam String address) {
-        return ResponseEntity.ok(branchService.createBranch(bankId, name, code, address));
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID bankIdUuid = new UUID(0L, bankId); // Create UUID from Long
+        return ResponseEntity.ok(branchService.createBranch(bankIdUuid, name, code, address));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Branch> getBranch(@PathVariable Long id) {
-        return ResponseEntity.ok(branchService.getBranchById(id));
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID branchIdUuid = new UUID(0L, id); // Create UUID from Long
+        return ResponseEntity.ok(branchService.getBranchById(branchIdUuid));
     }
 
     @GetMapping
@@ -30,7 +35,9 @@ public class BranchController {
 
     @PostMapping("/{id}/active")
     public ResponseEntity<Void> setActive(@PathVariable Long id, @RequestParam boolean active) {
-        branchService.setActive(id, active);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID branchIdUuid = new UUID(0L, id); // Create UUID from Long
+        branchService.setActive(branchIdUuid, active);
         return ResponseEntity.ok().build();
     }
 }

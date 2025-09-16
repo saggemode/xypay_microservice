@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/kyc")
@@ -56,7 +57,9 @@ public class KYCController {
             @PathVariable Long userId,
             @RequestBody Map<String, Object> kycData) {
         
-        Map<String, Object> response = kycService.createKYCProfile(userId, kycData);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
+        Map<String, Object> response = kycService.createKYCProfile(userIdUuid, kycData);
         
         if ((Boolean) response.get("success")) {
             return ResponseEntity.ok(response);
@@ -74,7 +77,9 @@ public class KYCController {
             @PathVariable Long userId,
             @RequestBody Map<String, Object> kycData) {
         
-        Map<String, Object> response = kycService.updateKYCProfile(userId, kycData);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
+        Map<String, Object> response = kycService.updateKYCProfile(userIdUuid, kycData);
         
         if ((Boolean) response.get("success")) {
             return ResponseEntity.ok(response);
@@ -88,7 +93,9 @@ public class KYCController {
      */
     @GetMapping("/profile/{userId}")
     public ResponseEntity<Map<String, Object>> getKYCProfile(@PathVariable Long userId) {
-        Map<String, Object> response = kycService.getKYCProfile(userId);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
+        Map<String, Object> response = kycService.getKYCProfile(userIdUuid);
         
         if ((Boolean) response.get("success")) {
             return ResponseEntity.ok(response);
@@ -110,7 +117,9 @@ public class KYCController {
             @RequestBody Map<String, String> request) {
         
         String targetTier = request.get("target_tier");
-        Map<String, Object> response = kycService.requestTierUpgrade(userId, targetTier);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
+        Map<String, Object> response = kycService.requestTierUpgrade(userIdUuid, targetTier);
         
         if ((Boolean) response.get("success")) {
             return ResponseEntity.ok(response);
@@ -143,7 +152,9 @@ public class KYCController {
             @RequestBody Map<String, Long> request) {
         
         Long approverId = request.get("approver_id");
-        Map<String, Object> response = kycService.approveKYC(kycProfileId, approverId);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID approverIdUuid = new UUID(0L, approverId); // Create UUID from Long
+        Map<String, Object> response = kycService.approveKYC(kycProfileId, approverIdUuid);
         
         if ((Boolean) response.get("success")) {
             return ResponseEntity.ok(response);

@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface WalletRepository extends JpaRepository<Wallet, Long> {
+public interface WalletRepository extends JpaRepository<Wallet, UUID> {
     List<Wallet> findByUser(User user);
     Optional<Wallet> findByAccountNumber(String accountNumber);
     Optional<Wallet> findByAccountNumberOrAlternativeAccountNumber(String accountNumber, String alternativeAccountNumber);

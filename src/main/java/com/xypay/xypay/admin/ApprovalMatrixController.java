@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/approval-matrix")
@@ -57,7 +58,9 @@ public class ApprovalMatrixController {
      */
     @PutMapping("/matrix-config/{id}")
     public ResponseEntity<Map<String, Object>> updateMatrixConfig(@PathVariable Long id, @RequestBody Map<String, Object> request) {
-        Map<String, Object> response = approvalMatrixService.updateApprovalMatrix(id, request);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID matrixId = new UUID(0L, id); // Create UUID from Long
+        Map<String, Object> response = approvalMatrixService.updateApprovalMatrix(matrixId, request);
         return ResponseEntity.ok(response);
     }
     
@@ -66,7 +69,9 @@ public class ApprovalMatrixController {
      */
     @DeleteMapping("/matrix-config/{id}")
     public ResponseEntity<Map<String, Object>> deleteMatrixConfig(@PathVariable Long id) {
-        Map<String, Object> response = approvalMatrixService.deleteApprovalMatrix(id);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID matrixId = new UUID(0L, id); // Create UUID from Long
+        Map<String, Object> response = approvalMatrixService.deleteApprovalMatrix(matrixId);
         return ResponseEntity.ok(response);
     }
     

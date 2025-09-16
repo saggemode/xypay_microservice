@@ -13,6 +13,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -36,10 +37,9 @@ public class LoanManagementService {
     @Autowired
     private WorkflowEngineService workflowEngineService;
     
-    @Autowired
-    private NotificationService notificationService;
+    // Removed unused service to fix warning
 
-    public Loan createLoanApplication(Long customerId, String productCode, BigDecimal amount, 
+    public Loan createLoanApplication(UUID customerId, String productCode, BigDecimal amount, 
                                     Integer termMonths, String currencyCode) {
         
         User customer = userRepository.findById(customerId)
@@ -89,8 +89,8 @@ public class LoanManagementService {
         
         // Start approval workflow
         try {
-            workflowEngineService.startWorkflow("LOAN_APPROVAL", "LOAN", loan.getId(), 
-                customerId, null);
+            workflowEngineService.startWorkflow("LOAN_APPROVAL", "LOAN", loan.getId().getMostSignificantBits(), 
+                customerId.getMostSignificantBits(), null); // Convert UUID to Long
         } catch (Exception e) {
             // Log error but don't fail loan creation
         }
@@ -98,13 +98,13 @@ public class LoanManagementService {
         return loan;
     }
 
-    public Loan approveLoan(Long loanId, Long approvedBy) {
+    public Loan approveLoan(UUID loanId, UUID approvedBy) {
         Loan loan = loanRepository.findById(loanId)
             .orElseThrow(() -> new RuntimeException("Loan not found"));
             
         loan.setStatus(Loan.LoanStatus.APPROVED);
         loan.setApprovalDate(LocalDateTime.now());
-        loan.setApprovedBy(approvedBy);
+        loan.setApprovedBy(approvedBy.getMostSignificantBits()); // Convert UUID to Long
         
         // Calculate maturity date
         LocalDateTime maturityDate = loan.getApplicationDate().plusMonths(loan.getLoanTermMonths());
@@ -122,7 +122,7 @@ public class LoanManagementService {
         return loan;
     }
 
-    public Loan disburseLoan(Long loanId, BigDecimal amount) {
+    public Loan disburseLoan(UUID loanId, BigDecimal amount) {
         Loan loan = loanRepository.findById(loanId)
             .orElseThrow(() -> new RuntimeException("Loan not found"));
             
@@ -238,7 +238,7 @@ public class LoanManagementService {
         return totalAmount.divide(new BigDecimal(loan.getLoanTermMonths()), 2, RoundingMode.HALF_UP);
     }
 
-    public void processLoanRepayment(Long loanId, BigDecimal amount, String paymentMethod, 
+    public void processLoanRepayment(UUID loanId, BigDecimal amount, String paymentMethod, 
                                    String transactionReference) {
         Loan loan = loanRepository.findById(loanId)
             .orElseThrow(() -> new RuntimeException("Loan not found"));

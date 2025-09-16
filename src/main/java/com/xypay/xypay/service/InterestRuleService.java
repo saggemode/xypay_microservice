@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -24,7 +25,7 @@ public class InterestRuleService {
     @Autowired
     private BankRepository bankRepository;
     
-    public InterestRule createInterestRule(Long bankId, String ruleCode, String ruleName, 
+    public InterestRule createInterestRule(UUID bankId, String ruleCode, String ruleName, 
                                          InterestRule.RuleType ruleType, 
                                          InterestRule.ProductCategory productCategory,
                                          BigDecimal baseRate, String currencyCode) {
@@ -46,18 +47,18 @@ public class InterestRuleService {
         return interestRuleRepository.save(rule);
     }
     
-    public List<InterestRule> getActiveRulesByBank(Long bankId) {
+    public List<InterestRule> getActiveRulesByBank(UUID bankId) {
         return interestRuleRepository.findActiveRulesByBank(bankId, LocalDateTime.now());
     }
     
-    public List<InterestRule> getRulesByTypeAndCategory(Long bankId, 
+    public List<InterestRule> getRulesByTypeAndCategory(UUID bankId, 
                                                        InterestRule.RuleType ruleType,
                                                        InterestRule.ProductCategory productCategory) {
         return interestRuleRepository.findActiveRulesByTypeAndCategory(
             bankId, ruleType, productCategory, LocalDateTime.now());
     }
     
-    public List<InterestRule> findApplicableRules(Long bankId, 
+    public List<InterestRule> findApplicableRules(UUID bankId, 
                                                  InterestRule.RuleType ruleType,
                                                  String currencyCode, 
                                                  BigDecimal amount) {
@@ -65,7 +66,7 @@ public class InterestRuleService {
             bankId, ruleType, currencyCode, amount, LocalDateTime.now());
     }
     
-    public Optional<InterestRule> getBestRateRule(Long bankId, 
+    public Optional<InterestRule> getBestRateRule(UUID bankId, 
                                                  InterestRule.RuleType ruleType,
                                                  String currencyCode, 
                                                  BigDecimal amount,
@@ -96,7 +97,7 @@ public class InterestRuleService {
             });
     }
     
-    public BigDecimal calculateInterest(Long ruleId, BigDecimal principal, Integer days) {
+    public BigDecimal calculateInterest(UUID ruleId, BigDecimal principal, Integer days) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         
@@ -179,7 +180,7 @@ public class InterestRuleService {
         }
     }
     
-    public InterestRule approveRule(Long ruleId, String approvedBy) {
+    public InterestRule approveRule(UUID ruleId, String approvedBy) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         
@@ -190,7 +191,7 @@ public class InterestRuleService {
         return interestRuleRepository.save(rule);
     }
     
-    public InterestRule rejectRule(Long ruleId, String rejectedBy) {
+    public InterestRule rejectRule(UUID ruleId, String rejectedBy) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         
@@ -202,7 +203,7 @@ public class InterestRuleService {
         return interestRuleRepository.save(rule);
     }
     
-    public void deactivateRule(Long ruleId) {
+    public void deactivateRule(UUID ruleId) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         
@@ -210,7 +211,7 @@ public class InterestRuleService {
         interestRuleRepository.save(rule);
     }
     
-    public void expireRule(Long ruleId, LocalDateTime expiryDate) {
+    public void expireRule(UUID ruleId, LocalDateTime expiryDate) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         
@@ -231,19 +232,19 @@ public class InterestRuleService {
         return interestRuleRepository.findFutureEffectiveRules(LocalDateTime.now());
     }
     
-    public List<InterestRule> getRulesByCustomerCategory(Long bankId, String customerCategory) {
+    public List<InterestRule> getRulesByCustomerCategory(UUID bankId, String customerCategory) {
         return interestRuleRepository.findByBankAndCustomerCategory(bankId, customerCategory);
     }
     
-    public List<InterestRule> getRulesByRelationshipTier(Long bankId, String relationshipTier) {
+    public List<InterestRule> getRulesByRelationshipTier(UUID bankId, String relationshipTier) {
         return interestRuleRepository.findByBankAndRelationshipTier(bankId, relationshipTier);
     }
     
-    public List<InterestRule> getShariaCompliantRules(Long bankId) {
+    public List<InterestRule> getShariaCompliantRules(UUID bankId) {
         return interestRuleRepository.findByBankIdAndShariaCompliantTrue(bankId);
     }
     
-    public InterestRule updateRule(Long ruleId, BigDecimal newBaseRate, BigDecimal newSpread) {
+    public InterestRule updateRule(UUID ruleId, BigDecimal newBaseRate, BigDecimal newSpread) {
         InterestRule rule = interestRuleRepository.findById(ruleId)
             .orElseThrow(() -> new RuntimeException("Interest rule not found"));
         

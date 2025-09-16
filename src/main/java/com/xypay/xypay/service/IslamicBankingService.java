@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -35,14 +36,10 @@ public class IslamicBankingService {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private WorkflowEngineService workflowEngineService;
-    
-    @Autowired
-    private NotificationService notificationService;
+    // Removed unused services to fix warnings
 
     // Product Management
-    public IslamicBankingProduct createIslamicProduct(Long bankId, String productCode, String productName,
+    public IslamicBankingProduct createIslamicProduct(UUID bankId, String productCode, String productName,
                                                      IslamicBankingProduct.ProductCategory category,
                                                      IslamicBankingProduct.IslamicStructure structure,
                                                      BigDecimal minAmount, BigDecimal maxAmount,
@@ -72,7 +69,7 @@ public class IslamicBankingService {
     }
 
     // Murabaha (Cost-Plus Sale) Contract
-    public IslamicBankingContract createMurabahaContract(Long productId, Long customerId, 
+    public IslamicBankingContract createMurabahaContract(UUID productId, UUID customerId, 
                                                        BigDecimal principalAmount, Integer termMonths,
                                                        BigDecimal profitRate, String underlyingAsset) {
         
@@ -118,7 +115,7 @@ public class IslamicBankingService {
     }
 
     // Ijara (Lease) Contract
-    public IslamicBankingContract createIjaraContract(Long productId, Long customerId,
+    public IslamicBankingContract createIjaraContract(UUID productId, UUID customerId,
                                                     BigDecimal assetValue, Integer termMonths,
                                                     BigDecimal rentalRate, String assetDescription) {
         
@@ -165,7 +162,7 @@ public class IslamicBankingService {
     }
 
     // Musharaka (Partnership) Contract
-    public IslamicBankingContract createMushараkaContract(Long productId, Long customerId,
+    public IslamicBankingContract createMushараkaContract(UUID productId, UUID customerId,
                                                         BigDecimal bankContribution, BigDecimal customerContribution,
                                                         BigDecimal bankProfitShare, String businessActivity) {
         
@@ -202,7 +199,7 @@ public class IslamicBankingService {
     }
 
     // Mudaraba (Profit-Sharing) Contract
-    public IslamicBankingContract createMudараbaContract(Long productId, Long customerId,
+    public IslamicBankingContract createMudараbaContract(UUID productId, UUID customerId,
                                                        BigDecimal capitalAmount, BigDecimal bankProfitShare,
                                                        String businessActivity) {
         
@@ -238,12 +235,12 @@ public class IslamicBankingService {
         return islamicContractRepository.save(contract);
     }
 
-    public IslamicBankingContract approveContract(Long contractId, Long approvedBy) {
+    public IslamicBankingContract approveContract(UUID contractId, UUID approvedBy) {
         IslamicBankingContract contract = islamicContractRepository.findById(contractId)
             .orElseThrow(() -> new RuntimeException("Islamic contract not found"));
         
         contract.setContractStatus(IslamicBankingContract.ContractStatus.APPROVED);
-        contract.setApprovedBy(approvedBy);
+        contract.setApprovedBy(approvedBy.getMostSignificantBits()); // Convert UUID to Long
         contract.setApprovalDate(LocalDateTime.now());
         contract.setEffectiveDate(LocalDateTime.now());
         
@@ -255,7 +252,7 @@ public class IslamicBankingService {
         return islamicContractRepository.save(contract);
     }
 
-    public IslamicBankingContract activateContract(Long contractId) {
+    public IslamicBankingContract activateContract(UUID contractId) {
         IslamicBankingContract contract = islamicContractRepository.findById(contractId)
             .orElseThrow(() -> new RuntimeException("Islamic contract not found"));
         
@@ -275,7 +272,7 @@ public class IslamicBankingService {
     }
 
     // Payment Processing
-    public IslamicPayment processPayment(Long contractId, BigDecimal paymentAmount, 
+    public IslamicPayment processPayment(UUID contractId, BigDecimal paymentAmount, 
                                        IslamicPayment.PaymentMethod paymentMethod, String paymentReference) {
         
         IslamicBankingContract contract = islamicContractRepository.findById(contractId)
@@ -310,7 +307,7 @@ public class IslamicBankingService {
     }
 
     // Profit Distribution for Partnership Contracts
-    public IslamicProfitDistribution distributeProfits(Long contractId, BigDecimal grossProfit,
+    public IslamicProfitDistribution distributeProfits(UUID contractId, BigDecimal grossProfit,
                                                      BigDecimal allowableExpenses, LocalDateTime periodStart,
                                                      LocalDateTime periodEnd) {
         
@@ -351,7 +348,7 @@ public class IslamicBankingService {
     }
 
     // Sharia Compliance Verification
-    public boolean verifyShariaCompliance(Long contractId, String shariaAdvisor) {
+    public boolean verifyShariaCompliance(UUID contractId, String shariaAdvisor) {
         IslamicBankingContract contract = islamicContractRepository.findById(contractId)
             .orElseThrow(() -> new RuntimeException("Islamic contract not found"));
         
@@ -372,7 +369,7 @@ public class IslamicBankingService {
     }
 
     // Risk Management
-    public void updateRiskRating(Long contractId, IslamicBankingContract.RiskRating newRating) {
+    public void updateRiskRating(UUID contractId, IslamicBankingContract.RiskRating newRating) {
         IslamicBankingContract contract = islamicContractRepository.findById(contractId)
             .orElseThrow(() -> new RuntimeException("Islamic contract not found"));
         
@@ -554,11 +551,11 @@ public class IslamicBankingService {
         contract.setProvisionAmount(provisionAmount);
     }
 
-    public Map<String, Object> getIslamicBankingMetrics(Long bankId) {
+    public Map<String, Object> getIslamicBankingMetrics(UUID bankId) {
         Map<String, Object> metrics = new HashMap<>();
         
         List<IslamicBankingContract> activeContracts = islamicContractRepository
-            .findByBankIdAndContractStatus(bankId, IslamicBankingContract.ContractStatus.ACTIVE);
+            .findByBankIdAndContractStatus(bankId.getMostSignificantBits(), IslamicBankingContract.ContractStatus.ACTIVE); // Convert UUID to Long
         
         BigDecimal totalFinancing = activeContracts.stream()
             .map(IslamicBankingContract::getPrincipalAmount)
@@ -590,15 +587,15 @@ public class IslamicBankingService {
         return "SHA" + System.currentTimeMillis();
     }
 
-    public List<IslamicBankingContract> getContractsByCustomer(Long customerId) {
-        return islamicContractRepository.findByCustomerId(customerId);
+    public List<IslamicBankingContract> getContractsByCustomer(UUID customerId) {
+        return islamicContractRepository.findByCustomerId(customerId.getMostSignificantBits()); // Convert UUID to Long
     }
 
-    public List<IslamicPayment> getContractPayments(Long contractId) {
-        return islamicPaymentRepository.findByIslamicContractIdOrderByDueDateAsc(contractId);
+    public List<IslamicPayment> getContractPayments(UUID contractId) {
+        return islamicPaymentRepository.findByIslamicContractIdOrderByDueDateAsc(contractId.getMostSignificantBits()); // Convert UUID to Long
     }
 
-    public List<IslamicBankingProduct> getActiveIslamicProducts(Long bankId) {
-        return islamicProductRepository.findByBankIdAndIsActiveTrue(bankId);
+    public List<IslamicBankingProduct> getActiveIslamicProducts(UUID bankId) {
+        return islamicProductRepository.findByBankIdAndIsActiveTrue(bankId.getMostSignificantBits()); // Convert UUID to Long
     }
 }

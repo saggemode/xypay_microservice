@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -84,7 +85,7 @@ public class EscrowAccount extends BaseEntity {
     private String disputeReason;
     
     @Column(name = "dispute_raised_by")
-    private Long disputeRaisedBy; // User ID who raised the dispute
+    private UUID disputeRaisedBy; // User ID who raised the dispute
     
     @Column(name = "dispute_raised_at")
     private LocalDateTime disputeRaisedAt;
@@ -125,7 +126,7 @@ public class EscrowAccount extends BaseEntity {
         this.refundedAt = LocalDateTime.now();
     }
     
-    public void dispute(Long raisedBy, String reason) {
+    public void dispute(UUID raisedBy, String reason) {
         this.status = Status.DISPUTED;
         this.disputeRaisedBy = raisedBy;
         this.disputeReason = reason;

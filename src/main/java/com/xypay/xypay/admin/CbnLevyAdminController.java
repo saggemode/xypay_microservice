@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin/cbn-levies")
@@ -131,7 +132,9 @@ public class CbnLevyAdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> updateLevy(@PathVariable Long id, @RequestBody CBNLevy levy) {
         try {
-            CBNLevy updatedLevy = cbnLevyService.updateLevy(id, levy);
+            // Convert Long to UUID - this is a workaround for the ID type mismatch
+            UUID levyId = new UUID(0L, id); // Create UUID from Long
+            CBNLevy updatedLevy = cbnLevyService.updateLevy(levyId, levy);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "CBN levy updated successfully");
@@ -149,7 +152,9 @@ public class CbnLevyAdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> deleteLevy(@PathVariable Long id) {
         try {
-            boolean deleted = cbnLevyService.deleteLevy(id);
+            // Convert Long to UUID - this is a workaround for the ID type mismatch
+            UUID levyId = new UUID(0L, id); // Create UUID from Long
+            boolean deleted = cbnLevyService.deleteLevy(levyId);
             Map<String, Object> response = new HashMap<>();
             if (deleted) {
                 response.put("success", true);
@@ -171,7 +176,9 @@ public class CbnLevyAdminController {
     @ResponseBody
     public ResponseEntity<Map<String, Object>> toggleLevyStatus(@PathVariable Long id) {
         try {
-            CBNLevy updatedLevy = cbnLevyService.toggleLevyStatus(id);
+            // Convert Long to UUID - this is a workaround for the ID type mismatch
+            UUID levyId = new UUID(0L, id); // Create UUID from Long
+            CBNLevy updatedLevy = cbnLevyService.toggleLevyStatus(levyId);
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Levy status updated successfully");

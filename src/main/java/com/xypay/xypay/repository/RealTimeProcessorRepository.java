@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface RealTimeProcessorRepository extends JpaRepository<RealTimeProcessor, Long> {
+public interface RealTimeProcessorRepository extends JpaRepository<RealTimeProcessor, UUID> {
     
     List<RealTimeProcessor> findByProcessorTypeAndIsActiveTrueOrderByCurrentLoadAsc(RealTimeProcessor.ProcessorType type);
     

@@ -1,7 +1,6 @@
 package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.StaffActivity;
-import com.xypay.xypay.domain.StaffProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -9,18 +8,23 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+import java.util.UUID;
 
 @Repository
-public interface StaffActivityRepository extends JpaRepository<StaffActivity, Long> {
+public interface StaffActivityRepository extends JpaRepository<StaffActivity, UUID> {
     
-    List<StaffActivity> findByStaffOrderByCreatedAtDesc(StaffProfile staff);
+    List<StaffActivity> findByStaffOrderByTimestampDesc(UUID staffId);
     
-    List<StaffActivity> findByActivityTypeOrderByCreatedAtDesc(String activityType);
+    List<StaffActivity> findByActivityTypeOrderByTimestampDesc(StaffActivity.ActivityType activityType);
     
-    @Query("SELECT sa FROM StaffActivity sa WHERE sa.createdAt BETWEEN :startDate AND :endDate ORDER BY sa.createdAt DESC")
-    List<StaffActivity> findByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<StaffActivity> findByTimestampBetweenOrderByTimestampDesc(LocalDateTime start, LocalDateTime end);
     
-    @Query("SELECT sa FROM StaffActivity sa WHERE sa.staff = :staff AND sa.activityType = :activityType ORDER BY sa.createdAt DESC")
-    List<StaffActivity> findByStaffAndActivityType(@Param("staff") StaffProfile staff, @Param("activityType") String activityType);
+    @Query("SELECT sa FROM StaffActivity sa WHERE sa.staff.id = :staffId AND sa.timestamp >= :startDate ORDER BY sa.timestamp DESC")
+    List<StaffActivity> findByStaffAndTimestampAfter(@Param("staffId") UUID staffId, @Param("startDate") LocalDateTime startDate);
+    
+    @Query("SELECT sa FROM StaffActivity sa WHERE sa.activityType = :activityType AND sa.timestamp >= :startDate ORDER BY sa.timestamp DESC")
+    List<StaffActivity> findByActivityTypeAndTimestampAfter(@Param("activityType") StaffActivity.ActivityType activityType, @Param("startDate") LocalDateTime startDate);
+    
+    @Query("SELECT COUNT(sa) FROM StaffActivity sa WHERE sa.staff.id = :staffId AND sa.activityType = :activityType AND sa.timestamp >= :startDate")
+    Long countByStaffAndActivityTypeAndTimestampAfter(@Param("staffId") UUID staffId, @Param("activityType") StaffActivity.ActivityType activityType, @Param("startDate") LocalDateTime startDate);
 }

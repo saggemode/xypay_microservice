@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/channels")
@@ -41,7 +42,7 @@ public class MultiChannelController {
     @PostMapping("/process")
     public ResponseEntity<ChannelTransaction> processChannelTransaction(
             @RequestParam String channelType,
-            @RequestParam Long transactionId,
+            @RequestParam UUID transactionId,
             @RequestBody Map<String, Object> channelData) {
         
         Transaction transaction = transactionRepository.findById(transactionId)

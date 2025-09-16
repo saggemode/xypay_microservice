@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
@@ -50,20 +51,6 @@ public class TransactionManagementController {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private FixedSavingsTransactionRepository fixedSavingsTransactionRepository;
-    
-    @Autowired
-    private SecurityTransactionRepository securityTransactionRepository;
-    
-    @Autowired
-    private TransactionService transactionService;
-    
-    @Autowired
-    private XySaveTransactionRepository xySaveTransactionRepository;
-    
-    @Autowired
-    private SpendAndSaveTransactionRepository spendAndSaveTransactionRepository;
     
     
     // Main transaction dashboard
@@ -190,7 +177,7 @@ public class TransactionManagementController {
     
     // Transaction detail view
     @GetMapping("/transactions/{id}")
-    public String transactionDetail(@PathVariable Long id, Model model) {
+    public String transactionDetail(@PathVariable UUID id, Model model) {
         Optional<Transaction> transactionOpt = transactionRepository.findById(id);
         if (transactionOpt.isEmpty()) {
             return "redirect:/admin/transactions";

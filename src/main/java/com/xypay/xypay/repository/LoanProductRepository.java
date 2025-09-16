@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface LoanProductRepository extends JpaRepository<LoanProduct, Long> {
+public interface LoanProductRepository extends JpaRepository<LoanProduct, UUID> {
     
     Optional<LoanProduct> findByProductCode(String productCode);
     

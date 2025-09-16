@@ -54,14 +54,12 @@ public class XySaveTransactionEventListener {
             MockTransaction mockTransaction = new MockTransaction(instance);
             
             // Add metadata to indicate this is prefunded from XySave
-            mockTransaction.metadata.put("prefunded_from_xysave", true);
+            mockTransaction.addMetadata("prefunded_from_xysave", "true");
             
-            // Process the spending transaction
-            // Note: This will need to be updated when SpendAndSaveService is fully implemented
-            // For now, we'll just log that the processing would happen
-            logger.info("Would process Spend and Save for XySave transaction {} - amount: {}", 
+            // Process the spending transaction using our comprehensive SpendAndSaveService
+            logger.info("Processing Spend and Save for XySave transaction {} - amount: {}", 
                 instance.getId(), instance.getAmount());
-            Object autoSaveTx = null; // spendAndSaveService.processSpendingTransaction(mockTransaction);
+            var autoSaveTx = spendAndSaveService.processSpendingTransaction(mockTransaction);
             
             if (autoSaveTx != null) {
                 logger.info("✅ Successfully processed auto-save for XySave transaction {}. Auto-save transaction created", 
@@ -81,50 +79,51 @@ public class XySaveTransactionEventListener {
      * Mock transaction class to mimic wallet transaction for SpendAndSaveService.
      * This allows the service to process XySave transactions as if they were wallet transactions.
      */
-    private static class MockTransaction {
-        private final Long id;
-        private final String type = "DEBIT";
-        private final String status = "SUCCESS";
-        private final java.math.BigDecimal amount;
-        private final String description;
-        private final java.math.BigDecimal balanceAfter;
-        private final MockWallet wallet;
-        private final String reference;
-        private final java.time.LocalDateTime timestamp;
+    private static class MockTransaction extends com.xypay.xypay.domain.Transaction {
         private final java.util.Map<String, Object> metadata = new java.util.HashMap<>();
         
         public MockTransaction(XySaveTransaction xysaveTransaction) {
-            this.id = xysaveTransaction.getId();
-            this.amount = xysaveTransaction.getAmount();
-            this.description = xysaveTransaction.getDescription();
-            this.balanceAfter = xysaveTransaction.getBalanceAfter();
-            this.reference = xysaveTransaction.getReference();
-            this.timestamp = xysaveTransaction.getCreatedAt();
+            // Set the required fields for Transaction
+            this.setId(xysaveTransaction.getId());
+            this.setType("debit"); // XySave withdrawals are debit transactions
+            this.setStatus("success");
+            this.setAmount(xysaveTransaction.getAmount());
+            this.setDescription(xysaveTransaction.getDescription());
+            this.setBalanceAfter(xysaveTransaction.getBalanceAfter());
+            this.setReference(xysaveTransaction.getReference());
+            this.setCreatedAt(xysaveTransaction.getCreatedAt());
             
             // Create a mock wallet that points to the user
-            this.wallet = new MockWallet();
-            this.wallet.user = xysaveTransaction.getXySaveAccount().getUser();
+            MockWallet mockWallet = new MockWallet();
+            mockWallet.user = xysaveTransaction.getXysaveAccount().getUser();
+            this.setWallet(mockWallet);
         }
         
-        // Getters
-        public Long getId() { return id; }
-        public String getType() { return type; }
-        public String getStatus() { return status; }
-        public java.math.BigDecimal getAmount() { return amount; }
-        public String getDescription() { return description; }
-        public java.math.BigDecimal getBalanceAfter() { return balanceAfter; }
-        public MockWallet getWallet() { return wallet; }
-        public String getReference() { return reference; }
-        public java.time.LocalDateTime getTimestamp() { return timestamp; }
-        public java.util.Map<String, Object> getMetadata() { return metadata; }
+        // Store metadata as JSON string to match Transaction.getMetadata() signature
+        private String metadataJson = "{}";
+        
+        @Override
+        public String getMetadata() { 
+            return metadataJson; 
+        }
+        
+        // Helper method to add metadata
+        public void addMetadata(String key, Object value) {
+            metadata.put(key, value);
+            // Convert to JSON string (simplified for now)
+            metadataJson = "{\"" + key + "\":\"" + value + "\"}";
+        }
     }
     
     /**
      * Mock wallet class to provide user reference for SpendAndSaveService.
      */
-    private static class MockWallet {
+    private static class MockWallet extends com.xypay.xypay.domain.Wallet {
         public com.xypay.xypay.domain.User user;
         
-        public com.xypay.xypay.domain.User getUser() { return user; }
+        @Override
+        public com.xypay.xypay.domain.User getUser() { 
+            return user; 
+        }
     }
 }

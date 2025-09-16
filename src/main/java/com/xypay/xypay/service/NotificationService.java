@@ -10,9 +10,9 @@ import com.xypay.xypay.domain.User;
 import com.xypay.xypay.domain.Transaction;
 import com.xypay.xypay.domain.CustomerEscalation;
 import com.xypay.xypay.domain.BankTransfer;
+import com.xypay.xypay.domain.StaffProfile;
 import com.xypay.xypay.repository.NotificationRepository;
 import com.xypay.xypay.repository.UserRepository;
-import com.xypay.xypay.service.EmailNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -252,10 +253,10 @@ public class NotificationService {
             // In a real implementation, you would create a StaffActivity record
             
             // Send notification to the creator
-            User creator = escalation.getCreatedBy();
-            if (creator != null) {
+            StaffProfile creator = escalation.getCreatedBy();
+            if (creator != null && creator.getUser() != null) {
                 Notification notification = new Notification();
-                notification.setRecipient(creator);
+                notification.setRecipient(creator.getUser()); // Use the User from StaffProfile
                 notification.setTitle("Escalation Created");
                 notification.setMessage("Your escalation '" + escalation.getSubject() + "' has been created and is being reviewed.");
                 notification.setNotificationType(NotificationType.ESCALATION);
@@ -268,7 +269,7 @@ public class NotificationService {
                     ObjectNode extraData = objectMapper.createObjectNode();
                     extraData.put("escalation_id", escalation.getId().toString());
                     extraData.put("subject", escalation.getSubject());
-                    extraData.put("priority", escalation.getPriority());
+                    extraData.put("priority", escalation.getPriority().getCode()); // Convert enum to string
                     notification.setExtraData(extraData);
                 } catch (Exception e) {
                     logger.error("Error setting extra data for escalation notification: {}", e.getMessage());
@@ -280,7 +281,7 @@ public class NotificationService {
                 try {
                     String emailSubject = "Escalation Created";
                     String emailMessage = "Your escalation '" + escalation.getSubject() + "' has been created and is being reviewed.";
-                    emailNotificationService.sendEmailNotification(creator.getEmail(), emailSubject, emailMessage);
+                    emailNotificationService.sendEmailNotification(creator.getUser().getEmail(), emailSubject, emailMessage); // Use User email
                 } catch (Exception e) {
                     logger.error("Escalation email failed: {}", e.getMessage());
                 }
@@ -291,14 +292,14 @@ public class NotificationService {
                 escalation.setResolvedAt(LocalDateTime.now());
                 // In a real implementation, you would save the escalation
                 
-                User assignedTo = escalation.getAssignedTo();
-                if (assignedTo != null) {
+                StaffProfile assignedTo = escalation.getAssignedTo();
+                if (assignedTo != null && assignedTo.getUser() != null) {
                     // Log staff activity
                     // In a real implementation, you would create a StaffActivity record
                     
                     // Send notification to assigned staff
                     Notification notification = new Notification();
-                    notification.setRecipient(assignedTo);
+                    notification.setRecipient(assignedTo.getUser()); // Use the User from StaffProfile
                     notification.setTitle("Escalation Resolved");
                     notification.setMessage("The escalation '" + escalation.getSubject() + "' assigned to you has been resolved.");
                     notification.setNotificationType(NotificationType.ESCALATION);
@@ -323,7 +324,7 @@ public class NotificationService {
                     try {
                         String emailSubject = "Escalation Resolved";
                         String emailMessage = "The escalation '" + escalation.getSubject() + "' assigned to you has been resolved.";
-                        emailNotificationService.sendEmailNotification(assignedTo.getEmail(), emailSubject, emailMessage);
+                        emailNotificationService.sendEmailNotification(assignedTo.getUser().getEmail(), emailSubject, emailMessage); // Use User email
                     } catch (Exception e) {
                         logger.error("Escalation resolution email failed: {}", e.getMessage());
                     }
@@ -429,7 +430,11 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public Page<Notification> getUserNotifications(User user, Pageable pageable) {
-        return notificationRepository.findByRecipient(user, pageable);
+        List<Notification> allNotifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user);
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), allNotifications.size());
+        List<Notification> pageContent = allNotifications.subList(start, end);
+        return new PageImpl<>(pageContent, pageable, allNotifications.size());
     }
     
     /**
@@ -445,7 +450,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public List<Notification> getUnreadNotifications(User user) {
-        return notificationRepository.findByRecipientAndIsReadFalseOrderByCreatedAtDesc(user);
+        return notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> !notification.isRead())
+            .toList();
     }
     
     /**
@@ -453,7 +461,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public long countUnreadNotifications(User user) {
-        return notificationRepository.countUnreadByRecipient(user);
+        return notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> !notification.isRead())
+            .count();
     }
     
     /**
@@ -485,7 +496,12 @@ public class NotificationService {
      */
     @Transactional
     public int markAllAsRead(User user) {
-        return notificationRepository.markAllAsReadByRecipient(user, LocalDateTime.now());
+        List<Notification> unreadNotifications = getUnreadNotifications(user);
+        for (Notification notification : unreadNotifications) {
+            notification.markAsRead();
+            notificationRepository.save(notification);
+        }
+        return unreadNotifications.size();
     }
     
     /**
@@ -493,7 +509,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public Page<Notification> getUserNotificationsByType(User user, NotificationType type, Pageable pageable) {
-        List<Notification> notifications = notificationRepository.findByRecipientAndNotificationTypeOrderByCreatedAtDesc(user, type);
+        List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> notification.getNotificationType() == type)
+            .toList();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), notifications.size());
         return new PageImpl<>(notifications.subList(start, end), pageable, notifications.size());
@@ -504,7 +523,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public Page<Notification> getUserNotificationsByLevel(User user, NotificationLevel level, Pageable pageable) {
-        List<Notification> notifications = notificationRepository.findByRecipientAndLevelOrderByCreatedAtDesc(user, level);
+        List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> notification.getLevel() == level)
+            .toList();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), notifications.size());
         return new PageImpl<>(notifications.subList(start, end), pageable, notifications.size());
@@ -515,7 +537,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public Page<Notification> getUserNotificationsByStatus(User user, NotificationStatus status, Pageable pageable) {
-        List<Notification> notifications = notificationRepository.findByRecipientAndStatusOrderByCreatedAtDesc(user, status);
+        List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> notification.getStatus() == status)
+            .toList();
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), notifications.size());
         return new PageImpl<>(notifications.subList(start, end), pageable, notifications.size());
@@ -534,7 +559,11 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public List<Notification> getUrgentNotifications(User user) {
-        return notificationRepository.findUrgentNotificationsByRecipient(user);
+        return notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> notification.getLevel() == NotificationLevel.CRITICAL || 
+                                   notification.getLevel() == NotificationLevel.ERROR)
+            .toList();
     }
     
     /**
@@ -542,7 +571,10 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public List<Notification> getActionableNotifications(User user) {
-        return notificationRepository.findActionableNotificationsByRecipient(user);
+        return notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> notification.getActionUrl() != null && !notification.getActionUrl().isEmpty())
+            .toList();
     }
     
     /**
@@ -550,7 +582,16 @@ public class NotificationService {
      */
     @Transactional
     public int bulkMarkAsRead(List<Long> notificationIds, User user) {
-        return notificationRepository.bulkMarkAsRead(notificationIds, user, LocalDateTime.now());
+        int count = 0;
+        for (Long notificationId : notificationIds) {
+            Notification notification = notificationRepository.findById(notificationId).orElse(null);
+            if (notification != null && notification.getRecipient().getId().equals(user.getId())) {
+                notification.markAsRead();
+                notificationRepository.save(notification);
+                count++;
+            }
+        }
+        return count;
     }
     
     /**
@@ -558,7 +599,16 @@ public class NotificationService {
      */
     @Transactional
     public int bulkMarkAsUnread(List<Long> notificationIds, User user) {
-        return notificationRepository.bulkMarkAsUnread(notificationIds, user);
+        int count = 0;
+        for (Long notificationId : notificationIds) {
+            Notification notification = notificationRepository.findById(notificationId).orElse(null);
+            if (notification != null && notification.getRecipient().getId().equals(user.getId())) {
+                notification.markAsUnread();
+                notificationRepository.save(notification);
+                count++;
+            }
+        }
+        return count;
     }
     
     /**
@@ -598,29 +648,30 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public Map<String, Object> getNotificationStatistics(User user) {
         Map<String, Object> stats = new HashMap<>();
+        List<Notification> allNotifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user);
         
         // Count by type
-        List<Object[]> typeStats = notificationRepository.getNotificationStatsByType(user);
-        Map<String, Long> typeMap = new HashMap<>();
-        for (Object[] stat : typeStats) {
-            typeMap.put(stat[0].toString(), (Long) stat[1]);
-        }
+        Map<String, Long> typeMap = allNotifications.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                notification -> notification.getNotificationType().toString(),
+                java.util.stream.Collectors.counting()
+            ));
         stats.put("byType", typeMap);
         
         // Count by level
-        List<Object[]> levelStats = notificationRepository.getNotificationStatsByLevel(user);
-        Map<String, Long> levelMap = new HashMap<>();
-        for (Object[] stat : levelStats) {
-            levelMap.put(stat[0].toString(), (Long) stat[1]);
-        }
+        Map<String, Long> levelMap = allNotifications.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                notification -> notification.getLevel().toString(),
+                java.util.stream.Collectors.counting()
+            ));
         stats.put("byLevel", levelMap);
         
         // Count by status
-        List<Object[]> statusStats = notificationRepository.getNotificationStatsByStatus(user);
-        Map<String, Long> statusMap = new HashMap<>();
-        for (Object[] stat : statusStats) {
-            statusMap.put(stat[0].toString(), (Long) stat[1]);
-        }
+        Map<String, Long> statusMap = allNotifications.stream()
+            .collect(java.util.stream.Collectors.groupingBy(
+                notification -> notification.getStatus().toString(),
+                java.util.stream.Collectors.counting()
+            ));
         stats.put("byStatus", statusMap);
         
         // Total counts
@@ -636,7 +687,15 @@ public class NotificationService {
      */
     @Transactional(readOnly = true)
     public List<Notification> getNotificationsByDateRange(User user, LocalDateTime startDate, LocalDateTime endDate) {
-        return notificationRepository.findByRecipientAndDateRange(user, startDate, endDate);
+        return notificationRepository.findByRecipientOrderByCreatedAtDesc(user)
+            .stream()
+            .filter(notification -> {
+                LocalDateTime createdAt = notification.getCreatedAt();
+                return createdAt != null && 
+                       (createdAt.isEqual(startDate) || createdAt.isAfter(startDate)) &&
+                       (createdAt.isEqual(endDate) || createdAt.isBefore(endDate));
+            })
+            .toList();
     }
     
     /**
@@ -668,7 +727,7 @@ public class NotificationService {
         
         // Set recipient (required)
         if (data.containsKey("recipientId")) {
-            User recipient = userRepository.findById((Long) data.get("recipientId")).orElse(null);
+            User recipient = userRepository.findById((UUID) data.get("recipientId")).orElse(null);
             if (recipient != null) {
                 notification.setRecipient(recipient);
             }
@@ -770,7 +829,7 @@ public class NotificationService {
      * @param notificationType Type of notification
      * @param message Message to send
      */
-    public void sendNotification(Long userId, String notificationType, String message) {
+    public void sendNotification(UUID userId, String notificationType, String message) {
         try {
             User user = userRepository.findById(userId).orElse(null);
             if (user == null) {

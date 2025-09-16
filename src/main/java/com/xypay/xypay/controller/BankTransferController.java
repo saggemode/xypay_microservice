@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Controller for handling bank transfers with proper transaction and notification recording
@@ -45,8 +46,10 @@ public class BankTransferController {
             userId, bankName, accountNumber, amount);
         
         try {
+            // Convert Long to UUID - this is a workaround for the ID type mismatch
+            UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
             // Find the user
-            Optional<User> userOpt = userRepository.findById(userId);
+            Optional<User> userOpt = userRepository.findById(userIdUuid);
             if (userOpt.isEmpty()) {
                 return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(false, "User not found", null));
@@ -86,8 +89,10 @@ public class BankTransferController {
             request.getUserId(), request.getBankName(), request.getAccountNumber(), request.getAmount());
         
         try {
+            // Convert Long to UUID - this is a workaround for the ID type mismatch
+            UUID userIdUuid = new UUID(0L, request.getUserId()); // Create UUID from Long
             // Find the user
-            Optional<User> userOpt = userRepository.findById(request.getUserId());
+            Optional<User> userOpt = userRepository.findById(userIdUuid);
             if (userOpt.isEmpty()) {
                 return ResponseEntity.badRequest()
                     .body(new ApiResponse<>(false, "User not found", null));

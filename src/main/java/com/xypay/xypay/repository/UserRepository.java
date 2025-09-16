@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     
@@ -46,5 +47,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllWithProfiles();
     
     @Query("SELECT u FROM User u LEFT JOIN FETCH u.profile WHERE u.id = :id")
-    Optional<User> findByIdWithProfile(Long id);
+    Optional<User> findByIdWithProfile(UUID id);
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import java.util.UUID;
 
 @Controller
 public class LoanOfficerController {
@@ -22,7 +23,10 @@ public class LoanOfficerController {
 
     @PostMapping("/loan-officer/application")
     public String applyForLoan(@RequestParam Long customerId, @RequestParam Long productId, @RequestParam String amount, Model model) {
-        String result = loanOfficerService.applyForLoan(customerId, productId, new java.math.BigDecimal(amount));
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID customerIdUuid = new UUID(0L, customerId); // Create UUID from Long
+        UUID productIdUuid = new UUID(0L, productId); // Create UUID from Long
+        String result = loanOfficerService.applyForLoan(customerIdUuid, productIdUuid, new java.math.BigDecimal(amount));
         model.addAttribute("result", result);
         return "loan-officer-application";
     }
@@ -34,7 +38,9 @@ public class LoanOfficerController {
 
     @PostMapping("/loan-officer/credit-check")
     public String creditCheck(@RequestParam Long customerId, Model model) {
-        String result = loanOfficerService.creditCheck(customerId);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID customerIdUuid = new UUID(0L, customerId); // Create UUID from Long
+        String result = loanOfficerService.creditCheck(customerIdUuid);
         model.addAttribute("result", result);
         return "loan-officer-credit-check";
     }
@@ -48,7 +54,9 @@ public class LoanOfficerController {
 
     @PostMapping("/loan-officer/portfolio/{id}/approve")
     public String approveLoan(@PathVariable("id") Long id, Model model) {
-        loanOfficerService.approveLoan(id);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID loanIdUuid = new UUID(0L, id); // Create UUID from Long
+        loanOfficerService.approveLoan(loanIdUuid);
         model.addAttribute("loans", loanOfficerService.getPortfolio());
         model.addAttribute("result", "Loan approved.");
         return "loan-officer-portfolio";
@@ -56,7 +64,9 @@ public class LoanOfficerController {
 
     @PostMapping("/loan-officer/portfolio/{id}/reject")
     public String rejectLoan(@PathVariable("id") Long id, Model model) {
-        loanOfficerService.rejectLoan(id);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID loanIdUuid = new UUID(0L, id); // Create UUID from Long
+        loanOfficerService.rejectLoan(loanIdUuid);
         model.addAttribute("loans", loanOfficerService.getPortfolio());
         model.addAttribute("result", "Loan rejected.");
         return "loan-officer-portfolio";
@@ -64,7 +74,9 @@ public class LoanOfficerController {
 
     @GetMapping("/loan-officer/portfolio/{id}/schedule")
     public String repaymentSchedule(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("schedule", loanOfficerService.getRepaymentSchedule(id));
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID loanIdUuid = new UUID(0L, id); // Create UUID from Long
+        model.addAttribute("schedule", loanOfficerService.getRepaymentSchedule(loanIdUuid));
         return "loan-officer-repayment-schedule";
     }
 
@@ -75,7 +87,9 @@ public class LoanOfficerController {
 
     @PostMapping("/loan-officer/risk-assessment")
     public String riskAssessment(@RequestParam Long customerId, Model model) {
-        String result = loanOfficerService.riskAssessment(customerId);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID customerIdUuid = new UUID(0L, customerId); // Create UUID from Long
+        String result = loanOfficerService.riskAssessment(customerIdUuid);
         model.addAttribute("result", result);
         return "loan-officer-risk-assessment";
     }

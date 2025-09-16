@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface GeneralLedgerRepository extends JpaRepository<GeneralLedger, Long> {
+public interface GeneralLedgerRepository extends JpaRepository<GeneralLedger, UUID> {
     
     List<GeneralLedger> findByBankId(Long bankId);
     
@@ -71,6 +72,6 @@ public interface GeneralLedgerRepository extends JpaRepository<GeneralLedger, Lo
     @Query("SELECT DISTINCT gl.sourceModule FROM GeneralLedger gl WHERE gl.bank.id = :bankId")
     List<String> findDistinctSourceModulesByBank(@Param("bankId") Long bankId);
     
-    @Query("SELECT gl FROM GeneralLedger gl WHERE gl.description LIKE %:searchTerm% AND gl.bank.id = :bankId ORDER BY gl.transactionDate DESC")
+    @Query("SELECT gl FROM GeneralLedger gl WHERE gl.description LIKE CONCAT('%', :searchTerm, '%') AND gl.bank.id = :bankId ORDER BY gl.transactionDate DESC")
     List<GeneralLedger> searchByDescription(@Param("bankId") Long bankId, @Param("searchTerm") String searchTerm);
 }

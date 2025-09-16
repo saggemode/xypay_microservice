@@ -88,9 +88,8 @@ public class KYCApprovalEventListener {
                     
                     StaffActivity activity = new StaffActivity(
                         staffMember,
-                        "kyc_approved",
-                        String.format("KYC approved for user %s", kycProfile.getUser().getUsername()),
-                        kycProfile
+                        StaffActivity.ActivityType.KYC_APPROVED,
+                        String.format("KYC approved for user %s", kycProfile.getUser().getUsername())
                     );
                     
                     staffActivityRepository.save(activity);

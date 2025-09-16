@@ -1,15 +1,16 @@
 package com.xypay.xypay.domain;
 
 public enum FixedSavingsPurpose {
-    EMERGENCY_FUND("emergency_fund", "Emergency Fund"),
-    VACATION("vacation", "Vacation"),
     EDUCATION("education", "Education"),
-    HOME_IMPROVEMENT("home_improvement", "Home Improvement"),
-    WEDDING("wedding", "Wedding"),
     BUSINESS("business", "Business"),
-    RETIREMENT("retirement", "Retirement"),
-    HEALTH("health", "Health"),
     INVESTMENT("investment", "Investment"),
+    EMERGENCY("emergency", "Emergency Fund"),
+    TRAVEL("travel", "Travel"),
+    WEDDING("wedding", "Wedding"),
+    VEHICLE("vehicle", "Vehicle"),
+    HOME_RENOVATION("home_renovation", "Home Renovation"),
+    MEDICAL("medical", "Medical"),
+    RETIREMENT("retirement", "Retirement"),
     OTHER("other", "Other");
 
     private final String code;

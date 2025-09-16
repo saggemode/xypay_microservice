@@ -70,7 +70,7 @@ public class PaymentIntentService {
 
         // Check wallet balance
         Optional<Wallet> wallet = walletService.getUserPrimaryWallet(paymentIntent.getUser());
-        if (wallet.isEmpty() || !walletService.hasSufficientBalance(wallet.get().getId(), paymentIntent.getAmount())) {
+        if (wallet.isEmpty() || !walletService.hasSufficientBalance(wallet.get().getId(), paymentIntent.getAmount())) { // Use UUID directly
             paymentIntent.fail("Insufficient balance");
             paymentIntentRepository.save(paymentIntent);
             throw new RuntimeException("Insufficient balance");
@@ -81,7 +81,7 @@ public class PaymentIntentService {
 
         // Debit wallet
         walletService.debitWallet(wallet.get().getId(), paymentIntent.getAmount(), 
-            "Payment for order " + paymentIntent.getOrderId());
+            "Payment for order " + paymentIntent.getOrderId()); // Use UUID directly
 
         // Send notification
         sendPaymentNotification(paymentIntent, "confirmed");
@@ -177,7 +177,7 @@ public class PaymentIntentService {
         
         for (PaymentIntent intent : expiredIntents) {
             try {
-                failPaymentIntent(intent.getId(), "Payment intent expired");
+                failPaymentIntent(intent.getId().getMostSignificantBits(), "Payment intent expired"); // Convert UUID to Long
                 logger.info("Expired payment intent {} processed", intent.getId());
             } catch (Exception e) {
                 logger.error("Failed to process expired payment intent {}: {}", 

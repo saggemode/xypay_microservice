@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ScreenConfigurationRepository extends JpaRepository<ScreenConfiguration, Long> {
+public interface ScreenConfigurationRepository extends JpaRepository<ScreenConfiguration, UUID> {
     Optional<ScreenConfiguration> findByScreenCode(String screenCode);
     List<ScreenConfiguration> findByScreenType(String screenType);
     List<ScreenConfiguration> findByIsActive(Boolean isActive);

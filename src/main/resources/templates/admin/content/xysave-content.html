@@ -16,7 +16,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Active Investments</p>
-                    <p class="text-2xl font-semibold text-gray-900">856</p>
+                    <p class="text-2xl font-semibold text-gray-900" th:text="${stats?.activeInvestments ?: 0}">0</p>
                 </div>
             </div>
         </div>
@@ -27,7 +27,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Total Investment</p>
-                    <p class="text-2xl font-semibold text-gray-900">₦125.4M</p>
+                    <p class="text-2xl font-semibold text-gray-900" th:text="'₦' + ${#numbers.formatDecimal(stats?.totalInvestment ?: 0, 0, 'COMMA', 0, 'POINT')}">₦0</p>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Average Return</p>
-                    <p class="text-2xl font-semibold text-gray-900">8.5%</p>
+                    <p class="text-2xl font-semibold text-gray-900" th:text="${stats?.averageReturn ?: 0} + '%'">0%</p>
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Total Returns</p>
-                    <p class="text-2xl font-semibold text-gray-900">₦10.6M</p>
+                    <p class="text-2xl font-semibold text-gray-900" th:text="'₦' + ${#numbers.formatDecimal(stats?.totalReturns ?: 0, 0, 'COMMA', 0, 'POINT')}">₦0</p>
                 </div>
             </div>
         </div>
@@ -66,49 +66,65 @@
                 <p class="text-sm text-gray-500 mt-1">Configure XySave investment parameters</p>
             </div>
             <div class="p-6 space-y-6">
-                <!-- Minimum Investment -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Minimum Investment (₦)</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-2 text-gray-500">₦</span>
-                        <input type="number" value="5000" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                <form id="investmentSettingsForm">
+                    <!-- User Selection -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+                        <select id="userId" name="userId" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <option value="">Choose a user...</option>
+                            <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.name + ' (' + user.email + ')'}">User Name (email@example.com)</option>
+                        </select>
                     </div>
-                </div>
 
-                <!-- Expected Return Rate -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Expected Return Rate (%)</label>
-                    <div class="relative">
-                        <input type="number" step="0.1" min="0" max="100" value="8.5" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <span class="text-gray-500 sm:text-sm">%</span>
+                    <!-- Daily Interest Rate -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Daily Interest Rate (%)</label>
+                        <div class="relative">
+                            <input type="number" id="dailyInterestRate" name="dailyInterestRate" step="0.0001" min="0" max="1" value="0.04" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">%</span>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Investment Duration -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Default Duration (months)</label>
-                    <input type="number" value="12" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
-                </div>
-
-                <!-- Auto-Investment Toggle -->
-                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div>
-                        <h4 class="text-sm font-medium text-gray-900">Enable Auto-Investment</h4>
-                        <p class="text-xs text-gray-500">Automatically invest surplus funds</p>
+                    <!-- Auto-Save Settings -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900">Enable Auto-Save</h4>
+                            <p class="text-xs text-gray-500">Automatically save surplus funds</p>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoSaveEnabled" name="autoSaveEnabled" class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                        </label>
                     </div>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" class="sr-only peer" checked>
-                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                    </label>
-                </div>
 
-                <div class="pt-4 border-t border-gray-200">
-                    <button class="w-full bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-banking-dark focus:outline-none focus:ring-2 focus:ring-banking-blue focus:ring-offset-2">
-                        <i class="fas fa-save mr-2"></i>Save Settings
-                    </button>
-                </div>
+                    <!-- Auto-Save Percentage -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Auto-Save Percentage (%)</label>
+                        <div class="relative">
+                            <input type="number" id="autoSavePercentage" name="autoSavePercentage" step="0.01" min="0" max="100" value="10.00" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                <span class="text-gray-500 sm:text-sm">%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Auto-Save Minimum Amount -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Auto-Save Minimum Amount (₦)</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-gray-500">₦</span>
+                            <input type="number" id="autoSaveMinAmount" name="autoSaveMinAmount" step="0.01" min="0" value="100.00" class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200">
+                        <button type="submit" class="w-full bg-banking-blue text-white px-4 py-2 rounded-md hover:bg-banking-dark focus:outline-none focus:ring-2 focus:ring-banking-blue focus:ring-offset-2">
+                            <i class="fas fa-save mr-2"></i>Save Settings
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -207,39 +223,49 @@
                 <p class="text-sm text-gray-500 mt-1">Manage individual XySave investments</p>
             </div>
             <div class="p-6">
-                <div class="space-y-4">
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                <!-- Investment Form -->
+                <form id="investmentForm" class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <h4 class="text-sm font-medium text-gray-900">Investment Approval</h4>
-                            <p class="text-xs text-gray-500">Approve pending investments</p>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+                            <select id="investUserId" name="userId" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent">
+                                <option value="">Choose a user...</option>
+                                <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.name + ' (' + user.email + ')'}">User Name (email@example.com)</option>
+                            </select>
                         </div>
-                        <button class="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                            <i class="fas fa-check mr-1"></i>Approve
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Amount (₦)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-gray-500">₦</span>
+                                <input type="number" id="investAmount" name="amount" step="0.01" min="0" required class="w-full pl-8 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent" placeholder="0.00">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <input type="text" id="investDescription" name="description" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-banking-blue focus:border-transparent" placeholder="Investment description">
+                    </div>
+                    <div class="flex space-x-2">
+                        <button type="button" id="createInvestmentBtn" class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <i class="fas fa-plus mr-2"></i>Create Investment
+                        </button>
+                        <button type="button" id="processWithdrawalBtn" class="flex-1 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            <i class="fas fa-minus mr-2"></i>Process Withdrawal
                         </button>
                     </div>
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                </form>
+
+                <!-- Interest Calculation -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <div class="flex items-center justify-between">
                         <div>
-                            <h4 class="text-sm font-medium text-gray-900">Investment Monitoring</h4>
-                            <p class="text-xs text-gray-500">Monitor investment performance</p>
+                            <h4 class="text-sm font-medium text-gray-900">Calculate Interest</h4>
+                            <p class="text-xs text-gray-500">Calculate and credit interest for a user</p>
                         </div>
-                        <button class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
-                            <i class="fas fa-eye mr-1"></i>Monitor
+                        <button id="calculateInterestBtn" class="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700">
+                            <i class="fas fa-calculator mr-1"></i>Calculate
                         </button>
                     </div>
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-900">Portfolio Rebalancing</h4>
-                            <p class="text-xs text-gray-500">Rebalance investment portfolios</p>
-                        </div>
-                        <button class="px-3 py-1 bg-purple-600 text-white text-sm rounded hover:bg-purple-700">
-                            <i class="fas fa-balance-scale mr-1"></i>Rebalance
-                        </button>
-                    </div>
-                </div>
-                <div class="pt-4 border-t border-gray-200 mt-6">
-                    <button class="w-full bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-                        <i class="fas fa-cog mr-2"></i>Advanced Settings
-                    </button>
                 </div>
             </div>
         </div>
@@ -258,57 +284,238 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investment ID</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Transaction ID</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Investor</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expected Return</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-001234</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">John Doe</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦50,000</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">12 months</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">8.5%</td>
+                    <tr th:each="transaction : ${recentTransactions}" th:if="${#lists.isEmpty(recentTransactions)}">
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                            No recent transactions found
+                        </td>
+                    </tr>
+                    <tr th:each="transaction : ${recentTransactions}" th:if="${!#lists.isEmpty(recentTransactions)}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${transaction.id}">INV-001234</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${transaction.investor}">John Doe</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${transaction.amount}">₦50,000</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${transaction.type}">DEPOSIT</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="${transaction.description}">Investment</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800" th:text="${transaction.status}">
                                 Active
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:30</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-001235</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Jane Smith</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦100,000</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">24 months</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">9.2%</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Active
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:25</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">INV-001236</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Mike Johnson</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦25,000</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">6 months</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">7.8%</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                Pending
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:20</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(transaction.date, 'yyyy-MM-dd HH:mm')}">2024-01-15 14:30</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+// Message display functions
+function showMessage(message, type = 'success') {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-md shadow-lg ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    messageDiv.textContent = message;
+    document.body.appendChild(messageDiv);
+    
+    setTimeout(() => {
+        messageDiv.remove();
+    }, 5000);
+}
+
+function hideMessage() {
+    const existingMessage = document.querySelector('.fixed.top-4.right-4');
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+}
+
+// Investment Settings Form
+document.getElementById('investmentSettingsForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    hideMessage();
+    
+    const formData = new FormData(this);
+    const data = {
+        userId: parseInt(formData.get('userId')),
+        dailyInterestRate: parseFloat(formData.get('dailyInterestRate')),
+        autoSaveEnabled: formData.get('autoSaveEnabled') === 'on',
+        autoSavePercentage: parseFloat(formData.get('autoSavePercentage')),
+        autoSaveMinAmount: parseFloat(formData.get('autoSaveMinAmount'))
+    };
+    
+    try {
+        const response = await fetch('/admin/xysave/api/settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(data)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Settings updated successfully!', 'success');
+            loadStatistics();
+        } else {
+            showMessage('Error: ' + result.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error updating settings: ' + error.message, 'error');
+    }
+});
+
+// Investment Management
+document.getElementById('createInvestmentBtn').addEventListener('click', async function() {
+    const userId = document.getElementById('investUserId').value;
+    const amount = document.getElementById('investAmount').value;
+    const description = document.getElementById('investDescription').value;
+    
+    if (!userId || !amount) {
+        showMessage('Please select a user and enter amount', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/xysave/api/invest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                userId: userId,
+                amount: amount,
+                description: description || 'XySave investment'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Investment created successfully! Reference: ' + result.reference, 'success');
+            document.getElementById('investmentForm').reset();
+            loadStatistics();
+            loadRecentTransactions();
+        } else {
+            showMessage('Error: ' + result.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error creating investment: ' + error.message, 'error');
+    }
+});
+
+document.getElementById('processWithdrawalBtn').addEventListener('click', async function() {
+    const userId = document.getElementById('investUserId').value;
+    const amount = document.getElementById('investAmount').value;
+    const description = document.getElementById('investDescription').value;
+    
+    if (!userId || !amount) {
+        showMessage('Please select a user and enter amount', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/xysave/api/withdraw', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                userId: userId,
+                amount: amount,
+                description: description || 'XySave withdrawal'
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Withdrawal processed successfully! Reference: ' + result.reference, 'success');
+            document.getElementById('investmentForm').reset();
+            loadStatistics();
+            loadRecentTransactions();
+        } else {
+            showMessage('Error: ' + result.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error processing withdrawal: ' + error.message, 'error');
+    }
+});
+
+document.getElementById('calculateInterestBtn').addEventListener('click', async function() {
+    const userId = document.getElementById('investUserId').value;
+    
+    if (!userId) {
+        showMessage('Please select a user first', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/admin/xysave/api/calculate-interest', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                userId: userId
+            })
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showMessage('Interest calculated and credited successfully!', 'success');
+            loadStatistics();
+            loadRecentTransactions();
+        } else {
+            showMessage('Error: ' + result.message, 'error');
+        }
+    } catch (error) {
+        showMessage('Error calculating interest: ' + error.message, 'error');
+    }
+});
+
+// Load statistics
+async function loadStatistics() {
+    try {
+        const response = await fetch('/admin/xysave/api/stats');
+        const stats = await response.json();
+        
+        // Update the summary cards
+        document.querySelector('.text-2xl.font-semibold.text-gray-900').textContent = stats.activeInvestments || 0;
+        // Update other stats as needed
+    } catch (error) {
+        console.error('Error loading statistics:', error);
+    }
+}
+
+// Load recent transactions
+async function loadRecentTransactions() {
+    try {
+        const response = await fetch('/admin/xysave/api/transactions?limit=10');
+        const transactions = await response.json();
+        
+        // This would update the transactions table
+        // For now, we'll just reload the page to show updated data
+        window.location.reload();
+    } catch (error) {
+        console.error('Error loading transactions:', error);
+    }
+}
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadStatistics();
+});
+</script>

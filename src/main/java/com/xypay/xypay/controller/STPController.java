@@ -7,7 +7,6 @@ import com.xypay.xypay.service.StraightThroughProcessingService;
 import com.xypay.xypay.service.StraightThroughProcessingService.STPResult;
 import com.xypay.xypay.repository.STPRuleRepository;
 import com.xypay.xypay.repository.TransactionRepository;
-import com.xypay.xypay.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/stp")
@@ -29,12 +29,10 @@ public class STPController {
     @Autowired
     private TransactionRepository transactionRepository;
     
-    @Autowired
-    private UserRepository userRepository;
 
     @PostMapping("/process/{transactionId}")
     public ResponseEntity<STPResult> processTransaction(
-            @PathVariable Long transactionId,
+            @PathVariable UUID transactionId,
             @RequestBody(required = false) Map<String, Object> context) {
         
         Transaction transaction = transactionRepository.findById(transactionId)

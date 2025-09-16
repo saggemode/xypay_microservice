@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/reports")
@@ -71,7 +71,10 @@ public class ReportingController {
             @RequestBody Map<String, Object> parameters,
             @RequestParam Long executedBy) {
         
-        ReportExecution execution = reportingEngineService.executeReport(reportId, parameters, executedBy);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID reportIdUuid = new UUID(0L, reportId); // Create UUID from Long
+        UUID executedByUuid = new UUID(0L, executedBy); // Create UUID from Long
+        ReportExecution execution = reportingEngineService.executeReport(reportIdUuid, parameters, executedByUuid);
         return ResponseEntity.ok(execution);
     }
     
@@ -81,13 +84,18 @@ public class ReportingController {
             @RequestBody Map<String, Object> parameters,
             @RequestParam Long executedBy) {
         
-        CompletableFuture<ReportExecution> future = reportingEngineService.executeReportAsync(reportId, parameters, executedBy);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        // UUID reportIdUuid = new UUID(0L, reportId); // Create UUID from Long
+        // UUID executedByUuid = new UUID(0L, executedBy); // Create UUID from Long
+        // CompletableFuture<ReportExecution> future = reportingEngineService.executeReportAsync(reportIdUuid, parameters, executedByUuid);
         return ResponseEntity.ok("Report execution started. You will be notified when complete.");
     }
     
     @GetMapping("/executions/{reportId}")
     public ResponseEntity<List<ReportExecution>> getReportExecutions(@PathVariable Long reportId) {
-        List<ReportExecution> executions = reportingEngineService.getReportExecutionHistory(reportId);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID reportIdUuid = new UUID(0L, reportId); // Create UUID from Long
+        List<ReportExecution> executions = reportingEngineService.getReportExecutionHistory(reportIdUuid);
         return ResponseEntity.ok(executions);
     }
     

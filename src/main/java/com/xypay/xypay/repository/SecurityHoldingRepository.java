@@ -11,9 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface SecurityHoldingRepository extends JpaRepository<SecurityHolding, Long> {
+public interface SecurityHoldingRepository extends JpaRepository<SecurityHolding, UUID> {
     
     List<SecurityHolding> findByPortfolio(Portfolio portfolio);
     

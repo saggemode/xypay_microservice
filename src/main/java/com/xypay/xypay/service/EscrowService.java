@@ -24,19 +24,10 @@ public class EscrowService {
     private EscrowAccountRepository escrowAccountRepository;
     
     @Autowired
-    private WalletService walletService;
-    
-    @Autowired
     private WalletRepository walletRepository;
     
     @Autowired
-    private TransactionCreationService transactionCreationService;
-    
-    @Autowired
-    private NotificationService notificationService;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private NotificationRepository notificationRepository;
     
     /**
      * Create a new escrow account
@@ -58,17 +49,11 @@ public class EscrowService {
             EscrowAccount saved = escrowAccountRepository.save(escrowAccount);
             
             // Send notifications
-            notificationService.sendNotification(
-                buyer.getId(),
-                "ESCROW_CREATED",
-                String.format("Escrow account %s created for transaction: %s", escrowId, title)
-            );
+            sendEscrowNotification(buyer, "ESCROW_CREATED", 
+                String.format("Escrow account %s created for transaction: %s", escrowId, title));
             
-            notificationService.sendNotification(
-                seller.getId(),
-                "ESCROW_CREATED",
-                String.format("Escrow account %s created for transaction: %s", escrowId, title)
-            );
+            sendEscrowNotification(seller, "ESCROW_CREATED", 
+                String.format("Escrow account %s created for transaction: %s", escrowId, title));
             
             logger.info("Created escrow account {} for buyer {} and seller {}", 
                 escrowId, buyer.getUsername(), seller.getUsername());
@@ -84,7 +69,7 @@ public class EscrowService {
     /**
      * Fund escrow account
      */
-    public EscrowAccount fundEscrowAccount(Long escrowId, User buyer) {
+    public EscrowAccount fundEscrowAccount(UUID escrowId, User buyer) {
         try {
             EscrowAccount escrowAccount = escrowAccountRepository.findById(escrowId)
                     .orElseThrow(() -> new RuntimeException("Escrow account not found"));
@@ -123,17 +108,11 @@ public class EscrowService {
             escrowAccount = escrowAccountRepository.save(escrowAccount);
             
             // Send notifications
-            notificationService.sendNotification(
-                buyer.getId(),
-                "ESCROW_FUNDED",
-                String.format("Escrow account %s has been funded", escrowAccount.getEscrowId())
-            );
+            sendEscrowNotification(buyer, "ESCROW_FUNDED", 
+                String.format("Escrow account %s has been funded", escrowAccount.getEscrowId()));
             
-            notificationService.sendNotification(
-                escrowAccount.getSeller().getId(),
-                "ESCROW_FUNDED",
-                String.format("Escrow account %s has been funded by buyer", escrowAccount.getEscrowId())
-            );
+            sendEscrowNotification(escrowAccount.getSeller(), "ESCROW_FUNDED", 
+                String.format("Escrow account %s has been funded by buyer", escrowAccount.getEscrowId()));
             
             logger.info("Funded escrow account {}", escrowAccount.getEscrowId());
             
@@ -148,7 +127,7 @@ public class EscrowService {
     /**
      * Release escrow funds to seller
      */
-    public EscrowAccount releaseEscrowFunds(Long escrowId, User releaser) {
+    public EscrowAccount releaseEscrowFunds(UUID escrowId, User releaser) {
         try {
             EscrowAccount escrowAccount = escrowAccountRepository.findById(escrowId)
                     .orElseThrow(() -> new RuntimeException("Escrow account not found"));
@@ -183,19 +162,13 @@ public class EscrowService {
             escrowAccount = escrowAccountRepository.save(escrowAccount);
             
             // Send notifications
-            notificationService.sendNotification(
-                escrowAccount.getSeller().getId(),
-                "ESCROW_RELEASED",
+            sendEscrowNotification(escrowAccount.getSeller(), "ESCROW_RELEASED", 
                 String.format("Escrow funds for %s have been released to your account", 
-                    escrowAccount.getTitle())
-            );
+                    escrowAccount.getTitle()));
             
-            notificationService.sendNotification(
-                escrowAccount.getBuyer().getId(),
-                "ESCROW_RELEASED",
+            sendEscrowNotification(escrowAccount.getBuyer(), "ESCROW_RELEASED", 
                 String.format("Escrow funds for %s have been released to seller", 
-                    escrowAccount.getTitle())
-            );
+                    escrowAccount.getTitle()));
             
             logger.info("Released escrow funds for account {}", escrowAccount.getEscrowId());
             
@@ -210,7 +183,7 @@ public class EscrowService {
     /**
      * Refund escrow funds to buyer
      */
-    public EscrowAccount refundEscrowFunds(Long escrowId, User refunder, String reason) {
+    public EscrowAccount refundEscrowFunds(UUID escrowId, User refunder, String reason) {
         try {
             EscrowAccount escrowAccount = escrowAccountRepository.findById(escrowId)
                     .orElseThrow(() -> new RuntimeException("Escrow account not found"));
@@ -245,19 +218,13 @@ public class EscrowService {
             escrowAccount = escrowAccountRepository.save(escrowAccount);
             
             // Send notifications
-            notificationService.sendNotification(
-                escrowAccount.getBuyer().getId(),
-                "ESCROW_REFUNDED",
+            sendEscrowNotification(escrowAccount.getBuyer(), "ESCROW_REFUNDED", 
                 String.format("Escrow funds for %s have been refunded to your account. Reason: %s", 
-                    escrowAccount.getTitle(), reason)
-            );
+                    escrowAccount.getTitle(), reason));
             
-            notificationService.sendNotification(
-                escrowAccount.getSeller().getId(),
-                "ESCROW_REFUNDED",
+            sendEscrowNotification(escrowAccount.getSeller(), "ESCROW_REFUNDED", 
                 String.format("Escrow funds for %s have been refunded to buyer. Reason: %s", 
-                    escrowAccount.getTitle(), reason)
-            );
+                    escrowAccount.getTitle(), reason));
             
             logger.info("Refunded escrow funds for account {}", escrowAccount.getEscrowId());
             
@@ -272,7 +239,7 @@ public class EscrowService {
     /**
      * Raise dispute for escrow account
      */
-    public EscrowAccount raiseDispute(Long escrowId, User disputer, String reason) {
+    public EscrowAccount raiseDispute(UUID escrowId, User disputer, String reason) {
         try {
             EscrowAccount escrowAccount = escrowAccountRepository.findById(escrowId)
                     .orElseThrow(() -> new RuntimeException("Escrow account not found"));
@@ -291,19 +258,13 @@ public class EscrowService {
             escrowAccount = escrowAccountRepository.save(escrowAccount);
             
             // Send notifications
-            notificationService.sendNotification(
-                escrowAccount.getBuyer().getId(),
-                "ESCROW_DISPUTED",
+            sendEscrowNotification(escrowAccount.getBuyer(), "ESCROW_DISPUTED", 
                 String.format("Dispute raised for escrow account %s. Reason: %s", 
-                    escrowAccount.getEscrowId(), reason)
-            );
+                    escrowAccount.getEscrowId(), reason));
             
-            notificationService.sendNotification(
-                escrowAccount.getSeller().getId(),
-                "ESCROW_DISPUTED",
+            sendEscrowNotification(escrowAccount.getSeller(), "ESCROW_DISPUTED", 
                 String.format("Dispute raised for escrow account %s. Reason: %s", 
-                    escrowAccount.getEscrowId(), reason)
-            );
+                    escrowAccount.getEscrowId(), reason));
             
             logger.info("Dispute raised for escrow account {}", escrowAccount.getEscrowId());
             
@@ -347,6 +308,35 @@ public class EscrowService {
     }
     
     /**
+     * Send escrow notification to user
+     */
+    private void sendEscrowNotification(User user, String notificationType, String message) {
+        try {
+            Notification notification = new Notification();
+            notification.setRecipient(user);
+            notification.setTitle(notificationType.replace("_", " "));
+            notification.setMessage(message);
+            
+            // Map string type to enum
+            try {
+                notification.setNotificationType(NotificationType.valueOf(notificationType));
+            } catch (IllegalArgumentException e) {
+                notification.setNotificationType(NotificationType.SYSTEM_ALERT);
+            }
+            
+            notification.setLevel(NotificationLevel.INFO);
+            notification.setStatus(NotificationStatus.SENT);
+            notification.setSource("escrow");
+            
+            notificationRepository.save(notification);
+            logger.info("Escrow notification sent to user {}: {}", user.getId(), message);
+            
+        } catch (Exception e) {
+            logger.error("Failed to send escrow notification to user {}: {}", user.getId(), e.getMessage());
+        }
+    }
+    
+    /**
      * Calculate escrow fee
      */
     private BigDecimal calculateEscrowFee(BigDecimal amount) {
@@ -377,7 +367,7 @@ public class EscrowService {
     /**
      * Get escrow account by ID
      */
-    public EscrowAccount getEscrowAccount(Long id) {
+    public EscrowAccount getEscrowAccount(UUID id) {
         return escrowAccountRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Escrow account not found"));
     }

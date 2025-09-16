@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 // @RestController
 // @RequestMapping("/admin/screen-configurator")
@@ -48,7 +49,9 @@ public class ScreenConfiguratorController {
      */
     @PutMapping("/screen-config/{id}")
     public ResponseEntity<Map<String, Object>> updateScreenConfig(@PathVariable Long id, @RequestBody Map<String, Object> request) {
-        Map<String, Object> response = screenConfigurationService.updateScreenConfiguration(id, request);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID configId = new UUID(0L, id); // Create UUID from Long
+        Map<String, Object> response = screenConfigurationService.updateScreenConfiguration(configId, request);
         return ResponseEntity.ok(response);
     }
     
@@ -57,7 +60,9 @@ public class ScreenConfiguratorController {
      */
     @DeleteMapping("/screen-config/{id}")
     public ResponseEntity<Map<String, Object>> deleteScreenConfig(@PathVariable Long id) {
-        Map<String, Object> response = screenConfigurationService.deleteScreenConfiguration(id);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID configId = new UUID(0L, id); // Create UUID from Long
+        Map<String, Object> response = screenConfigurationService.deleteScreenConfiguration(configId);
         return ResponseEntity.ok(response);
     }
     

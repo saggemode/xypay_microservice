@@ -2,67 +2,100 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "bank_transfer_failure")
-public class TransferFailure extends BaseEntity {
+public class TransferFailure {
+    
+    public enum ErrorCategory {
+        VALIDATION("validation", "Validation Error"),
+        BUSINESS_LOGIC("business_logic", "Business Logic Error"),
+        TECHNICAL("technical", "Technical Error"),
+        EXTERNAL_SERVICE("external_service", "External Service Error"),
+        FRAUD_DETECTION("fraud_detection", "Fraud Detection"),
+        SECURITY("security", "Security Error"),
+        SYSTEM("system", "System Error");
+        
+        private final String code;
+        private final String description;
+        
+        ErrorCategory(String code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+        
+        public String getCode() {
+            return code;
+        }
+        
+        public String getDescription() {
+            return description;
+        }
+    }
+    
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
     
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "transfer_id")
+    @JoinColumn(name = "transfer_id", nullable = false)
     private BankTransfer transfer;
     
-    @Column(name = "error_code", length = 50)
+    @Column(name = "error_code", length = 50, nullable = false)
     private String errorCode;
     
-    @Column(name = "error_category", length = 50)
-    private String errorCategory;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "error_category", length = 50, nullable = false)
+    private ErrorCategory errorCategory;
     
-    @Column(name = "failure_reason")
+    @Column(name = "failure_reason", columnDefinition = "TEXT", nullable = false)
     private String failureReason;
     
-    @Column(name = "technical_details")
+    @Column(name = "technical_details", columnDefinition = "JSON")
     private String technicalDetails = "{}";
     
-    @Column(name = "stack_trace")
+    @Column(name = "stack_trace", columnDefinition = "TEXT")
     private String stackTrace;
     
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
     
     @Column(name = "ip_address")
     private String ipAddress;
     
-    @Column(name = "user_agent")
+    @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
     
     @Column(name = "device_fingerprint", length = 255)
     private String deviceFingerprint;
     
-    @Column(name = "recipient_account", length = 20)
+    @Column(name = "transfer_amount", precision = 19, scale = 4, nullable = false)
+    private BigDecimal transferAmount;
+    
+    @Column(name = "recipient_account", length = 20, nullable = false)
     private String recipientAccount;
     
     @Column(name = "recipient_bank_code", length = 10)
     private String recipientBankCode;
     
-    @Column(name = "transfer_amount", precision = 19, scale = 4)
-    private BigDecimal transferAmount;
-    
-    @Column(name = "failed_at")
+    @Column(name = "failed_at", nullable = false, updatable = false)
     private LocalDateTime failedAt;
     
     @Column(name = "processing_duration")
     private Double processingDuration;
     
-    @Column(name = "is_resolved")
+    @Column(name = "is_resolved", nullable = false)
     private Boolean isResolved = false;
     
-    @Column(name = "resolution_notes")
+    @Column(name = "resolution_notes", columnDefinition = "TEXT")
     private String resolutionNotes;
     
     @ManyToOne(fetch = FetchType.LAZY)
@@ -72,192 +105,64 @@ public class TransferFailure extends BaseEntity {
     @Column(name = "resolved_at")
     private LocalDateTime resolvedAt;
     
-    @Column(name = "retry_count")
+    @Column(name = "retry_count", nullable = false)
     private Integer retryCount = 0;
     
     @Column(name = "last_retry_at")
     private LocalDateTime lastRetryAt;
     
-    @Column(name = "max_retries")
+    @Column(name = "max_retries", nullable = false)
     private Integer maxRetries = 3;
     
-    // Constructors
-    public TransferFailure() {}
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
     
-    // Getters and Setters
-    public BankTransfer getTransfer() {
-        return transfer;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+    
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        if (failedAt == null) {
+            failedAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
     }
     
-    public void setTransfer(BankTransfer transfer) {
-        this.transfer = transfer;
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
     
-    public String getErrorCode() {
-        return errorCode;
-    }
-    
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
-    }
-    
-    public String getErrorCategory() {
-        return errorCategory;
-    }
-    
-    public void setErrorCategory(String errorCategory) {
-        this.errorCategory = errorCategory;
-    }
-    
-    public String getFailureReason() {
-        return failureReason;
-    }
-    
-    public void setFailureReason(String failureReason) {
-        this.failureReason = failureReason;
-    }
-    
-    public String getTechnicalDetails() {
-        return technicalDetails;
-    }
-    
-    public void setTechnicalDetails(String technicalDetails) {
-        this.technicalDetails = technicalDetails;
-    }
-    
-    public String getStackTrace() {
-        return stackTrace;
-    }
-    
-    public void setStackTrace(String stackTrace) {
-        this.stackTrace = stackTrace;
-    }
-    
-    public Long getUserId() {
-        return userId;
-    }
-    
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-    
-    public String getIpAddress() {
-        return ipAddress;
-    }
-    
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-    
-    public String getUserAgent() {
-        return userAgent;
-    }
-    
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-    }
-    
-    public String getDeviceFingerprint() {
-        return deviceFingerprint;
-    }
-    
-    public void setDeviceFingerprint(String deviceFingerprint) {
-        this.deviceFingerprint = deviceFingerprint;
-    }
-    
-    public String getRecipientAccount() {
-        return recipientAccount;
-    }
-    
-    public void setRecipientAccount(String recipientAccount) {
-        this.recipientAccount = recipientAccount;
-    }
-    
-    public String getRecipientBankCode() {
-        return recipientBankCode;
-    }
-    
-    public void setRecipientBankCode(String recipientBankCode) {
-        this.recipientBankCode = recipientBankCode;
-    }
-    
-    public BigDecimal getTransferAmount() {
-        return transferAmount;
-    }
-    
-    public void setTransferAmount(BigDecimal transferAmount) {
-        this.transferAmount = transferAmount;
-    }
-    
-    public LocalDateTime getFailedAt() {
-        return failedAt;
-    }
-    
-    public void setFailedAt(LocalDateTime failedAt) {
-        this.failedAt = failedAt;
-    }
-    
-    public Double getProcessingDuration() {
-        return processingDuration;
-    }
-    
-    public void setProcessingDuration(Double processingDuration) {
-        this.processingDuration = processingDuration;
-    }
-    
-    public Boolean getResolved() {
-        return isResolved;
-    }
-    
-    public void setResolved(Boolean resolved) {
-        isResolved = resolved;
-    }
-    
-    public String getResolutionNotes() {
-        return resolutionNotes;
-    }
-    
-    public void setResolutionNotes(String resolutionNotes) {
-        this.resolutionNotes = resolutionNotes;
-    }
-    
-    public User getResolvedBy() {
-        return resolvedBy;
-    }
-    
-    public void setResolvedBy(User resolvedBy) {
+    public void markResolved(User resolvedBy, String notes) {
+        this.isResolved = true;
         this.resolvedBy = resolvedBy;
+        this.resolvedAt = LocalDateTime.now();
+        this.resolutionNotes = notes;
     }
     
-    public LocalDateTime getResolvedAt() {
-        return resolvedAt;
+    public void incrementRetry() {
+        this.retryCount++;
+        this.lastRetryAt = LocalDateTime.now();
     }
     
-    public void setResolvedAt(LocalDateTime resolvedAt) {
-        this.resolvedAt = resolvedAt;
+    public boolean canRetry() {
+        return this.retryCount < this.maxRetries && !this.isResolved;
     }
     
-    public Integer getRetryCount() {
-        return retryCount;
-    }
-    
-    public void setRetryCount(Integer retryCount) {
-        this.retryCount = retryCount;
-    }
-    
-    public LocalDateTime getLastRetryAt() {
-        return lastRetryAt;
-    }
-    
-    public void setLastRetryAt(LocalDateTime lastRetryAt) {
-        this.lastRetryAt = lastRetryAt;
-    }
-    
-    public Integer getMaxRetries() {
-        return maxRetries;
-    }
-    
-    public void setMaxRetries(Integer maxRetries) {
-        this.maxRetries = maxRetries;
+    public String getFailureSummary() {
+        return String.format(
+            "{\"error_code\":\"%s\",\"error_category\":\"%s\",\"failure_reason\":\"%s\",\"transfer_amount\":%.2f,\"recipient_account\":\"%s\",\"failed_at\":\"%s\",\"is_resolved\":%s,\"retry_count\":%d}",
+            errorCode,
+            errorCategory.getCode(),
+            failureReason,
+            transferAmount,
+            recipientAccount,
+            failedAt.toString(),
+            isResolved,
+            retryCount
+        );
     }
 }

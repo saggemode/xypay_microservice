@@ -2,19 +2,19 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * FixedSavingsTransaction Entity
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "fixed_savings_transactions")
-public class FixedSavingsTransaction extends BaseEntity {
+public class FixedSavingsTransaction {
     
     public enum TransactionType {
         INITIAL_DEPOSIT, MATURITY_PAYOUT, EARLY_WITHDRAWAL, INTEREST_CREDIT, AUTO_RENEWAL
@@ -24,27 +24,33 @@ public class FixedSavingsTransaction extends BaseEntity {
         WALLET, XYSAVE, BOTH
     }
     
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
+    
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fixed_savings_account_id")
+    @JoinColumn(name = "fixed_savings_account_id", nullable = false)
     private FixedSavingsAccount fixedSavingsAccount;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type", length = 20)
+    @Column(name = "transaction_type", length = 20, nullable = false)
     private TransactionType transactionType;
     
-    @Column(name = "amount", precision = 19, scale = 4)
+    @Column(name = "amount", precision = 19, scale = 4, nullable = false)
     private BigDecimal amount;
     
-    @Column(name = "balance_before", precision = 19, scale = 4)
+    @Column(name = "balance_before", precision = 19, scale = 4, nullable = false)
     private BigDecimal balanceBefore;
     
-    @Column(name = "balance_after", precision = 19, scale = 4)
+    @Column(name = "balance_after", precision = 19, scale = 4, nullable = false)
     private BigDecimal balanceAfter;
     
-    @Column(name = "reference", unique = true)
+    @Column(name = "reference", unique = true, length = 100, nullable = false)
     private String reference;
     
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
     
     @Column(name = "interest_earned", precision = 19, scale = 4)
@@ -58,12 +64,12 @@ public class FixedSavingsTransaction extends BaseEntity {
     private Source sourceAccount;
     
     @Column(name = "source_transaction_id")
-    private Long sourceTransactionId;
+    private String sourceTransactionId;
     
-    @Column(name = "metadata")
+    @Column(name = "metadata", columnDefinition = "JSON")
     private String metadata = "{}";
     
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
     // Constructors
@@ -150,11 +156,11 @@ public class FixedSavingsTransaction extends BaseEntity {
         this.sourceAccount = sourceAccount;
     }
     
-    public Long getSourceTransactionId() {
+    public String getSourceTransactionId() {
         return sourceTransactionId;
     }
     
-    public void setSourceTransactionId(Long sourceTransactionId) {
+    public void setSourceTransactionId(String sourceTransactionId) {
         this.sourceTransactionId = sourceTransactionId;
     }
     
@@ -172,5 +178,12 @@ public class FixedSavingsTransaction extends BaseEntity {
     
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
     }
 }

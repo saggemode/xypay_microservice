@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface FieldValidationRuleRepository extends JpaRepository<FieldValidationRule, Long> {
+public interface FieldValidationRuleRepository extends JpaRepository<FieldValidationRule, UUID> {
     Optional<FieldValidationRule> findByRuleCode(String ruleCode);
     List<FieldValidationRule> findByScreenCode(String screenCode);
     List<FieldValidationRule> findByFieldName(String fieldName);

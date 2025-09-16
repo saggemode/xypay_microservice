@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -69,7 +70,7 @@ public class BulkTransferService {
      * Process bulk transfer asynchronously
      */
     @Async
-    public CompletableFuture<BulkTransfer> processBulkTransfer(Long bulkTransferId) {
+    public CompletableFuture<BulkTransfer> processBulkTransfer(UUID bulkTransferId) {
         try {
             BulkTransfer bulkTransfer = bulkTransferRepository.findById(bulkTransferId)
                     .orElseThrow(() -> new RuntimeException("Bulk transfer not found"));
@@ -166,7 +167,7 @@ public class BulkTransferService {
                         "Bulk transfer: " + item.getDescription()
                     );
             
-            item.markAsCompleted(transactionPair.getSenderTransaction().getId(), null);
+            item.markAsCompleted(transactionPair.getSenderTransaction().getId().getMostSignificantBits(), null);
             
         } catch (Exception e) {
             item.markAsFailed("Internal transfer failed: " + e.getMessage());
@@ -199,7 +200,7 @@ public class BulkTransferService {
                 item.getDescription()
             );
             
-            item.markAsCompleted(null, createdTransfer.getId());
+            item.markAsCompleted(null, createdTransfer.getId().getMostSignificantBits());
             
         } catch (Exception e) {
             item.markAsFailed("External transfer failed: " + e.getMessage());
@@ -263,7 +264,7 @@ public class BulkTransferService {
     /**
      * Get bulk transfer by ID
      */
-    public BulkTransfer getBulkTransfer(Long id) {
+    public BulkTransfer getBulkTransfer(UUID id) {
         return bulkTransferRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Bulk transfer not found"));
     }
@@ -278,7 +279,7 @@ public class BulkTransferService {
     /**
      * Get bulk transfer items
      */
-    public List<BulkTransferItem> getBulkTransferItems(Long bulkTransferId) {
+    public List<BulkTransferItem> getBulkTransferItems(UUID bulkTransferId) {
         BulkTransfer bulkTransfer = getBulkTransfer(bulkTransferId);
         return bulkTransferItemRepository.findByBulkTransfer(bulkTransfer);
     }
@@ -286,7 +287,7 @@ public class BulkTransferService {
     /**
      * Cancel bulk transfer
      */
-    public BulkTransfer cancelBulkTransfer(Long id) {
+    public BulkTransfer cancelBulkTransfer(UUID id) {
         BulkTransfer bulkTransfer = getBulkTransfer(id);
         
         if (bulkTransfer.isProcessing()) {

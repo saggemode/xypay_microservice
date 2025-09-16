@@ -71,7 +71,7 @@ public class ChargeControlService {
                 });
 
         // Create new VAT charge
-        VATCharge newVAT = new VATCharge(rate, true);
+        VATCharge newVAT = new VATCharge(rate, true, LocalDateTime.now());
         return vatChargeRepository.save(newVAT);
     }
 

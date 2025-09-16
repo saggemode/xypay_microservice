@@ -11,8 +11,9 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 @Repository
-public interface FraudDetectionRepository extends JpaRepository<FraudDetection, Long> {
+public interface FraudDetectionRepository extends JpaRepository<FraudDetection, UUID> {
 
     List<FraudDetection> findByUserAndIsResolvedFalseOrderByCreatedAtDesc(User user);
 

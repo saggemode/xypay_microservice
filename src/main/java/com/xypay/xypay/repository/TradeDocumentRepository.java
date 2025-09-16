@@ -6,9 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface TradeDocumentRepository extends JpaRepository<TradeDocument, Long> {
+public interface TradeDocumentRepository extends JpaRepository<TradeDocument, UUID> {
     
     List<TradeDocument> findByTradeFinance(TradeFinance tradeFinance);
     

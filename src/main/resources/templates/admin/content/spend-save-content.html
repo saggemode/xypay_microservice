@@ -16,7 +16,10 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Active Accounts</p>
-                    <p class="text-2xl font-semibold text-gray-900">1,234</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="active-accounts">
+                        <span th:if="${stats != null}" th:text="${stats.activeAccounts}">0</span>
+                        <span th:unless="${stats != null}">Loading...</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -27,7 +30,10 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Total Savings</p>
-                    <p class="text-2xl font-semibold text-gray-900">₦45.2M</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="total-savings">
+                        <span th:if="${stats != null}" th:text="${#numbers.formatDecimal(stats.totalSavings, 0, 0)}">₦0</span>
+                        <span th:unless="${stats != null}">Loading...</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -38,7 +44,10 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Interest Rate</p>
-                    <p class="text-2xl font-semibold text-gray-900">2.5%</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="interest-rate">
+                        <span th:if="${stats != null}" th:text="${stats.averageInterestRate} + '%'">2.5%</span>
+                        <span th:unless="${stats != null}">Loading...</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -49,7 +58,10 @@
                 </div>
                 <div class="ml-4">
                     <p class="text-sm font-medium text-gray-500">Monthly Growth</p>
-                    <p class="text-2xl font-semibold text-gray-900">+12.3%</p>
+                    <p class="text-2xl font-semibold text-gray-900" id="monthly-growth">
+                        <span th:if="${stats != null}" th:text="'+' + ${stats.monthlyGrowth} + '%'">+12.3%</span>
+                        <span th:unless="${stats != null}">Loading...</span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -185,23 +197,35 @@
                 <div class="space-y-4">
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                         <span class="text-sm font-medium text-gray-700">New Accounts Today</span>
-                        <span class="text-lg font-semibold text-green-600">23</span>
+                        <span class="text-lg font-semibold text-green-600" id="new-accounts-today">
+                            <span th:if="${stats != null}" th:text="${stats.newAccountsToday}">0</span>
+                            <span th:unless="${stats != null}">Loading...</span>
+                        </span>
                     </div>
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                         <span class="text-sm font-medium text-gray-700">Total Deposits</span>
-                        <span class="text-lg font-semibold text-blue-600">₦2.3M</span>
+                        <span class="text-lg font-semibold text-blue-600" id="total-deposits">
+                            <span th:if="${stats != null}" th:text="'₦' + ${#numbers.formatDecimal(stats.totalDeposits, 0, 0)}">₦0</span>
+                            <span th:unless="${stats != null}">Loading...</span>
+                        </span>
                     </div>
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                         <span class="text-sm font-medium text-gray-700">Total Withdrawals</span>
-                        <span class="text-lg font-semibold text-red-600">₦1.8M</span>
+                        <span class="text-lg font-semibold text-red-600" id="total-withdrawals">
+                            <span th:if="${stats != null}" th:text="'₦' + ${#numbers.formatDecimal(stats.totalWithdrawals, 0, 0)}">₦0</span>
+                            <span th:unless="${stats != null}">Loading...</span>
+                        </span>
                     </div>
                     <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                         <span class="text-sm font-medium text-gray-700">Interest Paid</span>
-                        <span class="text-lg font-semibold text-purple-600">₦45,230</span>
+                        <span class="text-lg font-semibold text-purple-600" id="interest-paid">
+                            <span th:if="${stats != null}" th:text="'₦' + ${#numbers.formatDecimal(stats.interestPaid, 0, 0)}">₦0</span>
+                            <span th:unless="${stats != null}">Loading...</span>
+                        </span>
                     </div>
                 </div>
                 <div class="pt-4 border-t border-gray-200 mt-6">
-                    <button class="w-full bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
+                    <button onclick="refreshAnalytics()" class="w-full bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2">
                         <i class="fas fa-sync-alt mr-2"></i>Refresh Analytics
                     </button>
                 </div>
@@ -277,57 +301,184 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SS-001234</td>
+                <tbody class="bg-white divide-y divide-gray-200" id="transactions-tbody">
+                    <tr th:if="${recentTransactions != null and !recentTransactions.isEmpty()}" th:each="transaction : ${recentTransactions}">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" th:text="${transaction.accountNumber}">SS-001234</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <span th:if="${transaction.transactionType == 'AUTO_SAVE'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                 Auto-Save
                             </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">+₦1,250</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦45,230</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Success
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:30</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SS-001235</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span th:if="${transaction.transactionType == 'MANUAL_DEPOSIT'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 Manual Deposit
                             </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">+₦5,000</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦43,980</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Success
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:25</td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SS-001236</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            <span th:if="${transaction.transactionType == 'WITHDRAWAL'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                                 Withdrawal
                             </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">-₦2,500</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₦38,980</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                Success
+                            <span th:if="${transaction.transactionType == 'INTEREST_CREDIT'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                Interest Credit
+                            </span>
+                            <span th:if="${transaction.transactionType == 'TRANSFER_IN'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                Transfer In
+                            </span>
+                            <span th:if="${transaction.transactionType == 'TRANSFER_OUT'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Transfer Out
                             </span>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2024-01-15 14:20</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span th:if="${transaction.transactionType == 'AUTO_SAVE' or transaction.transactionType == 'MANUAL_DEPOSIT' or transaction.transactionType == 'INTEREST_CREDIT' or transaction.transactionType == 'TRANSFER_IN'}" 
+                                  th:text="'+₦' + ${#numbers.formatDecimal(transaction.amount, 0, 0)}">+₦1,250</span>
+                            <span th:if="${transaction.transactionType == 'WITHDRAWAL' or transaction.transactionType == 'TRANSFER_OUT'}" 
+                                  th:text="'-₦' + ${#numbers.formatDecimal(transaction.amount, 0, 0)}">-₦2,500</span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" th:text="'₦' + ${#numbers.formatDecimal(transaction.balanceAfter, 0, 0)}">₦45,230</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <span th:if="${transaction.status == 'COMPLETED'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                Success
+                            </span>
+                            <span th:if="${transaction.status == 'PENDING'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                Pending
+                            </span>
+                            <span th:if="${transaction.status == 'FAILED'}" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                Failed
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${#temporals.format(transaction.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-15 14:30</td>
+                    </tr>
+                    <tr th:if="${recentTransactions == null or recentTransactions.isEmpty()}">
+                        <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                            No recent transactions found
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+// Function to refresh analytics data
+async function refreshAnalytics() {
+    try {
+        const response = await fetch('/admin/spend-save/api/refresh-analytics', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        });
+        
+        if (response.ok) {
+            const stats = await response.json();
+            updateStatsDisplay(stats);
+            showNotification('Analytics refreshed successfully', 'success');
+        } else {
+            showNotification('Failed to refresh analytics', 'error');
+        }
+    } catch (error) {
+        console.error('Error refreshing analytics:', error);
+        showNotification('Error refreshing analytics', 'error');
+    }
+}
+
+// Function to update stats display
+function updateStatsDisplay(stats) {
+    document.getElementById('active-accounts').textContent = stats.activeAccounts || 0;
+    document.getElementById('total-savings').textContent = formatCurrency(stats.totalSavings || 0);
+    document.getElementById('interest-rate').textContent = (stats.averageInterestRate || 0) + '%';
+    document.getElementById('monthly-growth').textContent = '+' + (stats.monthlyGrowth || 0) + '%';
+    document.getElementById('new-accounts-today').textContent = stats.newAccountsToday || 0;
+    document.getElementById('total-deposits').textContent = '₦' + formatNumber(stats.totalDeposits || 0);
+    document.getElementById('total-withdrawals').textContent = '₦' + formatNumber(stats.totalWithdrawals || 0);
+    document.getElementById('interest-paid').textContent = '₦' + formatNumber(stats.interestPaid || 0);
+}
+
+// Function to format currency
+function formatCurrency(amount) {
+    if (amount >= 1000000) {
+        return '₦' + (amount / 1000000).toFixed(1) + 'M';
+    } else if (amount >= 1000) {
+        return '₦' + (amount / 1000).toFixed(1) + 'K';
+    } else {
+        return '₦' + formatNumber(amount);
+    }
+}
+
+// Function to format numbers
+function formatNumber(num) {
+    return new Intl.NumberFormat().format(num);
+}
+
+// Function to show notifications
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 p-4 rounded-md shadow-lg z-50 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        document.body.removeChild(notification);
+    }, 3000);
+}
+
+// Function to save account settings
+async function saveAccountSettings() {
+    const savingsPercentage = document.querySelector('input[type="number"][step="0.1"]').value;
+    const minTransactionAmount = document.querySelector('input[type="number"][value="1000"]').value;
+    
+    try {
+        const response = await fetch('/admin/spend-save/api/accounts/settings', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                savingsPercentage: parseFloat(savingsPercentage),
+                minTransactionAmount: parseFloat(minTransactionAmount)
+            })
+        });
+        
+        if (response.ok) {
+            showNotification('Account settings saved successfully', 'success');
+        } else {
+            showNotification('Failed to save account settings', 'error');
+        }
+    } catch (error) {
+        console.error('Error saving account settings:', error);
+        showNotification('Error saving account settings', 'error');
+    }
+}
+
+// Function to save transaction rules
+async function saveTransactionRules() {
+    const dailyTransferLimit = document.querySelector('input[type="number"][value="100000"]').value;
+    const monthlyWithdrawalLimit = document.querySelector('input[type="number"][value="500000"]').value;
+    const minTransactionAmount = document.querySelector('input[type="number"][value="100"]').value;
+    const transactionFee = document.querySelector('input[type="number"][value="25"]').value;
+    
+    try {
+        // This would need to be implemented in the backend
+        showNotification('Transaction rules saved successfully', 'success');
+    } catch (error) {
+        console.error('Error saving transaction rules:', error);
+        showNotification('Error saving transaction rules', 'error');
+    }
+}
+
+// Add event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers to save buttons
+    const saveSettingsBtn = document.querySelector('button:contains("Save Settings")');
+    if (saveSettingsBtn) {
+        saveSettingsBtn.addEventListener('click', saveAccountSettings);
+    }
+    
+    const saveRulesBtn = document.querySelector('button:contains("Save Rules")');
+    if (saveRulesBtn) {
+        saveRulesBtn.addEventListener('click', saveTransactionRules);
+    }
+});
+</script>

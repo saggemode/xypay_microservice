@@ -7,9 +7,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface StaffProfileRepository extends JpaRepository<StaffProfile, Long> {
+public interface StaffProfileRepository extends JpaRepository<StaffProfile, UUID> {
     
     Optional<StaffProfile> findByUser(User user);
     

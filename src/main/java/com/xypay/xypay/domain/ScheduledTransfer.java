@@ -6,7 +6,6 @@ import lombok.EqualsAndHashCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -217,7 +216,7 @@ public class ScheduledTransfer extends BaseEntity {
     public BigDecimal getSuccessRate() {
         if (totalRuns == 0) return BigDecimal.ZERO;
         return BigDecimal.valueOf(successfulRuns)
-                .divide(BigDecimal.valueOf(totalRuns), 4, BigDecimal.ROUND_HALF_UP)
+                .divide(BigDecimal.valueOf(totalRuns), 4, java.math.RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(100));
     }
 }

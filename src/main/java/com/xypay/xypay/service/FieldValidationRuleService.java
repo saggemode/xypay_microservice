@@ -6,9 +6,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.UUID;
 
 @Service
 public class FieldValidationRuleService {
@@ -62,7 +62,7 @@ public class FieldValidationRuleService {
         return fieldValidationRuleRepository.findByScreenCodeAndIsActiveOrderByExecutionOrder(screenCode, true);
     }
     
-    public Map<String, Object> updateValidationRule(Long id, Map<String, Object> request) {
+    public Map<String, Object> updateValidationRule(UUID id, Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -99,7 +99,7 @@ public class FieldValidationRuleService {
         return response;
     }
     
-    public Map<String, Object> deleteValidationRule(Long id) {
+    public Map<String, Object> deleteValidationRule(UUID id) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -132,6 +132,7 @@ public class FieldValidationRuleService {
                 
                 // Check if rule applies to user role
                 if (rule.getApplicableRoles() != null && !rule.getApplicableRoles().isEmpty()) {
+                    @SuppressWarnings("unchecked")
                     List<String> applicableRoles = objectMapper.readValue(rule.getApplicableRoles(), List.class);
                     if (!applicableRoles.contains(userRole)) continue;
                 }
@@ -185,6 +186,7 @@ public class FieldValidationRuleService {
                 for (FieldValidationRule rule : fieldRules) {
                     // Check if rule applies to user role
                     if (rule.getApplicableRoles() != null && !rule.getApplicableRoles().isEmpty()) {
+                        @SuppressWarnings("unchecked")
                         List<String> applicableRoles = objectMapper.readValue(rule.getApplicableRoles(), List.class);
                         if (!applicableRoles.contains(userRole)) continue;
                     }

@@ -2,7 +2,6 @@ package com.xypay.xypay.service;
 
 import com.xypay.xypay.domain.*;
 import com.xypay.xypay.repository.STPRuleRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +28,7 @@ public class StraightThroughProcessingService {
     @Autowired
     private NotificationService notificationService;
     
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // Removed unused objectMapper field
 
     /**
      * Process transaction through STP rules
@@ -38,7 +37,7 @@ public class StraightThroughProcessingService {
         logger.info("Starting STP processing for transaction: {}", transaction.getId());
         
         STPResult result = new STPResult();
-        result.setTransactionId(transaction.getId());
+        result.setTransactionId((long) transaction.getId().hashCode());
         result.setProcessingStartTime(LocalDateTime.now());
         
         try {
@@ -296,8 +295,8 @@ public class StraightThroughProcessingService {
             WorkflowInstance workflow = workflowEngineService.startWorkflow(
                 "TRANSACTION_APPROVAL", 
                 "TRANSACTION", 
-                transaction.getId(), 
-                user.getId(), 
+                (long) transaction.getId().hashCode(), 
+                (long) user.getId().hashCode(), 
                 contextData
             );
             

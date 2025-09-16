@@ -13,6 +13,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -25,9 +26,6 @@ public class TransferLimitService {
     
     @Autowired
     private NotificationService notificationService;
-    
-    @Autowired
-    private UserRepository userRepository;
     
     /**
      * Create a new transfer limit for a user
@@ -179,7 +177,7 @@ public class TransferLimitService {
     /**
      * Update transfer limit
      */
-    public TransferLimit updateTransferLimit(Long limitId, BigDecimal newLimitAmount, User updatedBy) {
+    public TransferLimit updateTransferLimit(UUID limitId, BigDecimal newLimitAmount, User updatedBy) {
         try {
             TransferLimit limit = transferLimitRepository.findById(limitId)
                     .orElseThrow(() -> new RuntimeException("Transfer limit not found"));
@@ -213,7 +211,7 @@ public class TransferLimitService {
     /**
      * Deactivate transfer limit
      */
-    public TransferLimit deactivateTransferLimit(Long limitId, User deactivatedBy) {
+    public TransferLimit deactivateTransferLimit(UUID limitId, User deactivatedBy) {
         try {
             TransferLimit limit = transferLimitRepository.findById(limitId)
                     .orElseThrow(() -> new RuntimeException("Transfer limit not found"));
@@ -257,7 +255,7 @@ public class TransferLimitService {
     /**
      * Get transfer limit by ID
      */
-    public TransferLimit getTransferLimit(Long id) {
+    public TransferLimit getTransferLimit(UUID id) {
         return transferLimitRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Transfer limit not found"));
     }

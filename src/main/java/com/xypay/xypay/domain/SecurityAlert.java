@@ -1,257 +1,102 @@
 package com.xypay.xypay.domain;
 
+import com.xypay.xypay.enums.SecurityLevel;
 import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "security_alerts", indexes = {
-    @Index(name = "idx_security_alert_timestamp", columnList = "timestamp"),
-    @Index(name = "idx_security_alert_type_severity", columnList = "alert_type, severity"),
-    @Index(name = "idx_security_alert_status", columnList = "status")
+    @Index(name = "idx_security_alert_user_read", columnList = "user_id, is_read"),
+    @Index(name = "idx_security_alert_severity", columnList = "severity"),
+    @Index(name = "idx_security_alert_created", columnList = "created_at")
 })
-public class SecurityAlert {
+public class SecurityAlert extends BaseEntity {
     
     public enum AlertType {
-        SUSPICIOUS_LOGIN("suspicious_login"),
-        MULTIPLE_FAILED_ATTEMPTS("multiple_failed_attempts"),
-        UNUSUAL_ACTIVITY("unusual_activity"),
-        SYSTEM_BREACH("system_breach"),
-        DATA_LEAK("data_leak"),
-        COMPLIANCE_VIOLATION("compliance_violation");
+        LOGIN_ATTEMPT("login_attempt", "Login Attempt"),
+        TRANSFER_ATTEMPT("transfer_attempt", "Transfer Attempt"),
+        DEVICE_CHANGE("device_change", "Device Change"),
+        LOCATION_CHANGE("location_change", "Location Change"),
+        SUSPICIOUS_ACTIVITY("suspicious_activity", "Suspicious Activity"),
+        LIMIT_EXCEEDED("limit_exceeded", "Limit Exceeded"),
+        TWO_FA_REQUIRED("two_fa_required", "2FA Required");
         
-        private final String value;
+        private final String code;
+        private final String displayName;
         
-        AlertType(String value) {
-            this.value = value;
+        AlertType(String code, String displayName) {
+            this.code = code;
+            this.displayName = displayName;
         }
         
-        public String getValue() {
-            return value;
-        }
-    }
-    
-    public enum SeverityLevel {
-        LOW("low"),
-        MEDIUM("medium"),
-        HIGH("high"),
-        CRITICAL("critical");
-        
-        private final String value;
-        
-        SeverityLevel(String value) {
-            this.value = value;
+        public String getCode() {
+            return code;
         }
         
-        public String getValue() {
-            return value;
+        public String getDisplayName() {
+            return displayName;
         }
     }
     
-    public enum Status {
-        OPEN("open"),
-        INVESTIGATING("investigating"),
-        RESOLVED("resolved"),
-        FALSE_POSITIVE("false_positive");
-        
-        private final String value;
-        
-        Status(String value) {
-            this.value = value;
-        }
-        
-        public String getValue() {
-            return value;
-        }
-    }
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    
-    @CreationTimestamp
-    @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "alert_type", nullable = false, length = 50)
+    @Column(name = "alert_type", length = 50, nullable = false)
     private AlertType alertType;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "severity", nullable = false, length = 20)
-    private SeverityLevel severity;
+    @Column(name = "severity", length = 20, nullable = false)
+    private SecurityLevel severity = SecurityLevel.MEDIUM;
     
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private Status status = Status.OPEN;
-    
-    @Column(name = "title", nullable = false, length = 200)
+    @Column(name = "title", length = 255, nullable = false)
     private String title;
     
-    @Column(name = "description", nullable = false, columnDefinition = "TEXT")
-    private String description;
-    
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "affected_user_id")
-    private User affectedUser;
+    @Column(name = "message", columnDefinition = "TEXT", nullable = false)
+    private String message;
     
     @Column(name = "ip_address")
     private String ipAddress;
     
-    @Column(name = "resolved_at")
-    private LocalDateTime resolvedAt;
+    @Column(name = "user_agent", columnDefinition = "TEXT")
+    private String userAgent;
     
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "resolved_by_id")
-    private User resolvedBy;
+    @Column(name = "location", length = 255)
+    private String location;
     
-    @Column(name = "notes", columnDefinition = "TEXT")
-    private String notes;
+    @Column(name = "is_read", nullable = false)
+    private Boolean isRead = false;
+    
+    @Column(name = "is_resolved", nullable = false)
+    private Boolean isResolved = false;
+    
+    @Column(name = "read_at")
+    private LocalDateTime readAt;
     
     // Constructors
     public SecurityAlert() {}
     
-    public SecurityAlert(AlertType alertType, SeverityLevel severity, String title, 
-                        String description, User affectedUser, String ipAddress) {
+    public SecurityAlert(User user, AlertType alertType, SecurityLevel severity, String title, String message) {
+        this.user = user;
         this.alertType = alertType;
         this.severity = severity;
         this.title = title;
-        this.description = description;
-        this.affectedUser = affectedUser;
-        this.ipAddress = ipAddress;
-        this.status = Status.OPEN;
+        this.message = message;
     }
     
     // Business methods
-    public void resolve(User resolvedBy, String notes) {
-        this.status = Status.RESOLVED;
-        this.resolvedAt = LocalDateTime.now();
-        this.resolvedBy = resolvedBy;
-        this.notes = notes;
+    public void markAsRead() {
+        this.isRead = true;
+        this.readAt = LocalDateTime.now();
     }
     
-    public void markAsFalsePositive(User resolvedBy, String notes) {
-        this.status = Status.FALSE_POSITIVE;
-        this.resolvedAt = LocalDateTime.now();
-        this.resolvedBy = resolvedBy;
-        this.notes = notes;
-    }
-    
-    public void startInvestigation() {
-        this.status = Status.INVESTIGATING;
-    }
-    
-    public boolean isOpen() {
-        return this.status == Status.OPEN;
-    }
-    
-    public boolean isResolved() {
-        return this.status == Status.RESOLVED || this.status == Status.FALSE_POSITIVE;
-    }
-    
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-    
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
-    
-    public AlertType getAlertType() {
-        return alertType;
-    }
-    
-    public void setAlertType(AlertType alertType) {
-        this.alertType = alertType;
-    }
-    
-    public SeverityLevel getSeverity() {
-        return severity;
-    }
-    
-    public void setSeverity(SeverityLevel severity) {
-        this.severity = severity;
-    }
-    
-    public Status getStatus() {
-        return status;
-    }
-    
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-    
-    public String getTitle() {
-        return title;
-    }
-    
-    public void setTitle(String title) {
-        this.title = title;
-    }
-    
-    public String getDescription() {
-        return description;
-    }
-    
-    public void setDescription(String description) {
-        this.description = description;
-    }
-    
-    public User getAffectedUser() {
-        return affectedUser;
-    }
-    
-    public void setAffectedUser(User affectedUser) {
-        this.affectedUser = affectedUser;
-    }
-    
-    public String getIpAddress() {
-        return ipAddress;
-    }
-    
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-    
-    public LocalDateTime getResolvedAt() {
-        return resolvedAt;
-    }
-    
-    public void setResolvedAt(LocalDateTime resolvedAt) {
-        this.resolvedAt = resolvedAt;
-    }
-    
-    public User getResolvedBy() {
-        return resolvedBy;
-    }
-    
-    public void setResolvedBy(User resolvedBy) {
-        this.resolvedBy = resolvedBy;
-    }
-    
-    public String getNotes() {
-        return notes;
-    }
-    
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-    
-    @Override
-    public String toString() {
-        return String.format("%s - %s - %s", 
-            timestamp, 
-            alertType, 
-            severity);
+    public void markAsResolved() {
+        this.isResolved = true;
     }
 }

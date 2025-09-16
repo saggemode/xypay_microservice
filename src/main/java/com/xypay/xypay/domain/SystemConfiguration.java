@@ -19,9 +19,7 @@ import java.time.LocalDateTime;
        })
 public class SystemConfiguration extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    // ID field inherited from BaseEntity (UUID)
 
     @NotBlank(message = "Configuration key is required")
     @Size(max = 255, message = "Configuration key must not exceed 255 characters")
@@ -82,14 +80,7 @@ public class SystemConfiguration extends BaseEntity {
         this.lastUpdated = LocalDateTime.now();
     }
 
-    // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    // Getters and Setters (ID getter/setter inherited from BaseEntity)
 
     public String getConfigKey() {
         return configKey;
@@ -214,7 +205,7 @@ public class SystemConfiguration extends BaseEntity {
     @Override
     public String toString() {
         return "SystemConfiguration{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", configKey='" + configKey + '\'' +
                 ", category='" + category + '\'' +
                 ", isActive=" + isActive +

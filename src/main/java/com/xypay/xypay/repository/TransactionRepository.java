@@ -1,6 +1,7 @@
 package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.Transaction;
+import com.xypay.xypay.domain.User;
 import com.xypay.xypay.domain.Wallet;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,9 +14,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+public interface TransactionRepository extends JpaRepository<Transaction, UUID> {
 
     Optional<Transaction> findByIdempotencyKey(String idempotencyKey);
     
@@ -48,6 +50,11 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     BigDecimal sumAmountByStatus(@Param("status") String status);
     
     @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.createdAt BETWEEN :start AND :end AND t.status = 'SUCCESS'")
+    BigDecimal sumAmountByStatusAndDateRange(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+    
+    List<Transaction> findByWalletUserAndTypeAndCreatedAtAfter(User user, String type, LocalDateTime startDate);
+    
+    @Query("SELECT SUM(t.amount) FROM Transaction t WHERE t.createdAt BETWEEN :start AND :end")
     BigDecimal getTotalVolumeBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
     
     @Query("SELECT COUNT(t) FROM Transaction t WHERE t.status = 'FAILED'")

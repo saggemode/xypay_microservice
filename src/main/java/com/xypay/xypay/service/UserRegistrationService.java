@@ -2,7 +2,6 @@ package com.xypay.xypay.service;
 
 import com.xypay.xypay.domain.*;
 import com.xypay.xypay.repository.*;
-import com.xypay.xypay.service.*;
 import com.xypay.xypay.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.Optional;
@@ -529,7 +527,7 @@ public class UserRegistrationService {
             userData.put("created_at", profile.getCreatedAt());
             
             // Get KYC level if exists
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId());
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId().getMostSignificantBits()); // Convert UUID to Long
             if (kycOpt.isPresent()) {
                 KYCProfile kyc = kycOpt.get();
                 userData.put("kyc_level", kyc.getKycLevel());
@@ -588,7 +586,7 @@ public class UserRegistrationService {
             userData.put("created_at", profile.getCreatedAt());
             
             // Get KYC level if exists
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId());
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId().getMostSignificantBits()); // Convert UUID to Long
             if (kycOpt.isPresent()) {
                 KYCProfile kyc = kycOpt.get();
                 userData.put("kyc_level", kyc.getKycLevel());

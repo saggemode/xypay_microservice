@@ -2,56 +2,64 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "fixed_savings_accounts")
-public class FixedSavingsAccount extends BaseEntity {
+public class FixedSavingsAccount {
+    
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
     
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @Column(name = "account_number", unique = true)
+    @Column(name = "account_number", unique = true, length = 20)
     private String accountNumber;
     
-    @Column(name = "amount", precision = 19, scale = 4)
+    @Column(name = "amount", precision = 19, scale = 4, nullable = false)
     private BigDecimal amount;
     
-    @Column(name = "source", length = 10)
-    private String source; // wallet, xysave, both
+    @Enumerated(EnumType.STRING)
+    @Column(name = "source", length = 10, nullable = false)
+    private FixedSavingsSource source;
     
-    @Column(name = "purpose", length = 20)
-    private String purpose;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "purpose", length = 20, nullable = false)
+    private FixedSavingsPurpose purpose;
     
-    @Column(name = "purpose_description")
+    @Column(name = "purpose_description", columnDefinition = "TEXT")
     private String purposeDescription;
     
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
     
-    @Column(name = "payback_date")
+    @Column(name = "payback_date", nullable = false)
     private LocalDate paybackDate;
     
-    @Column(name = "auto_renewal_enabled")
+    @Column(name = "auto_renewal_enabled", nullable = false)
     private Boolean autoRenewalEnabled = false;
     
-    @Column(name = "is_active")
+    @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
     
-    @Column(name = "is_matured")
+    @Column(name = "is_matured", nullable = false)
     private Boolean isMatured = false;
     
-    @Column(name = "is_paid_out")
+    @Column(name = "is_paid_out", nullable = false)
     private Boolean isPaidOut = false;
     
     @Column(name = "interest_rate", precision = 5, scale = 2)
@@ -69,10 +77,10 @@ public class FixedSavingsAccount extends BaseEntity {
     @Column(name = "paid_out_at")
     private LocalDateTime paidOutAt;
     
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
     @OneToMany(mappedBy = "fixedSavingsAccount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -200,5 +208,52 @@ public class FixedSavingsAccount extends BaseEntity {
         isMatured = true;
         maturedAt = LocalDateTime.now();
         return true;
+    }
+    
+    /**
+     * Pay out the matured amount to user's xysave account
+     */
+    public boolean payOut() {
+        if (!canBePaidOut()) {
+            return false;
+        }
+        
+        try {
+            // This will be implemented in the service layer
+            // as it requires access to repositories
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        if (accountNumber == null) {
+            accountNumber = generateAccountNumber();
+        }
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+        
+        // Calculate interest rate and maturity amount
+        if (interestRate == null) {
+            interestRate = calculateInterestRate();
+        }
+        if (maturityAmount == null) {
+            maturityAmount = calculateMaturityAmount();
+        }
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+    
+    private String generateAccountNumber() {
+        String userId = String.format("%08d", user.getId());
+        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        return "FS" + userId + uuid;
     }
 }

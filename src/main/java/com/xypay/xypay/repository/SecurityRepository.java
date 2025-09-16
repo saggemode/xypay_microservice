@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface SecurityRepository extends JpaRepository<Security, Long> {
+public interface SecurityRepository extends JpaRepository<Security, UUID> {
     
     Optional<Security> findBySymbol(String symbol);
     
@@ -47,7 +48,7 @@ public interface SecurityRepository extends JpaRepository<Security, Long> {
     
     List<Security> findByCreditRating(Security.CreditRating creditRating);
     
-    @Query("SELECT s FROM Security s WHERE s.securityName LIKE %:name%")
+    @Query("SELECT s FROM Security s WHERE s.securityName LIKE CONCAT('%', :name, '%')")
     List<Security> findBySecurityNameContaining(@Param("name") String name);
     
     @Query("SELECT s FROM Security s WHERE s.currentPrice BETWEEN :minPrice AND :maxPrice")

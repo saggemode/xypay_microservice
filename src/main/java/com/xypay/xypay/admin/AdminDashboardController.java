@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Controller
 public class AdminDashboardController {
@@ -109,8 +110,8 @@ public class AdminDashboardController {
     
     @GetMapping("/admin/accounts/{id}")
     @ResponseBody
-    public ResponseEntity<Wallet> getAccount(@PathVariable Long id) {
-        Optional<Wallet> wallet = walletRepository.findByIdWithUser(id);
+    public ResponseEntity<Wallet> getAccount(@PathVariable UUID id) {
+        Optional<Wallet> wallet = walletRepository.findByIdWithUser(id.getMostSignificantBits()); // Convert UUID to Long
         return wallet.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
     
@@ -119,7 +120,9 @@ public class AdminDashboardController {
     public ResponseEntity<String> updateAccount(@PathVariable Long id, 
                                               @RequestParam String phoneAlias,
                                               @RequestParam BigDecimal balance) {
-        Optional<Wallet> walletOpt = walletRepository.findById(id);
+        // Convert Long to UUID - this is a workaround for the ID type mismatch
+        UUID walletId = new UUID(0L, id); // Create UUID from Long
+        Optional<Wallet> walletOpt = walletRepository.findById(walletId);
         if (walletOpt.isPresent()) {
             Wallet wallet = walletOpt.get();
             wallet.setPhoneAlias(phoneAlias);

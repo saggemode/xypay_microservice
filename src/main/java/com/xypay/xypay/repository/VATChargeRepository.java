@@ -7,10 +7,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
-public interface VATChargeRepository extends JpaRepository<VATCharge, Long> {
+public interface VATChargeRepository extends JpaRepository<VATCharge, UUID> {
     
     @Query("SELECT v FROM VATCharge v WHERE v.active = true ORDER BY v.updatedAt DESC")
     Optional<VATCharge> findFirstByActiveTrueOrderByUpdatedAtDesc();

@@ -120,7 +120,7 @@ public class BankTransferProcessingService {
             baseSignalHandler.handleTransferFailure(transfer, "PROCESSING_ERROR", e.getMessage());
             
             // Publish transfer failed event
-            eventPublisher.publishTransferFailedEvent(transfer.getId(), "PROCESSING_ERROR", e.getMessage());
+            eventPublisher.publishTransferFailedEvent((long) transfer.getId().toString().hashCode(), "PROCESSING_ERROR", e.getMessage());
         }
     }
     
@@ -131,10 +131,10 @@ public class BankTransferProcessingService {
      * @param errorCode The error code
      * @param errorMessage The error message
      */
-    public void handleFailedTransfer(Long transferId, String errorCode, String errorMessage) {
+    public void handleFailedTransfer(java.util.UUID transferId, String errorCode, String errorMessage) {
         logger.info("Handling failed bank transfer ID: {}, error code: {}", transferId, errorCode);
         
         // Publish transfer failed event
-        eventPublisher.publishTransferFailedEvent(transferId, errorCode, errorMessage);
+        eventPublisher.publishTransferFailedEvent((long) transferId.toString().hashCode(), errorCode, errorMessage);
     }
 }

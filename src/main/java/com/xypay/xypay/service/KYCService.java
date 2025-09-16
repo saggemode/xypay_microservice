@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.UUID;
 
 @Service
 public class KYCService {
@@ -36,7 +37,7 @@ public class KYCService {
      * Create KYC profile (matches Django KYCProfileSerializer.create exactly)
      */
     @Transactional
-    public Map<String, Object> createKYCProfile(Long userId, Map<String, Object> kycData) {
+    public Map<String, Object> createKYCProfile(UUID userId, Map<String, Object> kycData) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -201,7 +202,7 @@ public class KYCService {
      * Update existing KYC profile
      */
     @Transactional
-    public Map<String, Object> updateKYCProfile(Long userId, Map<String, Object> kycData) {
+    public Map<String, Object> updateKYCProfile(UUID userId, Map<String, Object> kycData) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -350,7 +351,7 @@ public class KYCService {
      * Request KYC tier upgrade
      */
     @Transactional
-    public Map<String, Object> requestTierUpgrade(Long userId, String targetTier) {
+    public Map<String, Object> requestTierUpgrade(UUID userId, String targetTier) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -417,7 +418,7 @@ public class KYCService {
     /**
      * Get KYC profile by user ID (matches Django KYCProfileDetailSerializer)
      */
-    public Map<String, Object> getKYCProfile(Long userId) {
+    public Map<String, Object> getKYCProfile(UUID userId) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -516,11 +517,11 @@ public class KYCService {
      * Approve KYC profile (Admin function)
      */
     @Transactional
-    public Map<String, Object> approveKYC(String kycProfileId, Long approverId) {
+    public Map<String, Object> approveKYC(String kycProfileId, UUID approverId) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId));
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId)); // Convert String to Long
             Optional<User> approverOpt = userRepository.findById(approverId);
             
             if (kycOpt.isEmpty() || approverOpt.isEmpty()) {
@@ -565,7 +566,7 @@ public class KYCService {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId));
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId)); // Convert String to Long
             
             if (kycOpt.isEmpty()) {
                 response.put("success", false);

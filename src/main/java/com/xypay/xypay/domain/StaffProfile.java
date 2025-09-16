@@ -1,132 +1,75 @@
 package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
-
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.UUID;
 
 /**
  * Staff profile entity for tracking staff members who can approve KYC.
  * Equivalent to Django's StaffProfile model.
  */
+@Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
-@Table(name = "staff_profiles")
-public class StaffProfile {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Table(name = "staff_profiles", indexes = {
+    @Index(name = "idx_staff_role_level", columnList = "role_id, user_id"),
+    @Index(name = "idx_staff_employee_id", columnList = "employee_id")
+})
+public class StaffProfile extends BaseEntity {
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
     
-    @Column(name = "employee_id", unique = true)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "role_id", nullable = false)
+    private StaffRole role;
+    
+    @Column(name = "employee_id", length = 20, unique = true, nullable = false)
     private String employeeId;
     
-    @Column(name = "department")
+    @Column(name = "branch", length = 100)
+    private String branch;
+    
+    @Column(name = "department", length = 100)
     private String department;
     
-    @Column(name = "position")
-    private String position;
-    
-    @Column(name = "can_approve_kyc", nullable = false)
-    private Boolean canApproveKyc = false;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "supervisor_id")
+    private StaffProfile supervisor;
     
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = true;
     
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    @Column(name = "hire_date", nullable = false)
+    private LocalDate hireDate;
     
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "last_review_date")
+    private LocalDate lastReviewDate;
     
     // Constructors
-    public StaffProfile() {
-        this.createdAt = LocalDateTime.now();
-    }
+    public StaffProfile() {}
     
-    public StaffProfile(User user, String employeeId) {
-        this();
+    public StaffProfile(User user, StaffRole role, String employeeId, LocalDate hireDate) {
         this.user = user;
+        this.role = role;
         this.employeeId = employeeId;
+        this.hireDate = hireDate;
     }
     
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+    // Business methods
+    public boolean canApproveTransaction(BigDecimal amount) {
+        return role.canApproveAmount(amount);
     }
     
-    // Getters and Setters
-    public Long getId() {
-        return id;
+    public boolean canApproveKyc() {
+        return role.getCanApproveKyc();
     }
     
-    public void setId(Long id) {
-        this.id = id;
-    }
-    
-    public User getUser() {
-        return user;
-    }
-    
-    public void setUser(User user) {
-        this.user = user;
-    }
-    
-    public String getEmployeeId() {
-        return employeeId;
-    }
-    
-    public void setEmployeeId(String employeeId) {
-        this.employeeId = employeeId;
-    }
-    
-    public String getDepartment() {
-        return department;
-    }
-    
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-    
-    public String getPosition() {
-        return position;
-    }
-    
-    public void setPosition(String position) {
-        this.position = position;
-    }
-    
-    public Boolean getCanApproveKyc() {
-        return canApproveKyc;
-    }
-    
-    public void setCanApproveKyc(Boolean canApproveKyc) {
-        this.canApproveKyc = canApproveKyc;
-    }
-    
-    public Boolean getIsActive() {
-        return isActive;
-    }
-    
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
+    public boolean canManageStaff() {
+        return role.getCanManageStaff();
     }
 }

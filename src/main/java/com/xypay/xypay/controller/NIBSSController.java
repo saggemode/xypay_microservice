@@ -6,7 +6,6 @@ import com.xypay.xypay.service.BankTransferProcessingService;
 import com.xypay.xypay.domain.User;
 import com.xypay.xypay.domain.BankTransfer;
 import com.xypay.xypay.repository.UserRepository;
-import com.xypay.xypay.repository.WalletRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/nibss")
@@ -32,8 +32,6 @@ public class NIBSSController {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private WalletRepository walletRepository;
     
     /**
      * Validate account number endpoint
@@ -44,7 +42,7 @@ public class NIBSSController {
         Map<String, Object> result = nibssClient.validateAccountNumber(accountNumber);
         boolean success = (Boolean) result.get("valid");
         String message = success ? "Account validated successfully" : (String) result.get("error");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
     
     /**
@@ -59,9 +57,8 @@ public class NIBSSController {
             @RequestParam String narration) {
         Map<String, Object> result = nibssClient.sendInterbankTransfer(
                 senderAccount, recipientBankCode, recipientAccount, amount, narration);
-        boolean success = "success".equals(result.get("status"));
         String message = (String) result.get("message");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
     
     /**
@@ -74,7 +71,7 @@ public class NIBSSController {
             @RequestParam String recipientAccount,
             @RequestParam double amount,
             @RequestParam String narration,
-            @RequestParam Long userId) {
+            @RequestParam UUID userId) {
         
         logger.info("Processing NIBSS transfer with record: {} -> {} (amount: {})", senderAccount, recipientAccount, amount);
         
@@ -117,17 +114,12 @@ public class NIBSSController {
                 logger.error("NIBSS transfer failed: {}", nibssResult.get("message"));
             }
             
-            boolean success = nibssSuccess;
             String message = (String) nibssResult.get("message");
-            return ResponseEntity.ok(new ApiResponse<>(success, message, nibssResult));
+            return ResponseEntity.ok(ApiResponse.success(nibssResult, message));
             
         } catch (Exception e) {
             logger.error("Error processing NIBSS transfer: {}", e.getMessage(), e);
-            Map<String, Object> errorResult = Map.of(
-                "status", "failed",
-                "message", "Internal error: " + e.getMessage()
-            );
-            return ResponseEntity.ok(new ApiResponse<>(false, "Transfer failed", errorResult));
+            return ResponseEntity.ok(ApiResponse.error("Transfer failed", "Internal error: " + e.getMessage()));
         }
     }
     
@@ -159,9 +151,8 @@ public class NIBSSController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> checkTransferStatus(
             @PathVariable String nibssReference) {
         Map<String, Object> result = nibssClient.checkTransferStatus(nibssReference);
-        boolean success = "success".equals(result.get("status"));
         String message = (String) result.get("message");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
     
     /**
@@ -176,9 +167,8 @@ public class NIBSSController {
             @RequestParam String narration) {
         Map<String, Object> result = nibssClient.payBill(
                 customerAccount, billerCode, amount, billReference, narration);
-        boolean success = "success".equals(result.get("status"));
         String message = (String) result.get("message");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
     
     /**
@@ -188,9 +178,8 @@ public class NIBSSController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> verifyBVN(
             @PathVariable String bvn) {
         Map<String, Object> result = nibssClient.verifyBVN(bvn);
-        boolean success = "success".equals(result.get("status"));
         String message = (String) result.get("message");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
     
     /**
@@ -203,8 +192,7 @@ public class NIBSSController {
             @RequestParam(required = false) String mandateReference) {
         Map<String, Object> result = nibssClient.setupDirectDebit(
                 customerAccount, amount, mandateReference);
-        boolean success = "success".equals(result.get("status"));
         String message = (String) result.get("message");
-        return ResponseEntity.ok(new ApiResponse<>(success, message, result));
+        return ResponseEntity.ok(ApiResponse.success(result, message));
     }
 }

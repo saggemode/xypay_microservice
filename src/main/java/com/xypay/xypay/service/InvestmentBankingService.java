@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -35,14 +36,10 @@ public class InvestmentBankingService {
     @Autowired
     private UserRepository userRepository;
     
-    @Autowired
-    private WorkflowEngineService workflowEngineService;
-    
-    @Autowired
-    private NotificationService notificationService;
+    // Removed unused services to fix warnings
 
     // Portfolio Management
-    public Portfolio createPortfolio(Long bankId, Long customerId, String portfolioName, 
+    public Portfolio createPortfolio(UUID bankId, UUID customerId, String portfolioName, 
                                    Portfolio.PortfolioType portfolioType, 
                                    Portfolio.InvestmentObjective objective,
                                    Portfolio.RiskProfile riskProfile, String baseCurrency) {
@@ -99,7 +96,7 @@ public class InvestmentBankingService {
         return securityRepository.save(security);
     }
 
-    public Security updateSecurityPrice(Long securityId, BigDecimal newPrice, BigDecimal volume) {
+    public Security updateSecurityPrice(UUID securityId, BigDecimal newPrice, BigDecimal volume) {
         Security security = securityRepository.findById(securityId)
             .orElseThrow(() -> new RuntimeException("Security not found"));
         
@@ -125,7 +122,7 @@ public class InvestmentBankingService {
     }
 
     // Trading Operations
-    public SecurityTransaction executeBuyOrder(Long portfolioId, Long securityId, BigDecimal quantity, 
+    public SecurityTransaction executeBuyOrder(UUID portfolioId, UUID securityId, BigDecimal quantity, 
                                              BigDecimal price, SecurityTransaction.OrderType orderType) {
         
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
@@ -168,7 +165,7 @@ public class InvestmentBankingService {
         return transaction;
     }
 
-    public SecurityTransaction executeSellOrder(Long portfolioId, Long securityId, BigDecimal quantity, 
+    public SecurityTransaction executeSellOrder(UUID portfolioId, UUID securityId, BigDecimal quantity, 
                                               BigDecimal price, SecurityTransaction.OrderType orderType) {
         
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
@@ -220,7 +217,7 @@ public class InvestmentBankingService {
     }
 
     // Portfolio Valuation
-    public void performPortfolioValuation(Long portfolioId) {
+    public void performPortfolioValuation(UUID portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
             .orElseThrow(() -> new RuntimeException("Portfolio not found"));
         
@@ -488,6 +485,12 @@ public class InvestmentBankingService {
                 case REAL_ESTATE:
                     alternativeValue = alternativeValue.add(marketValue);
                     break;
+                case DERIVATIVE:
+                case CASH_EQUIVALENT:
+                case CURRENCY:
+                    // Treat derivatives, cash equivalents, and currencies as alternatives
+                    alternativeValue = alternativeValue.add(marketValue);
+                    break;
             }
         }
         
@@ -537,7 +540,7 @@ public class InvestmentBankingService {
         }
     }
 
-    public Map<String, Object> getPortfolioSummary(Long portfolioId) {
+    public Map<String, Object> getPortfolioSummary(UUID portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
             .orElseThrow(() -> new RuntimeException("Portfolio not found"));
         
@@ -565,15 +568,15 @@ public class InvestmentBankingService {
         return prefix + System.currentTimeMillis();
     }
 
-    public List<Portfolio> getPortfoliosByCustomer(Long customerId) {
+    public List<Portfolio> getPortfoliosByCustomer(UUID customerId) {
         return portfolioRepository.findByCustomerId(customerId);
     }
 
-    public List<SecurityTransaction> getPortfolioTransactions(Long portfolioId) {
+    public List<SecurityTransaction> getPortfolioTransactions(UUID portfolioId) {
         return securityTransactionRepository.findByPortfolioIdOrderByTradeDateDesc(portfolioId);
     }
 
-    public List<SecurityHolding> getPortfolioHoldings(Long portfolioId) {
+    public List<SecurityHolding> getPortfolioHoldings(UUID portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
             .orElseThrow(() -> new RuntimeException("Portfolio not found"));
         return securityHoldingRepository.findByPortfolio(portfolio);

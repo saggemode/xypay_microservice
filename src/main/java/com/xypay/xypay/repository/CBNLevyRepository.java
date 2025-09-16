@@ -12,9 +12,10 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface CBNLevyRepository extends JpaRepository<CBNLevy, Long> {
+public interface CBNLevyRepository extends JpaRepository<CBNLevy, UUID> {
     
     /**
      * Find all active levies
@@ -73,6 +74,6 @@ public interface CBNLevyRepository extends JpaRepository<CBNLevy, Long> {
     /**
      * Find levies by name containing (for search)
      */
-    @Query("SELECT l FROM CBNLevy l WHERE l.name LIKE %:name% OR l.description LIKE %:name%")
+    @Query("SELECT l FROM CBNLevy l WHERE l.name LIKE CONCAT('%', :name, '%') OR l.description LIKE CONCAT('%', :name, '%')")
     Page<CBNLevy> findByNameContainingIgnoreCase(@Param("name") String name, Pageable pageable);
 }

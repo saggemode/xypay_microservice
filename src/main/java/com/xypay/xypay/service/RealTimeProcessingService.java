@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -29,7 +30,7 @@ public class RealTimeProcessingService {
     private NotificationService notificationService;
     
     // In-memory metrics for real-time tracking
-    private final Map<Long, AtomicLong> processorLoadMap = new ConcurrentHashMap<>();
+    private final Map<UUID, AtomicLong> processorLoadMap = new ConcurrentHashMap<>();
     private final Map<Long, AtomicLong> processorQueueMap = new ConcurrentHashMap<>();
     
     @Async
@@ -53,7 +54,7 @@ public class RealTimeProcessingService {
         
         try {
             // Increment load
-            incrementProcessorLoad(processor.getId());
+            incrementProcessorLoad(processor.getId().toString());
             
             // Simulate processing time based on processor configuration
             Thread.sleep(processor.getProcessingTimeMs());
@@ -84,7 +85,7 @@ public class RealTimeProcessingService {
             return CompletableFuture.completedFuture("FAILED: " + e.getMessage());
             
         } finally {
-            decrementProcessorLoad(processor.getId());
+            decrementProcessorLoad(processor.getId().toString());
         }
     }
 
@@ -214,30 +215,32 @@ public class RealTimeProcessingService {
 
     private void sendProcessorAlert(RealTimeProcessor processor) {
         try {
-            notificationService.sendNotification(1L, "SYSTEM_ALERT", 
+            notificationService.sendNotification(UUID.randomUUID(), "SYSTEM_ALERT", 
                 "Processor " + processor.getProcessorName() + " is in critical state");
         } catch (Exception e) {
             // Log error but don't fail
         }
     }
 
-    public void incrementProcessorLoad(Long processorId) {
-        processorLoadMap.computeIfAbsent(processorId, k -> new AtomicLong(0)).incrementAndGet();
+    public void incrementProcessorLoad(String processorId) {
+        UUID id = UUID.fromString(processorId);
+        processorLoadMap.computeIfAbsent(id, k -> new AtomicLong(0)).incrementAndGet();
         
         // Update database
-        processorRepository.findById(processorId).ifPresent(processor -> {
-            processor.setCurrentLoad(processorLoadMap.get(processorId).get());
+        processorRepository.findById(id).ifPresent(processor -> {
+            processor.setCurrentLoad(processorLoadMap.get(id).get());
             processorRepository.save(processor);
         });
     }
 
-    public void decrementProcessorLoad(Long processorId) {
-        AtomicLong load = processorLoadMap.get(processorId);
+    public void decrementProcessorLoad(String processorId) {
+        UUID id = UUID.fromString(processorId);
+        AtomicLong load = processorLoadMap.get(id);
         if (load != null && load.get() > 0) {
             load.decrementAndGet();
             
             // Update database
-            processorRepository.findById(processorId).ifPresent(processor -> {
+            processorRepository.findById(id).ifPresent(processor -> {
                 processor.setCurrentLoad(load.get());
                 processorRepository.save(processor);
             });

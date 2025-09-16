@@ -3,46 +3,53 @@ package com.xypay.xypay.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.GenericGenerator;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "fixed_savings_settings")
-public class FixedSavingsSettings extends BaseEntity {
+public class FixedSavingsSettings {
     
     public enum Source {
         WALLET, XYSAVE, BOTH
     }
     
+    @Id
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    @Column(name = "id", updatable = false, nullable = false)
+    private UUID id;
+    
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
     
-    @Column(name = "maturity_notifications")
+    @Column(name = "maturity_notifications", nullable = false)
     private Boolean maturityNotifications = true;
     
-    @Column(name = "interest_notifications")
+    @Column(name = "interest_notifications", nullable = false)
     private Boolean interestNotifications = true;
     
-    @Column(name = "auto_renewal_notifications")
+    @Column(name = "auto_renewal_notifications", nullable = false)
     private Boolean autoRenewalNotifications = true;
     
-    @Column(name = "default_auto_renewal")
+    @Column(name = "default_auto_renewal", nullable = false)
     private Boolean defaultAutoRenewal = false;
     
-    @Column(name = "default_renewal_duration")
+    @Column(name = "default_renewal_duration", nullable = false)
     private Integer defaultRenewalDuration = 30;
     
     @Enumerated(EnumType.STRING)
-    @Column(name = "default_source", length = 10)
+    @Column(name = "default_source", length = 10, nullable = false)
     private Source defaultSource = Source.WALLET;
     
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
     
     // Constructors
@@ -119,5 +126,18 @@ public class FixedSavingsSettings extends BaseEntity {
     
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    @PrePersist
+    protected void onCreate() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+        updatedAt = LocalDateTime.now();
+    }
+    
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
     }
 }

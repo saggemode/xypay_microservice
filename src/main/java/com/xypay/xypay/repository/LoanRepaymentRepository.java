@@ -10,9 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface LoanRepaymentRepository extends JpaRepository<LoanRepayment, Long> {
+public interface LoanRepaymentRepository extends JpaRepository<LoanRepayment, UUID> {
     
     List<LoanRepayment> findByLoanOrderByPaymentDateDesc(Loan loan);
     

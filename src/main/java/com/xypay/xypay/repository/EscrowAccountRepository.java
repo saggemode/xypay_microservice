@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface EscrowAccountRepository extends JpaRepository<EscrowAccount, Long> {
+public interface EscrowAccountRepository extends JpaRepository<EscrowAccount, UUID> {
     
     List<EscrowAccount> findByBuyerOrSellerOrderByCreatedAtDesc(User buyer, User seller);
     

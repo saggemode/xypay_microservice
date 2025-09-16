@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Pageable;
+import java.util.UUID;
 
 /**
  * Service for handling cascading deletion of users and all related data.
@@ -60,7 +60,7 @@ public class UserCascadeDeleteService {
      * @return true if deletion was successful, false otherwise
      */
     @Transactional
-    public boolean deleteUserAndAllRelatedData(Long userId) {
+    public boolean deleteUserAndAllRelatedData(UUID userId) {
         try {
             logger.info("Starting cascading deletion for user ID: {}", userId);
             
@@ -73,15 +73,19 @@ public class UserCascadeDeleteService {
             
             // 1. Delete audit logs first (they reference users but shouldn't block deletion)
             try {
-                auditLogRepository.deleteAllByUserId(userId);
-                logger.info("Deleted audit logs for user {}", userId);
+                // Use a custom query to delete audit logs by user
+                List<AuditLog> auditLogs = auditLogRepository.findAll().stream()
+                    .filter(log -> log.getUser() != null && log.getUser().getId().equals(userId))
+                    .collect(java.util.stream.Collectors.toList());
+                auditLogRepository.deleteAll(auditLogs);
+                logger.info("Deleted {} audit logs for user {}", auditLogs.size(), userId);
             } catch (Exception e) {
                 logger.warn("Could not delete audit logs for user {}: {}", userId, e.getMessage());
             }
             
             // 2. Delete notifications
             try {
-                List<Notification> notifications = notificationRepository.findByRecipientAndStatusOrderByCreatedAtDesc(user, NotificationStatus.SENT);
+                List<Notification> notifications = notificationRepository.findByRecipientOrderByCreatedAtDesc(user);
                 notificationRepository.deleteAll(notifications);
                 logger.info("Deleted {} notifications for user {}", notifications.size(), userId);
             } catch (Exception e) {
@@ -99,7 +103,7 @@ public class UserCascadeDeleteService {
             
             // 4. Delete KYC profile
             try {
-                Optional<KYCProfile> kycProfile = kycProfileRepository.findByUserId(userId);
+                Optional<KYCProfile> kycProfile = kycProfileRepository.findByUser(user);
                 if (kycProfile.isPresent()) {
                     kycProfileRepository.delete(kycProfile.get());
                     logger.info("Deleted KYC profile for user {}", userId);
@@ -124,8 +128,10 @@ public class UserCascadeDeleteService {
                 // Find transactions through wallet
                 List<Wallet> userWallets = walletRepository.findByUser(user);
                 for (Wallet wallet : userWallets) {
-                    // Use the wallet ID to find transactions
-                    List<Transaction> transactions = transactionRepository.findByWalletId(wallet.getId(), Pageable.unpaged()).getContent();
+                    // Use a custom query to find all transactions for this wallet
+                    List<Transaction> transactions = transactionRepository.findAll().stream()
+                        .filter(t -> t.getWallet() != null && t.getWallet().getId().equals(wallet.getId()))
+                        .collect(java.util.stream.Collectors.toList());
                     transactionRepository.deleteAll(transactions);
                     logger.info("Deleted {} transactions for wallet {}", transactions.size(), wallet.getId());
                 }
@@ -168,7 +174,7 @@ public class UserCascadeDeleteService {
      * @param userId The ID of the user to check
      * @return true if user can be deleted, false otherwise
      */
-    public boolean canDeleteUser(Long userId) {
+    public boolean canDeleteUser(UUID userId) {
         try {
             User user = userRepository.findById(userId).orElse(null);
             if (user == null) {

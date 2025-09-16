@@ -11,13 +11,14 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface SecurityTransactionRepository extends JpaRepository<SecurityTransaction, Long> {
+public interface SecurityTransactionRepository extends JpaRepository<SecurityTransaction, UUID> {
     
     List<SecurityTransaction> findByPortfolio(Portfolio portfolio);
     
-    List<SecurityTransaction> findByPortfolioIdOrderByTradeDateDesc(Long portfolioId);
+    List<SecurityTransaction> findByPortfolioIdOrderByTradeDateDesc(UUID portfolioId);
     
     List<SecurityTransaction> findBySecurity(Security security);
     

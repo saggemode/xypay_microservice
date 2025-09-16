@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface BankRepository extends JpaRepository<Bank, Long> {
+public interface BankRepository extends JpaRepository<Bank, UUID> {
     
     Optional<Bank> findByCode(String code);
     
@@ -28,7 +29,7 @@ public interface BankRepository extends JpaRepository<Bank, Long> {
     
     List<Bank> findByIslamicBankingEnabledTrue();
     
-    @Query("SELECT b FROM Bank b WHERE b.name LIKE %:name%")
+    @Query("SELECT b FROM Bank b WHERE b.name LIKE CONCAT('%', :name, '%')")
     List<Bank> findByNameContaining(@Param("name") String name);
     
     @Query("SELECT COUNT(b) FROM Bank b WHERE b.isActive = true")

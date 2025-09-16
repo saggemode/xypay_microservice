@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.UUID;
 
 @Service
 public class ApprovalMatrixService {
@@ -71,7 +72,7 @@ public class ApprovalMatrixService {
         return approvalMatrixRepository.findAll();
     }
     
-    public Map<String, Object> updateApprovalMatrix(Long id, Map<String, Object> request) {
+    public Map<String, Object> updateApprovalMatrix(UUID id, Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -114,7 +115,7 @@ public class ApprovalMatrixService {
         return response;
     }
     
-    public Map<String, Object> deleteApprovalMatrix(Long id) {
+    public Map<String, Object> deleteApprovalMatrix(UUID id) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -186,7 +187,14 @@ public class ApprovalMatrixService {
         Map<String, Object> result = new HashMap<>();
         
         try {
-            Map<String, Object> transactionData = (Map<String, Object>) testData.get("transactionData");
+            Object transactionDataObj = testData.get("transactionData");
+            if (!(transactionDataObj instanceof Map)) {
+                result.put("success", false);
+                result.put("message", "Invalid transaction data format");
+                return result;
+            }
+            @SuppressWarnings("unchecked")
+            Map<String, Object> transactionData = (Map<String, Object>) transactionDataObj;
             Map<String, Object> requirements = getApprovalRequirements(transactionData);
             
             result.put("success", true);

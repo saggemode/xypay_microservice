@@ -60,7 +60,9 @@ public class SecurityConfig {
                 .requestMatchers("/loan-officer/**").hasRole("LOAN_OFFICER")
                 .requestMatchers("/rm/**").hasRole("RELATIONSHIP_MANAGER")
                 .requestMatchers("/admin/cbn-levies/**").permitAll()
+                .requestMatchers("/admin/xysave/api/**").hasAnyRole("SUPERUSER", "ADMIN")
                 .requestMatchers("/admin/**").hasAnyRole("SUPERUSER", "ADMIN")
+                .requestMatchers("/spend-save/**").hasAnyRole("USER", "ADMIN", "SUPERUSER")
                 .requestMatchers("/api/transactions/**").hasAuthority("SCOPE_transaction")
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
@@ -77,7 +79,7 @@ public class SecurityConfig {
                 .permitAll()
             )
             .csrf(csrf -> csrf
-                .ignoringRequestMatchers("/api/**")
+                .ignoringRequestMatchers("/api/**", "/admin/xysave/api/**")
             )
             .headers(headers -> headers
                 .frameOptions().sameOrigin()

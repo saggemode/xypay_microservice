@@ -20,10 +20,10 @@ public class ComplianceService {
     /**
      * Perform KYC check on a customer
      * 
-     * @param customer The customer to check
+     * @param accountId The account ID to check
      * @return true if KYC check passes, false otherwise
      */
-    public boolean performKYCCheck(Long accountId) {
+    public boolean performKYCCheck(java.util.UUID accountId) {
         try {
             // Get KYC configurations
             List<RiskComplianceConfiguration> kycConfigs = 
@@ -34,7 +34,7 @@ public class ComplianceService {
             
             // Log the KYC check
             auditTrailService.logComplianceAction(
-                accountId, 
+                (long) accountId.toString().hashCode(), 
                 "KYC_CHECK", 
                 "Performed KYC check for account " + accountId, 
                 "SYSTEM"
@@ -65,7 +65,7 @@ public class ComplianceService {
                     
                     // Log the AML alert
                     auditTrailService.logComplianceAction(
-                        transaction.getId(), 
+                        (long) transaction.getId().toString().hashCode(), 
                         "AML_ALERT", 
                         "Transaction amount " + transaction.getAmount() + 
                         " exceeds threshold " + config.getAmlThresholdAmount(), 
@@ -94,7 +94,7 @@ public class ComplianceService {
      * @param accountId The account ID to check
      * @return true if account is clean, false if blacklisted
      */
-    public boolean checkAccountStatus(Long accountId) {
+    public boolean checkAccountStatus(java.util.UUID accountId) {
         try {
             // Get risk/compliance configurations
             List<RiskComplianceConfiguration> riskConfigs = 
@@ -107,7 +107,7 @@ public class ComplianceService {
                     
                     // Log the blacklist check
                     auditTrailService.logComplianceAction(
-                        accountId, 
+                        (long) accountId.toString().hashCode(), 
                         "BLACKLIST_CHECK", 
                         "Account " + accountId + " found on blacklist", 
                         "SYSTEM"
@@ -122,7 +122,7 @@ public class ComplianceService {
                     
                     // Log the watchlist check
                     auditTrailService.logComplianceAction(
-                        accountId, 
+                        (long) accountId.toString().hashCode(), 
                         "WATCHLIST_CHECK", 
                         "Account " + accountId + " found on watchlist", 
                         "SYSTEM"
@@ -191,7 +191,7 @@ public class ComplianceService {
                 if (config.getFraudDetectionRules() != null) {
                     // Log the fraud detection check
                     auditTrailService.logComplianceAction(
-                        transaction.getId(), 
+                        (long) transaction.getId().toString().hashCode(), 
                         "FRAUD_DETECTION", 
                         "Applied fraud detection rules", 
                         "SYSTEM"

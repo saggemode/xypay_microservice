@@ -9,9 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -23,7 +23,7 @@ public class ChartOfAccountsService {
     @Autowired
     private BankRepository bankRepository;
     
-    public ChartOfAccounts createAccount(Long bankId, String accountCode, String accountName,
+    public ChartOfAccounts createAccount(UUID bankId, String accountCode, String accountName,
                                        ChartOfAccounts.AccountType accountType,
                                        ChartOfAccounts.AccountCategory accountCategory,
                                        String currencyCode) {
@@ -57,12 +57,16 @@ public class ChartOfAccountsService {
         return chartOfAccountsRepository.save(account);
     }
     
-    public ChartOfAccounts createSubAccount(Long bankId, String parentAccountCode, 
+    public ChartOfAccounts createSubAccount(UUID bankId, String parentAccountCode, 
                                           String accountCode, String accountName,
                                           ChartOfAccounts.AccountCategory accountCategory,
                                           String currencyCode) {
-        ChartOfAccounts parentAccount = chartOfAccountsRepository
-            .findByBankIdAndAccountCode(bankId, parentAccountCode)
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        List<ChartOfAccounts> allAccounts = chartOfAccountsRepository.findAll();
+        ChartOfAccounts parentAccount = allAccounts.stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           parentAccountCode.equals(acc.getAccountCode()))
+            .findFirst()
             .orElseThrow(() -> new RuntimeException("Parent account not found"));
         
         ChartOfAccounts subAccount = new ChartOfAccounts();
@@ -81,43 +85,76 @@ public class ChartOfAccountsService {
         return chartOfAccountsRepository.save(subAccount);
     }
     
-    public List<ChartOfAccounts> getAccountsByBank(Long bankId) {
-        return chartOfAccountsRepository.findByBankIdAndIsActiveTrue(bankId);
+    public List<ChartOfAccounts> getAccountsByBank(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && acc.getIsActive())
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getAccountsByType(Long bankId, ChartOfAccounts.AccountType accountType) {
-        return chartOfAccountsRepository.findByBankIdAndAccountType(bankId, accountType);
+    public List<ChartOfAccounts> getAccountsByType(UUID bankId, ChartOfAccounts.AccountType accountType) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           accountType.equals(acc.getAccountType()))
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getAccountsByCategory(Long bankId, ChartOfAccounts.AccountCategory accountCategory) {
-        return chartOfAccountsRepository.findByBankIdAndAccountCategory(bankId, accountCategory);
+    public List<ChartOfAccounts> getAccountsByCategory(UUID bankId, ChartOfAccounts.AccountCategory accountCategory) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           accountCategory.equals(acc.getAccountCategory()))
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getControlAccounts(Long bankId) {
-        return chartOfAccountsRepository.findByBankIdAndIsControlAccountTrue(bankId);
+    public List<ChartOfAccounts> getControlAccounts(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && acc.getIsControlAccount())
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getPostingAccounts(Long bankId) {
-        return chartOfAccountsRepository.findByBankIdAndAllowPostingTrue(bankId);
+    public List<ChartOfAccounts> getPostingAccounts(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && acc.getAllowPosting())
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getRootAccounts(Long bankId) {
-        return chartOfAccountsRepository.findRootAccountsByBankId(bankId);
+    public List<ChartOfAccounts> getRootAccounts(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           acc.getParentAccountCode() == null)
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public List<ChartOfAccounts> getSubAccounts(Long bankId, String parentAccountCode) {
-        return chartOfAccountsRepository.findByBankIdAndParentAccountCode(bankId, parentAccountCode);
+    public List<ChartOfAccounts> getSubAccounts(UUID bankId, String parentAccountCode) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           parentAccountCode.equals(acc.getParentAccountCode()))
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public Optional<ChartOfAccounts> getAccountByCode(Long bankId, String accountCode) {
-        return chartOfAccountsRepository.findByBankIdAndAccountCode(bankId, accountCode);
+    public Optional<ChartOfAccounts> getAccountByCode(UUID bankId, String accountCode) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           accountCode.equals(acc.getAccountCode()))
+            .findFirst();
     }
     
-    public List<ChartOfAccounts> searchAccounts(Long bankId, String searchTerm) {
-        return chartOfAccountsRepository.searchByCodeOrName(bankId, searchTerm);
+    public List<ChartOfAccounts> searchAccounts(UUID bankId, String searchTerm) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           (acc.getAccountCode().contains(searchTerm) || acc.getAccountName().contains(searchTerm)))
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public ChartOfAccounts updateAccountBalance(Long accountId, BigDecimal amount, boolean isDebit) {
+    public ChartOfAccounts updateAccountBalance(UUID accountId, BigDecimal amount, boolean isDebit) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -125,7 +162,7 @@ public class ChartOfAccountsService {
         return chartOfAccountsRepository.save(account);
     }
     
-    public void setControlAccount(Long accountId, boolean isControlAccount) {
+    public void setControlAccount(UUID accountId, boolean isControlAccount) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -137,7 +174,7 @@ public class ChartOfAccountsService {
         chartOfAccountsRepository.save(account);
     }
     
-    public void setPostingPermission(Long accountId, boolean allowPosting) {
+    public void setPostingPermission(UUID accountId, boolean allowPosting) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -145,7 +182,7 @@ public class ChartOfAccountsService {
         chartOfAccountsRepository.save(account);
     }
     
-    public void deactivateAccount(Long accountId) {
+    public void deactivateAccount(UUID accountId) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -158,7 +195,7 @@ public class ChartOfAccountsService {
         chartOfAccountsRepository.save(account);
     }
     
-    public ChartOfAccounts updateAccountDetails(Long accountId, String accountName, 
+    public ChartOfAccounts updateAccountDetails(UUID accountId, String accountName, 
                                               String accountDescription, String regulatoryCode) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
@@ -170,7 +207,7 @@ public class ChartOfAccountsService {
         return chartOfAccountsRepository.save(account);
     }
     
-    public void setBudgetAmount(Long accountId, BigDecimal budgetAmount) {
+    public void setBudgetAmount(UUID accountId, BigDecimal budgetAmount) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -178,7 +215,7 @@ public class ChartOfAccountsService {
         chartOfAccountsRepository.save(account);
     }
     
-    public void setRiskWeight(Long accountId, BigDecimal riskWeight) {
+    public void setRiskWeight(UUID accountId, BigDecimal riskWeight) {
         ChartOfAccounts account = chartOfAccountsRepository.findById(accountId)
             .orElseThrow(() -> new RuntimeException("Account not found"));
         
@@ -186,21 +223,34 @@ public class ChartOfAccountsService {
         chartOfAccountsRepository.save(account);
     }
     
-    public List<ChartOfAccounts> getStatutoryReturnsAccounts(Long bankId) {
-        return chartOfAccountsRepository.findByBankIdAndStatutoryReturnsTrue(bankId);
+    public List<ChartOfAccounts> getStatutoryReturnsAccounts(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && acc.getStatutoryReturns())
+            .collect(java.util.stream.Collectors.toList());
     }
     
-    public Long getAccountCountByType(Long bankId, ChartOfAccounts.AccountType accountType) {
-        return chartOfAccountsRepository.countByBankIdAndAccountType(bankId, accountType);
+    public Long getAccountCountByType(UUID bankId, ChartOfAccounts.AccountType accountType) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId) && 
+                           accountType.equals(acc.getAccountType()))
+            .count();
     }
     
-    public List<Integer> getAccountLevels(Long bankId) {
-        return chartOfAccountsRepository.findDistinctAccountLevelsByBankId(bankId);
+    public List<Integer> getAccountLevels(UUID bankId) {
+        // Note: Repository expects Long but we have UUID - using alternative approach
+        return chartOfAccountsRepository.findAll().stream()
+            .filter(acc -> acc.getBank() != null && acc.getBank().getId().equals(bankId))
+            .map(ChartOfAccounts::getAccountLevel)
+            .distinct()
+            .collect(java.util.stream.Collectors.toList());
     }
     
     // Standard Chart of Accounts Setup for Nigerian Banks
-    public void setupStandardChartOfAccounts(Long bankId) {
-        Bank bank = bankRepository.findById(bankId)
+    public void setupStandardChartOfAccounts(UUID bankId) {
+        // Note: Bank variable retrieved but not used - keeping for validation
+        bankRepository.findById(bankId)
             .orElseThrow(() -> new RuntimeException("Bank not found"));
         
         // Assets

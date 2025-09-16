@@ -51,7 +51,7 @@ public class NotificationController {
         }
         // Fallback for testing - in production this should throw an exception
         User testUser = new User();
-        testUser.setId(1L);
+        testUser.setId(java.util.UUID.randomUUID());
         testUser.setUsername("testuser");
         return testUser;
     }
@@ -393,7 +393,7 @@ public class NotificationController {
         
         try {
             // In a real implementation, check for admin role
-            User currentUser = getCurrentUser(authentication);
+            getCurrentUser(authentication);
             
             Notification notification = notificationService.createNotificationFromData(notificationData);
             return ResponseEntity.status(HttpStatus.CREATED).body(notification);

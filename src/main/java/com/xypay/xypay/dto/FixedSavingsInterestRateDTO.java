@@ -1,71 +1,31 @@
 package com.xypay.xypay.dto;
 
+import com.xypay.xypay.validation.FixedSavingsValidation;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+@Data
+@FixedSavingsValidation
 public class FixedSavingsInterestRateDTO {
+    
+    @NotNull(message = "Amount is required")
+    @DecimalMin(value = "1000.00", message = "Minimum amount is ₦1,000")
+    @Digits(integer = 15, fraction = 2, message = "Amount must have at most 15 integer digits and 2 decimal places")
     private BigDecimal amount;
+    
+    @NotNull(message = "Start date is required")
     private LocalDate startDate;
+    
+    @NotNull(message = "Payback date is required")
     private LocalDate paybackDate;
+    
     private BigDecimal interestRate;
     private String maturityAmount;
     private String interestEarned;
     private Integer durationDays;
-
-    // Getters and setters
-    public BigDecimal getAmount() {
-        return amount;
-    }
-
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
-    }
-
-    public LocalDate getPaybackDate() {
-        return paybackDate;
-    }
-
-    public void setPaybackDate(LocalDate paybackDate) {
-        this.paybackDate = paybackDate;
-    }
-
-    public BigDecimal getInterestRate() {
-        return interestRate;
-    }
-
-    public void setInterestRate(BigDecimal interestRate) {
-        this.interestRate = interestRate;
-    }
-
-    public String getMaturityAmount() {
-        return maturityAmount;
-    }
-
-    public void setMaturityAmount(String maturityAmount) {
-        this.maturityAmount = maturityAmount;
-    }
-
-    public String getInterestEarned() {
-        return interestEarned;
-    }
-
-    public void setInterestEarned(String interestEarned) {
-        this.interestEarned = interestEarned;
-    }
-
-    public Integer getDurationDays() {
-        return durationDays;
-    }
-
-    public void setDurationDays(Integer durationDays) {
-        this.durationDays = durationDays;
-    }
 }

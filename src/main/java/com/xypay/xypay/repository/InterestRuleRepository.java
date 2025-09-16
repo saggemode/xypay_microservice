@@ -10,52 +10,53 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface InterestRuleRepository extends JpaRepository<InterestRule, Long> {
+public interface InterestRuleRepository extends JpaRepository<InterestRule, UUID> {
     
-    List<InterestRule> findByBankId(Long bankId);
+    List<InterestRule> findByBankId(UUID bankId);
     
-    List<InterestRule> findByBankIdAndIsActiveTrue(Long bankId);
+    List<InterestRule> findByBankIdAndIsActiveTrue(UUID bankId);
     
     Optional<InterestRule> findByRuleCode(String ruleCode);
     
-    Optional<InterestRule> findByBankIdAndRuleCode(Long bankId, String ruleCode);
+    Optional<InterestRule> findByBankIdAndRuleCode(UUID bankId, String ruleCode);
     
     List<InterestRule> findByRuleType(InterestRule.RuleType ruleType);
     
-    List<InterestRule> findByBankIdAndRuleType(Long bankId, InterestRule.RuleType ruleType);
+    List<InterestRule> findByBankIdAndRuleType(UUID bankId, InterestRule.RuleType ruleType);
     
     List<InterestRule> findByProductCategory(InterestRule.ProductCategory productCategory);
     
-    List<InterestRule> findByBankIdAndProductCategory(Long bankId, InterestRule.ProductCategory productCategory);
+    List<InterestRule> findByBankIdAndProductCategory(UUID bankId, InterestRule.ProductCategory productCategory);
     
     List<InterestRule> findByCurrencyCode(String currencyCode);
     
-    List<InterestRule> findByBankIdAndCurrencyCode(Long bankId, String currencyCode);
+    List<InterestRule> findByBankIdAndCurrencyCode(UUID bankId, String currencyCode);
     
     List<InterestRule> findByApprovalStatus(InterestRule.ApprovalStatus approvalStatus);
     
-    List<InterestRule> findByBankIdAndApprovalStatus(Long bankId, InterestRule.ApprovalStatus approvalStatus);
+    List<InterestRule> findByBankIdAndApprovalStatus(UUID bankId, InterestRule.ApprovalStatus approvalStatus);
     
     List<InterestRule> findByShariaCompliantTrue();
     
-    List<InterestRule> findByBankIdAndShariaCompliantTrue(Long bankId);
+    List<InterestRule> findByBankIdAndShariaCompliantTrue(UUID bankId);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.bank.id = :bankId AND ir.isActive = true AND ir.effectiveDate <= :currentDate AND (ir.expiryDate IS NULL OR ir.expiryDate > :currentDate) AND ir.approvalStatus = 'APPROVED'")
-    List<InterestRule> findActiveRulesByBank(@Param("bankId") Long bankId, @Param("currentDate") LocalDateTime currentDate);
+    List<InterestRule> findActiveRulesByBank(@Param("bankId") UUID bankId, @Param("currentDate") LocalDateTime currentDate);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.bank.id = :bankId AND ir.ruleType = :ruleType AND ir.productCategory = :productCategory AND ir.isActive = true AND ir.effectiveDate <= :currentDate AND (ir.expiryDate IS NULL OR ir.expiryDate > :currentDate) AND ir.approvalStatus = 'APPROVED'")
-    List<InterestRule> findActiveRulesByTypeAndCategory(@Param("bankId") Long bankId, @Param("ruleType") InterestRule.RuleType ruleType, @Param("productCategory") InterestRule.ProductCategory productCategory, @Param("currentDate") LocalDateTime currentDate);
+    List<InterestRule> findActiveRulesByTypeAndCategory(@Param("bankId") UUID bankId, @Param("ruleType") InterestRule.RuleType ruleType, @Param("productCategory") InterestRule.ProductCategory productCategory, @Param("currentDate") LocalDateTime currentDate);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.bank.id = :bankId AND ir.ruleType = :ruleType AND ir.currencyCode = :currencyCode AND ir.isActive = true AND ir.effectiveDate <= :currentDate AND (ir.expiryDate IS NULL OR ir.expiryDate > :currentDate) AND ir.approvalStatus = 'APPROVED' AND (ir.minimumBalance IS NULL OR ir.minimumBalance <= :amount) AND (ir.maximumBalance IS NULL OR ir.maximumBalance >= :amount)")
-    List<InterestRule> findApplicableRules(@Param("bankId") Long bankId, @Param("ruleType") InterestRule.RuleType ruleType, @Param("currencyCode") String currencyCode, @Param("amount") BigDecimal amount, @Param("currentDate") LocalDateTime currentDate);
+    List<InterestRule> findApplicableRules(@Param("bankId") UUID bankId, @Param("ruleType") InterestRule.RuleType ruleType, @Param("currencyCode") String currencyCode, @Param("amount") BigDecimal amount, @Param("currentDate") LocalDateTime currentDate);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.bank.id = :bankId AND ir.customerCategory = :customerCategory AND ir.isActive = true AND ir.approvalStatus = 'APPROVED'")
-    List<InterestRule> findByBankAndCustomerCategory(@Param("bankId") Long bankId, @Param("customerCategory") String customerCategory);
+    List<InterestRule> findByBankAndCustomerCategory(@Param("bankId") UUID bankId, @Param("customerCategory") String customerCategory);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.bank.id = :bankId AND ir.relationshipTier = :relationshipTier AND ir.isActive = true AND ir.approvalStatus = 'APPROVED'")
-    List<InterestRule> findByBankAndRelationshipTier(@Param("bankId") Long bankId, @Param("relationshipTier") String relationshipTier);
+    List<InterestRule> findByBankAndRelationshipTier(@Param("bankId") UUID bankId, @Param("relationshipTier") String relationshipTier);
     
     @Query("SELECT ir FROM InterestRule ir WHERE ir.expiryDate IS NOT NULL AND ir.expiryDate <= :currentDate AND ir.isActive = true")
     List<InterestRule> findExpiredRules(@Param("currentDate") LocalDateTime currentDate);

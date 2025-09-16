@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -30,7 +31,7 @@ public class LoanService {
     @Autowired(required = false)
     private KafkaEventService kafkaEventService;
 
-    public Loan originateLoan(Long customerId, Long productId, BigDecimal amount) {
+    public Loan originateLoan(UUID customerId, UUID productId, BigDecimal amount) {
         User customer = userRepository.findById(customerId)
             .orElseThrow(() -> new RuntimeException("Customer not found"));
         
@@ -53,10 +54,10 @@ public class LoanService {
         }
         return saved;
     }
-    public Loan getLoan(Long loanId) {
+    public Loan getLoan(UUID loanId) {
         return loanRepository.findById(loanId).orElse(null);
     }
-    public void disburseLoan(Long loanId) {
+    public void disburseLoan(UUID loanId) {
         Loan loan = getLoan(loanId);
         if (loan != null) {
             loan.setStatus(Loan.LoanStatus.DISBURSED);

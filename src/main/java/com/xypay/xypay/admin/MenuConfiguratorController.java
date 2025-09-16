@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/menu-configurator")
@@ -56,7 +57,7 @@ public class MenuConfiguratorController {
      * Update menu configuration
      */
     @PutMapping("/menu-config/{id}")
-    public ResponseEntity<Map<String, Object>> updateMenuConfig(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<Map<String, Object>> updateMenuConfig(@PathVariable UUID id, @RequestBody Map<String, Object> request) {
         Map<String, Object> response = menuConfigurationService.updateMenuConfiguration(id, request);
         return ResponseEntity.ok(response);
     }
@@ -65,7 +66,7 @@ public class MenuConfiguratorController {
      * Delete menu configuration
      */
     @DeleteMapping("/menu-config/{id}")
-    public ResponseEntity<Map<String, Object>> deleteMenuConfig(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteMenuConfig(@PathVariable UUID id) {
         Map<String, Object> response = menuConfigurationService.deleteMenuConfiguration(id);
         return ResponseEntity.ok(response);
     }

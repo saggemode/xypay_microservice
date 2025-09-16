@@ -6,9 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface MenuConfigurationRepository extends JpaRepository<MenuConfiguration, Long> {
+public interface MenuConfigurationRepository extends JpaRepository<MenuConfiguration, UUID> {
     Optional<MenuConfiguration> findByMenuCode(String menuCode);
     List<MenuConfiguration> findByParentMenuCode(String parentMenuCode);
     List<MenuConfiguration> findByMenuLevel(Integer menuLevel);
