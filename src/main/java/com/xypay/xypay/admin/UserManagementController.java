@@ -206,9 +206,7 @@ public class UserManagementController {
     @Transactional
     public String deleteUser(@PathVariable UUID id) {
         // First nullify audit log references to preserve audit trail
-        // Convert UUID to Long - this is a workaround for the ID type mismatch
-        Long userIdLong = id.getMostSignificantBits() & Long.MAX_VALUE; // Convert UUID to Long
-        auditLogRepository.nullifyUserReferences(userIdLong);
+        auditLogRepository.nullifyUserReferences(id);
         
         // Then delete the user
         userRepository.deleteById(id);
@@ -289,21 +287,21 @@ public class UserManagementController {
     }
     
     @GetMapping("/kyc-profiles/{id}")
-    public String viewKYCProfile(@PathVariable Long id, Model model) {
+    public String viewKYCProfile(@PathVariable UUID id, Model model) {
         KYCProfile kycProfile = kycProfileRepository.findById(id).orElseThrow();
         model.addAttribute("kycProfile", kycProfile);
         return "admin/kyc-profile-detail";
     }
     
     @GetMapping("/kyc-profiles/{id}/edit")
-    public String editKYCProfileForm(@PathVariable Long id, Model model) {
+    public String editKYCProfileForm(@PathVariable UUID id, Model model) {
         KYCProfile kycProfile = kycProfileRepository.findById(id).orElseThrow();
         model.addAttribute("kycProfile", kycProfile);
         return "admin/kyc-profile-edit";
     }
     
     @PostMapping("/kyc-profiles/{id}/edit")
-    public String updateKYCProfile(@PathVariable Long id,
+    public String updateKYCProfile(@PathVariable UUID id,
                                  @RequestParam(required = false) String bvn,
                                  @RequestParam(required = false) String nin,
                                  @RequestParam(required = false) String dateOfBirth,
@@ -339,13 +337,13 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/{id}/delete")
-    public String deleteKYCProfile(@PathVariable Long id) {
+    public String deleteKYCProfile(@PathVariable UUID id) {
         kycProfileRepository.deleteById(id);
         return "redirect:/admin/kyc-profiles";
     }
     
     @PostMapping("/kyc-profiles/{id}/approve")
-    public String approveKYCProfile(@PathVariable Long id) {
+    public String approveKYCProfile(@PathVariable UUID id) {
         KYCProfile kycProfile = kycProfileRepository.findById(id).orElseThrow();
         kycProfile.setIsApproved(true);
         kycProfile.setApprovedAt(java.time.LocalDateTime.now());
@@ -354,7 +352,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/{id}/reject")
-    public String rejectKYCProfile(@PathVariable Long id, @RequestParam String rejectionReason) {
+    public String rejectKYCProfile(@PathVariable UUID id, @RequestParam String rejectionReason) {
         KYCProfile kycProfile = kycProfileRepository.findById(id).orElseThrow();
         kycProfile.setIsApproved(false);
         kycProfile.setRejectionReason(rejectionReason);
@@ -364,13 +362,13 @@ public class UserManagementController {
     
     // Bulk Operations for KYC Profiles
     @PostMapping("/kyc-profiles/bulk-delete")
-    public String bulkDeleteKYCProfiles(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkDeleteKYCProfiles(@RequestParam("selectedIds") List<UUID> selectedIds) {
         kycProfileRepository.deleteAllById(selectedIds);
         return "redirect:/admin/kyc-profiles";
     }
     
     @PostMapping("/kyc-profiles/bulk-approve")
-    public String bulkApproveKYCProfiles(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkApproveKYCProfiles(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         for (KYCProfile profile : profiles) {
             profile.setIsApproved(true);
@@ -381,7 +379,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/bulk-reject")
-    public String bulkRejectKYCProfiles(@RequestParam("selectedIds") List<Long> selectedIds, 
+    public String bulkRejectKYCProfiles(@RequestParam("selectedIds") List<UUID> selectedIds, 
                                       @RequestParam String rejectionReason) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         for (KYCProfile profile : profiles) {
@@ -393,7 +391,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/bulk-upgrade-tier2")
-    public String bulkUpgradeToTier2(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkUpgradeToTier2(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         for (KYCProfile profile : profiles) {
             if (profile.getIsApproved() && profile.getKycLevel() == KYCProfile.KYCLevel.TIER_1) {
@@ -405,7 +403,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/bulk-upgrade-tier3")
-    public String bulkUpgradeToTier3(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkUpgradeToTier3(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         for (KYCProfile profile : profiles) {
             if (profile.getIsApproved() && profile.getKycLevel() == KYCProfile.KYCLevel.TIER_2) {
@@ -417,7 +415,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/kyc-profiles/bulk-downgrade-tier1")
-    public String bulkDowngradeToTier1(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkDowngradeToTier1(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         for (KYCProfile profile : profiles) {
             if (profile.getIsApproved()) {
@@ -429,7 +427,7 @@ public class UserManagementController {
     }
     
     @GetMapping("/kyc-profiles/export-csv")
-    public ResponseEntity<String> exportKYCProfilesCSV(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public ResponseEntity<String> exportKYCProfilesCSV(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         
         StringBuilder csv = new StringBuilder();
@@ -477,7 +475,7 @@ public class UserManagementController {
     }
     
     @GetMapping("/kyc-profiles/check-eligibility")
-    public ResponseEntity<Map<String, Object>> checkUpgradeEligibility(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public ResponseEntity<Map<String, Object>> checkUpgradeEligibility(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<KYCProfile> profiles = kycProfileRepository.findAllById(selectedIds);
         Map<String, Object> results = new HashMap<>();
         
@@ -604,7 +602,7 @@ public class UserManagementController {
     }
     
     @GetMapping("/user-sessions/{id}")
-    public String viewUserSession(@PathVariable Long id, Model model) {
+    public String viewUserSession(@PathVariable UUID id, Model model) {
         UserSession session = userSessionRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User session not found"));
         
@@ -613,7 +611,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/user-sessions/{id}/deactivate")
-    public String deactivateUserSession(@PathVariable Long id) {
+    public String deactivateUserSession(@PathVariable UUID id) {
         UserSession session = userSessionRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("User session not found"));
         
@@ -624,7 +622,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/user-sessions/bulk-deactivate")
-    public String bulkDeactivateUserSessions(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkDeactivateUserSessions(@RequestParam("selectedIds") List<UUID> selectedIds) {
         List<UserSession> sessions = userSessionRepository.findAllById(selectedIds);
         for (UserSession session : sessions) {
             session.deactivate();
@@ -635,7 +633,7 @@ public class UserManagementController {
     }
     
     @PostMapping("/user-sessions/bulk-delete")
-    public String bulkDeleteUserSessions(@RequestParam("selectedIds") List<Long> selectedIds) {
+    public String bulkDeleteUserSessions(@RequestParam("selectedIds") List<UUID> selectedIds) {
         userSessionRepository.deleteAllById(selectedIds);
         return "redirect:/admin/user-sessions";
     }
@@ -716,9 +714,7 @@ public class UserManagementController {
     
     @GetMapping("/wallets/{id}")
     public String viewWallet(@PathVariable UUID id, Model model) {
-        // Convert UUID to Long - this is a workaround for the ID type mismatch
-        Long walletIdLong = id.getMostSignificantBits() & Long.MAX_VALUE; // Convert UUID to Long
-        Wallet wallet = walletRepository.findByIdWithUser(walletIdLong)
+        Wallet wallet = walletRepository.findByIdWithUser(id)
             .orElseThrow(() -> new RuntimeException("Wallet not found"));
         
         model.addAttribute("wallet", wallet);
@@ -770,9 +766,7 @@ public class UserManagementController {
     
     @GetMapping("/wallets/{id}/edit")
     public String editWalletForm(@PathVariable UUID id, Model model) {
-        // Convert UUID to Long - this is a workaround for the ID type mismatch
-        Long walletIdLong = id.getMostSignificantBits() & Long.MAX_VALUE; // Convert UUID to Long
-        Wallet wallet = walletRepository.findByIdWithUser(walletIdLong)
+        Wallet wallet = walletRepository.findByIdWithUser(id)
             .orElseThrow(() -> new RuntimeException("Wallet not found"));
         
         model.addAttribute("wallet", wallet);
@@ -786,9 +780,7 @@ public class UserManagementController {
                              @RequestParam(required = false) String phoneAlias,
                              @RequestParam java.math.BigDecimal balance,
                              @RequestParam String currency) {
-        // Convert UUID to Long - this is a workaround for the ID type mismatch
-        Long walletIdLong = id.getMostSignificantBits() & Long.MAX_VALUE; // Convert UUID to Long
-        Wallet wallet = walletRepository.findByIdWithUser(walletIdLong)
+        Wallet wallet = walletRepository.findByIdWithUser(id)
             .orElseThrow(() -> new RuntimeException("Wallet not found"));
         
         // Update wallet fields

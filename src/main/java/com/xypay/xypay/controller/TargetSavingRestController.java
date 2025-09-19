@@ -130,16 +130,14 @@ public class TargetSavingRestController {
      * Get target saving details
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> getTargetDetails(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getTargetDetails(@PathVariable UUID id) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not authenticated"));
             }
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.getTargetDetails(currentUser, targetIdUuid);
+            Map<String, Object> result = targetSavingService.getTargetDetails(currentUser, id);
             
             if ((Boolean) result.get("success")) {
                 TargetSaving targetSaving = (TargetSaving) result.get("target_saving");
@@ -176,7 +174,7 @@ public class TargetSavingRestController {
      * Update target saving
      */
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateTargetSaving(@PathVariable Long id, @Valid @RequestBody TargetSavingUpdateRequestDTO request) {
+    public ResponseEntity<Map<String, Object>> updateTargetSaving(@PathVariable UUID id, @Valid @RequestBody TargetSavingUpdateRequestDTO request) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
@@ -192,9 +190,7 @@ public class TargetSavingRestController {
             data.put("start_date", request.getStartDate());
             data.put("end_date", request.getEndDate());
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.updateTargetSaving(currentUser, targetIdUuid, data);
+            Map<String, Object> result = targetSavingService.updateTargetSaving(currentUser, id, data);
             
             if ((Boolean) result.get("success")) {
                 TargetSaving targetSaving = (TargetSaving) result.get("target_saving");
@@ -222,16 +218,14 @@ public class TargetSavingRestController {
      * Make a deposit to target saving
      */
     @PostMapping("/{id}/deposit")
-    public ResponseEntity<Map<String, Object>> makeDeposit(@PathVariable Long id, @Valid @RequestBody TargetSavingDepositCreateRequestDTO request) {
+    public ResponseEntity<Map<String, Object>> makeDeposit(@PathVariable UUID id, @Valid @RequestBody TargetSavingDepositCreateRequestDTO request) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not authenticated"));
             }
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.makeDeposit(currentUser, targetIdUuid, request.getAmount(), request.getNotes());
+            Map<String, Object> result = targetSavingService.makeDeposit(currentUser, id, request.getAmount(), request.getNotes());
             
             if ((Boolean) result.get("success")) {
                 TargetSavingDeposit deposit = (TargetSavingDeposit) result.get("deposit");
@@ -262,16 +256,14 @@ public class TargetSavingRestController {
      * Withdraw from target saving
      */
     @PostMapping("/{id}/withdraw")
-    public ResponseEntity<Map<String, Object>> withdrawFromTarget(@PathVariable Long id, @Valid @RequestBody TargetSavingWithdrawalRequestDTO request) {
+    public ResponseEntity<Map<String, Object>> withdrawFromTarget(@PathVariable UUID id, @Valid @RequestBody TargetSavingWithdrawalRequestDTO request) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not authenticated"));
             }
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.withdrawFromTarget(currentUser, targetIdUuid, request.getAmount(), request.getDestination());
+            Map<String, Object> result = targetSavingService.withdrawFromTarget(currentUser, id, request.getAmount(), request.getDestination());
             
             if ((Boolean) result.get("success")) {
                 TargetSavingWithdrawal withdrawal = (TargetSavingWithdrawal) result.get("withdrawal");
@@ -300,16 +292,14 @@ public class TargetSavingRestController {
      * Deactivate target saving
      */
     @PostMapping("/{id}/deactivate")
-    public ResponseEntity<Map<String, Object>> deactivateTarget(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deactivateTarget(@PathVariable UUID id) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not authenticated"));
             }
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.deactivateTarget(currentUser, targetIdUuid);
+            Map<String, Object> result = targetSavingService.deactivateTarget(currentUser, id);
             
             if ((Boolean) result.get("success")) {
                 return ResponseEntity.ok(Map.of(
@@ -335,16 +325,14 @@ public class TargetSavingRestController {
      * Get target analytics
      */
     @GetMapping("/{id}/analytics")
-    public ResponseEntity<Map<String, Object>> getTargetAnalytics(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> getTargetAnalytics(@PathVariable UUID id) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "User not authenticated"));
             }
             
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID targetIdUuid = new UUID(0L, id); // Create UUID from Long
-            Map<String, Object> result = targetSavingService.getTargetAnalytics(currentUser, targetIdUuid);
+            Map<String, Object> result = targetSavingService.getTargetAnalytics(currentUser, id);
             
             if ((Boolean) result.get("success")) {
                 return ResponseEntity.ok(Map.of(
@@ -421,7 +409,7 @@ public class TargetSavingRestController {
      * Send reminder notification
      */
     @PostMapping("/{id}/remind")
-    public ResponseEntity<Map<String, Object>> sendReminder(@PathVariable Long id, @RequestParam(defaultValue = "weekly") String reminderType) {
+    public ResponseEntity<Map<String, Object>> sendReminder(@PathVariable UUID id, @RequestParam(defaultValue = "weekly") String reminderType) {
         try {
             User currentUser = getCurrentUser();
             if (currentUser == null) {

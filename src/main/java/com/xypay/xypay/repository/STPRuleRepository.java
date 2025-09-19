@@ -2,11 +2,12 @@ package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.STPRule;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 
-public interface STPRuleRepository extends JpaRepository<STPRule, Long> {
+public interface STPRuleRepository extends JpaRepository<STPRule, UUID> {
     
     List<STPRule> findByEntityTypeAndIsActiveTrueOrderByPriorityDesc(String entityType);
     

@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -36,8 +37,8 @@ public class EmailVerificationController {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // Parse Long ID
-            Long userProfileId = Long.parseLong(uid);
+            // Parse UUID ID
+            UUID userProfileId = UUID.fromString(uid);
             
             // Find user profile
             Optional<UserProfile> userProfileOpt = userProfileRepository.findById(userProfileId);

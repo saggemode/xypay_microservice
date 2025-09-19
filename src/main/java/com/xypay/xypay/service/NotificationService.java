@@ -1,6 +1,7 @@
 package com.xypay.xypay.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.xypay.xypay.domain.Notification;
 import com.xypay.xypay.domain.NotificationType;
@@ -79,15 +80,14 @@ public class NotificationService {
         notification.setMessage(message);
         notification.setNotificationType(type);
         notification.setLevel(level);
-        notification.setStatus(NotificationStatus.PENDING);
+        notification.setCreatedAt(LocalDateTime.now());
         
         if (data != null) {
             try {
                 ObjectNode node = objectMapper.valueToTree(data);
                 notification.setExtraData(node);
             } catch (Exception e) {
-                // Handle serialization error
-                logger.error("Error serializing notification data: {}", e.getMessage());
+                logger.warn("Failed to serialize notification data: {}", e.getMessage());
             }
         }
         
@@ -120,8 +120,76 @@ public class NotificationService {
             emailSubject = "Transaction Successful: " + transaction.getReference();
             isCredit = false;
         } else if ("credit".equalsIgnoreCase(transaction.getType())) {
-            String senderName = transaction.getReceiver() != null && transaction.getReceiver().getUser() != null ? 
-                getUserFullName(transaction.getReceiver().getUser()) : "Unknown";
+            String senderName = "Unknown";
+            
+            logger.info("Processing WALLET_CREDIT notification for transaction: {}", transaction.getId());
+            logger.info("Transaction metadata: {}", transaction.getMetadata());
+            logger.info("Transaction description: {}", transaction.getDescription());
+            
+            // Try to get sender name from metadata first
+            if (transaction.getMetadata() != null && !transaction.getMetadata().isEmpty()) {
+                try {
+                    JsonNode metadata = objectMapper.readTree(transaction.getMetadata());
+                    logger.info("Parsed metadata: {}", metadata);
+                    if (metadata.has("sender_name")) {
+                        senderName = metadata.get("sender_name").asText();
+                        logger.info("Found sender_name in metadata: {}", senderName);
+                    } else if (metadata.has("sender_account")) {
+                        senderName = metadata.get("sender_account").asText();
+                        logger.info("Found sender_account in metadata: {}", senderName);
+                    }
+                } catch (Exception e) {
+                    logger.warn("Failed to parse transaction metadata: {}", e.getMessage());
+                }
+            }
+            
+            // Fallback to description if metadata doesn't have sender info
+            if ("Unknown".equals(senderName) && transaction.getDescription() != null && !transaction.getDescription().isEmpty()) {
+                // Extract sender name from description like "Received 5000 from 8063163231"
+                String description = transaction.getDescription();
+                logger.info("Trying to extract from description: {}", description);
+                if (description.startsWith("Received ") && description.contains(" from ")) {
+                    String[] parts = description.split(" from ");
+                    if (parts.length > 1) {
+                        senderName = parts[1];
+                        logger.info("Extracted sender from description: {}", senderName);
+                    }
+                } else if (description.contains(" from ")) {
+                    // Handle other patterns like "Transfer from account123"
+                    String[] parts = description.split(" from ");
+                    if (parts.length > 1) {
+                        senderName = parts[1];
+                        logger.info("Extracted sender from description pattern: {}", senderName);
+                    }
+                } else {
+                    // If no "from" pattern, try to extract meaningful sender info
+                    // Look for account numbers or other identifiers
+                    if (description.matches(".*\\d{10,}.*")) {
+                        // Extract account number pattern
+                        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("\\d{10,}");
+                        java.util.regex.Matcher matcher = pattern.matcher(description);
+                        if (matcher.find()) {
+                            senderName = "Account " + matcher.group();
+                            logger.info("Extracted account number from description: {}", senderName);
+                        } else {
+                            senderName = description;
+                            logger.info("Using full description as sender: {}", senderName);
+                        }
+                    } else {
+                        senderName = description;
+                        logger.info("Using full description as sender: {}", senderName);
+                    }
+                }
+            }
+            
+            // If still unknown, try to get from wallet user (the sender)
+            if ("Unknown".equals(senderName) && transaction.getWallet() != null && transaction.getWallet().getUser() != null) {
+                senderName = getUserFullName(transaction.getWallet().getUser());
+                logger.info("Using wallet user as sender: {}", senderName);
+            }
+            
+            logger.info("Final sender name: {}", senderName);
+            
             title = "Money Received: " + transaction.getAmount();
             message = "You received " + transaction.getAmount() + " from " + senderName + 
                 ". Reference: " + transaction.getReference();
@@ -470,7 +538,7 @@ public class NotificationService {
     /**
      * Mark a notification as read
      */
-    public Notification markAsRead(Long notificationId) {
+    public Notification markAsRead(UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElse(null);
         if (notification != null) {
             notification.markAsRead();
@@ -482,7 +550,7 @@ public class NotificationService {
     /**
      * Mark a notification as unread
      */
-    public Notification markAsUnread(Long notificationId) {
+    public Notification markAsUnread(UUID notificationId) {
         Notification notification = notificationRepository.findById(notificationId).orElse(null);
         if (notification != null) {
             notification.markAsUnread();
@@ -550,7 +618,7 @@ public class NotificationService {
      * Get notification by ID
      */
     @Transactional(readOnly = true)
-    public Notification getNotificationById(Long notificationId) {
+    public Notification getNotificationById(UUID notificationId) {
         return notificationRepository.findById(notificationId).orElse(null);
     }
     
@@ -581,9 +649,9 @@ public class NotificationService {
      * Bulk mark notifications as read
      */
     @Transactional
-    public int bulkMarkAsRead(List<Long> notificationIds, User user) {
+    public int bulkMarkAsRead(List<UUID> notificationIds, User user) {
         int count = 0;
-        for (Long notificationId : notificationIds) {
+        for (UUID notificationId : notificationIds) {
             Notification notification = notificationRepository.findById(notificationId).orElse(null);
             if (notification != null && notification.getRecipient().getId().equals(user.getId())) {
                 notification.markAsRead();
@@ -598,9 +666,9 @@ public class NotificationService {
      * Bulk mark notifications as unread
      */
     @Transactional
-    public int bulkMarkAsUnread(List<Long> notificationIds, User user) {
+    public int bulkMarkAsUnread(List<UUID> notificationIds, User user) {
         int count = 0;
-        for (Long notificationId : notificationIds) {
+        for (UUID notificationId : notificationIds) {
             Notification notification = notificationRepository.findById(notificationId).orElse(null);
             if (notification != null && notification.getRecipient().getId().equals(user.getId())) {
                 notification.markAsUnread();
@@ -615,7 +683,7 @@ public class NotificationService {
      * Delete a notification
      */
     @Transactional
-    public boolean deleteNotification(Long notificationId, User user) {
+    public boolean deleteNotification(UUID notificationId, User user) {
         Notification notification = notificationRepository.findById(notificationId).orElse(null);
         if (notification != null && notification.getRecipient().getId().equals(user.getId())) {
             notificationRepository.delete(notification);
@@ -628,7 +696,7 @@ public class NotificationService {
      * Delete a notification (admin version - no user validation)
      */
     @Transactional
-    public boolean deleteNotification(Long notificationId) {
+    public boolean deleteNotification(UUID notificationId) {
         try {
             Notification notification = notificationRepository.findById(notificationId).orElse(null);
             if (notification != null) {

@@ -24,7 +24,7 @@ public interface LargeTransactionShieldSettingsRepository extends JpaRepository<
     /**
      * Find shield settings by user ID
      */
-    Optional<LargeTransactionShieldSettings> findByUserId(Long userId);
+    Optional<LargeTransactionShieldSettings> findByUserId(UUID userId);
     
     /**
      * Find all enabled shield settings

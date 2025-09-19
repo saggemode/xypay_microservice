@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 @Repository
-public interface BalanceRepository extends JpaRepository<Balance, Long> {
+public interface BalanceRepository extends JpaRepository<Balance, UUID> {
 }

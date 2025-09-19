@@ -12,6 +12,7 @@ import com.xypay.xypay.domain.Complaint;
 
 import com.xypay.xypay.domain.Customer;
 import org.springframework.web.bind.annotation.PathVariable;
+import java.util.UUID;
 
 @Controller
 public class CSOController {
@@ -52,7 +53,7 @@ public class CSOController {
     }
 
     @PostMapping("/cso/customer-edit")
-    public String editCustomer(@RequestParam Long customerId, @RequestParam String name, Model model) {
+    public String editCustomer(@RequestParam UUID customerId, @RequestParam String name, Model model) {
         String result = csoService.updateCustomer(customerId, name);
         model.addAttribute("result", result);
         return "cso-crm";
@@ -65,7 +66,7 @@ public class CSOController {
     }
 
     @PostMapping("/cso/complaints-tracking/{id}/status")
-    public String updateComplaintStatus(@PathVariable Long id, @RequestParam String status, Model model) {
+    public String updateComplaintStatus(@PathVariable UUID id, @RequestParam String status, Model model) {
         csoService.updateComplaintStatus(id, status);
         model.addAttribute("complaints", csoService.getAllComplaints());
         model.addAttribute("result", "Complaint status updated.");
@@ -106,7 +107,7 @@ public class CSOController {
     }
 
     @PostMapping("/cso/kyc-documents/{id}/status")
-    public String updateKYCDocumentStatus(@PathVariable Long id, @RequestParam String status, Model model) {
+    public String updateKYCDocumentStatus(@PathVariable UUID id, @RequestParam String status, Model model) {
         csoService.updateKYCDocumentStatus(id, status);
         model.addAttribute("kycDocuments", csoService.getAllKYCDocuments());
         model.addAttribute("result", "KYC document status updated.");

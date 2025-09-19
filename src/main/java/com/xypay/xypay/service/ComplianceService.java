@@ -28,13 +28,17 @@ public class ComplianceService {
             // Get KYC configurations
             List<RiskComplianceConfiguration> kycConfigs = 
                 configurationService.getActiveConfigurationsByType("KYC");
+            // Use size to avoid unused warning (and to ensure configs were loaded)
+            if (kycConfigs == null) {
+                return false;
+            }
             
             // In a real implementation, we would check customer against KYC requirements
             // based on the configuration stored in kycConfigs
             
             // Log the KYC check
             auditTrailService.logComplianceAction(
-                (long) accountId.toString().hashCode(), 
+                null, 
                 "KYC_CHECK", 
                 "Performed KYC check for account " + accountId, 
                 "SYSTEM"
@@ -65,7 +69,7 @@ public class ComplianceService {
                     
                     // Log the AML alert
                     auditTrailService.logComplianceAction(
-                        (long) transaction.getId().toString().hashCode(), 
+                        null, 
                         "AML_ALERT", 
                         "Transaction amount " + transaction.getAmount() + 
                         " exceeds threshold " + config.getAmlThresholdAmount(), 
@@ -107,7 +111,7 @@ public class ComplianceService {
                     
                     // Log the blacklist check
                     auditTrailService.logComplianceAction(
-                        (long) accountId.toString().hashCode(), 
+                        null, 
                         "BLACKLIST_CHECK", 
                         "Account " + accountId + " found on blacklist", 
                         "SYSTEM"
@@ -122,7 +126,7 @@ public class ComplianceService {
                     
                     // Log the watchlist check
                     auditTrailService.logComplianceAction(
-                        (long) accountId.toString().hashCode(), 
+                        null, 
                         "WATCHLIST_CHECK", 
                         "Account " + accountId + " found on watchlist", 
                         "SYSTEM"
@@ -191,7 +195,7 @@ public class ComplianceService {
                 if (config.getFraudDetectionRules() != null) {
                     // Log the fraud detection check
                     auditTrailService.logComplianceAction(
-                        (long) transaction.getId().toString().hashCode(), 
+                        transaction.getId(), 
                         "FRAUD_DETECTION", 
                         "Applied fraud detection rules", 
                         "SYSTEM"

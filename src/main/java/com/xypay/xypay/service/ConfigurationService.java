@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ConfigurationService {
@@ -239,16 +240,18 @@ public class ConfigurationService {
         return alertNotificationConfigRepo.findByIsActiveTrue();
     }
     
-    public com.xypay.xypay.domain.AlertNotificationConfiguration updateAlertNotificationConfiguration(Long id, com.xypay.xypay.domain.AlertNotificationConfiguration config) {
+    public com.xypay.xypay.domain.AlertNotificationConfiguration updateAlertNotificationConfiguration(UUID id, com.xypay.xypay.domain.AlertNotificationConfiguration config) {
         com.xypay.xypay.domain.AlertNotificationConfiguration existing = alertNotificationConfigRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Alert/Notification configuration not found for id: " + id));
-        config.setId(id);
-        config.setCreatedAt(existing.getCreatedAt());
-        config.setUpdatedAt(LocalDateTime.now());
-        return alertNotificationConfigRepo.save(config);
+        // copy fields from config to existing (excluding ID and createdAt)
+        existing.setAlertName(config.getAlertName());
+        existing.setAlertType(config.getAlertType());
+        existing.setIsActive(config.getIsActive());
+        existing.setUpdatedAt(LocalDateTime.now());
+        return alertNotificationConfigRepo.save(existing);
     }
     
-    public void deleteAlertNotificationConfiguration(Long id) {
+    public void deleteAlertNotificationConfiguration(UUID id) {
         alertNotificationConfigRepo.deleteById(id);
     }
     
@@ -272,16 +275,18 @@ public class ConfigurationService {
         return integrationConfigRepo.findByIsActiveTrue();
     }
     
-    public com.xypay.xypay.domain.IntegrationConfiguration updateIntegrationConfiguration(Long id, com.xypay.xypay.domain.IntegrationConfiguration config) {
+    public com.xypay.xypay.domain.IntegrationConfiguration updateIntegrationConfiguration(UUID id, com.xypay.xypay.domain.IntegrationConfiguration config) {
         com.xypay.xypay.domain.IntegrationConfiguration existing = integrationConfigRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Integration configuration not found for id: " + id));
-        config.setId(id);
-        config.setCreatedAt(existing.getCreatedAt());
-        config.setUpdatedAt(LocalDateTime.now());
-        return integrationConfigRepo.save(config);
+        // copy fields from config to existing (excluding ID and createdAt)
+        existing.setIntegrationName(config.getIntegrationName());
+        existing.setIntegrationType(config.getIntegrationType());
+        existing.setIsActive(config.getIsActive());
+        existing.setUpdatedAt(LocalDateTime.now());
+        return integrationConfigRepo.save(existing);
     }
     
-    public void deleteIntegrationConfiguration(Long id) {
+    public void deleteIntegrationConfiguration(UUID id) {
         integrationConfigRepo.deleteById(id);
     }
 }

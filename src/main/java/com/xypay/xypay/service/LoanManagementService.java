@@ -89,8 +89,8 @@ public class LoanManagementService {
         
         // Start approval workflow
         try {
-            workflowEngineService.startWorkflow("LOAN_APPROVAL", "LOAN", loan.getId().getMostSignificantBits(), 
-                customerId.getMostSignificantBits(), null); // Convert UUID to Long
+            workflowEngineService.startWorkflow("LOAN_APPROVAL", "LOAN", loan.getId(), 
+                customerId, null);
         } catch (Exception e) {
             // Log error but don't fail loan creation
         }

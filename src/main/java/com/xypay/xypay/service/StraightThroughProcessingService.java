@@ -37,7 +37,7 @@ public class StraightThroughProcessingService {
         logger.info("Starting STP processing for transaction: {}", transaction.getId());
         
         STPResult result = new STPResult();
-        result.setTransactionId((long) transaction.getId().hashCode());
+        result.setTransactionId(transaction.getId());
         result.setProcessingStartTime(LocalDateTime.now());
         
         try {
@@ -295,8 +295,8 @@ public class StraightThroughProcessingService {
             WorkflowInstance workflow = workflowEngineService.startWorkflow(
                 "TRANSACTION_APPROVAL", 
                 "TRANSACTION", 
-                (long) transaction.getId().hashCode(), 
-                (long) user.getId().hashCode(), 
+                transaction.getId(), 
+                user.getId(), 
                 contextData
             );
             
@@ -314,14 +314,14 @@ public class StraightThroughProcessingService {
         List<STPRule> rules = new ArrayList<>();
         
         // Auto-approve small amounts
-        STPRule smallAmountRule = new STPRule();
+            STPRule smallAmountRule = new STPRule();
         smallAmountRule.setRuleName("Small Amount Auto-Approval");
         smallAmountRule.setRuleType("AMOUNT_RANGE");
         smallAmountRule.setEntityType("TRANSACTION");
         smallAmountRule.setMaxAmount(new BigDecimal("10000"));
         smallAmountRule.setAutoApprove(true);
         smallAmountRule.setPriority(10);
-        smallAmountRule.setCreatedBy(1L);
+        smallAmountRule.setCreatedBy(java.util.UUID.randomUUID());
         rules.add(smallAmountRule);
         
         // Auto-approve mobile transactions during business hours
@@ -334,7 +334,7 @@ public class StraightThroughProcessingService {
         mobileBusinessHoursRule.setMaxAmount(new BigDecimal("50000"));
         mobileBusinessHoursRule.setAutoApprove(true);
         mobileBusinessHoursRule.setPriority(8);
-        mobileBusinessHoursRule.setCreatedBy(1L);
+        mobileBusinessHoursRule.setCreatedBy(java.util.UUID.randomUUID());
         rules.add(mobileBusinessHoursRule);
         
         // Skip review for verified users with small amounts
@@ -346,7 +346,7 @@ public class StraightThroughProcessingService {
         verifiedUserRule.setMaxAmount(new BigDecimal("25000"));
         verifiedUserRule.setSkipManualReview(true);
         verifiedUserRule.setPriority(7);
-        verifiedUserRule.setCreatedBy(1L);
+        verifiedUserRule.setCreatedBy(java.util.UUID.randomUUID());
         rules.add(verifiedUserRule);
         
         // Large amount requires approval
@@ -358,7 +358,7 @@ public class StraightThroughProcessingService {
         largeAmountRule.setAutoApprove(false);
         largeAmountRule.setSkipManualReview(false);
         largeAmountRule.setPriority(5);
-        largeAmountRule.setCreatedBy(1L);
+        largeAmountRule.setCreatedBy(java.util.UUID.randomUUID());
         rules.add(largeAmountRule);
         
         return stpRuleRepository.saveAll(rules);
@@ -385,7 +385,7 @@ public class StraightThroughProcessingService {
      * STP Result class
      */
     public static class STPResult {
-        private Long transactionId;
+        private java.util.UUID transactionId;
         private String decision;
         private String reasonCode;
         private String reasonMessage;
@@ -394,11 +394,11 @@ public class StraightThroughProcessingService {
         private Long processingTimeMs;
         private List<STPRuleEvaluation> ruleEvaluations = new ArrayList<>();
         private boolean autoApprovalExecuted = false;
-        private Long workflowInstanceId;
+        private java.util.UUID workflowInstanceId;
 
         // Getters and setters
-        public Long getTransactionId() { return transactionId; }
-        public void setTransactionId(Long transactionId) { this.transactionId = transactionId; }
+        public java.util.UUID getTransactionId() { return transactionId; }
+        public void setTransactionId(java.util.UUID transactionId) { this.transactionId = transactionId; }
         
         public String getDecision() { return decision; }
         public void setDecision(String decision) { this.decision = decision; }
@@ -424,23 +424,23 @@ public class StraightThroughProcessingService {
         public boolean isAutoApprovalExecuted() { return autoApprovalExecuted; }
         public void setAutoApprovalExecuted(boolean autoApprovalExecuted) { this.autoApprovalExecuted = autoApprovalExecuted; }
         
-        public Long getWorkflowInstanceId() { return workflowInstanceId; }
-        public void setWorkflowInstanceId(Long workflowInstanceId) { this.workflowInstanceId = workflowInstanceId; }
+        public java.util.UUID getWorkflowInstanceId() { return workflowInstanceId; }
+        public void setWorkflowInstanceId(java.util.UUID workflowInstanceId) { this.workflowInstanceId = workflowInstanceId; }
     }
 
     /**
      * STP Rule Evaluation class
      */
     public static class STPRuleEvaluation {
-        private Long ruleId;
+        private java.util.UUID ruleId;
         private String ruleName;
         private boolean matched;
         private String evaluationDetails;
         private LocalDateTime evaluationTime;
 
         // Getters and setters
-        public Long getRuleId() { return ruleId; }
-        public void setRuleId(Long ruleId) { this.ruleId = ruleId; }
+        public java.util.UUID getRuleId() { return ruleId; }
+        public void setRuleId(java.util.UUID ruleId) { this.ruleId = ruleId; }
         
         public String getRuleName() { return ruleName; }
         public void setRuleName(String ruleName) { this.ruleName = ruleName; }

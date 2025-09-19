@@ -11,15 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
+public interface UserProfileRepository extends JpaRepository<UserProfile, UUID> {
     
     Optional<UserProfile> findByPhone(String phone);
     
     Optional<UserProfile> findByUser(User user);
     
-    Optional<UserProfile> findByUserId(Long userId);
+    Optional<UserProfile> findByUserId(UUID userId);
     
     Optional<UserProfile> findByUserEmail(String email);
     

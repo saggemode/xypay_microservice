@@ -1,5 +1,6 @@
 package com.xypay.xypay.config;
 
+import com.xypay.xypay.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,11 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "customer_configurations")
-public class CustomerConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class CustomerConfiguration extends BaseEntity {
     
     @Column(name = "customer_type")
     private String customerType; // INDIVIDUAL, CORPORATE, SME
@@ -27,11 +24,6 @@ public class CustomerConfiguration {
     @Column(name = "risk_rating")
     private String riskRating; // LOW, MEDIUM, HIGH
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

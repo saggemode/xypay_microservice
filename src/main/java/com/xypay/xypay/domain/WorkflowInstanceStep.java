@@ -3,14 +3,12 @@ package com.xypay.xypay.domain;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "workflow_instance_steps")
-public class WorkflowInstanceStep {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class WorkflowInstanceStep extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_instance_id")
@@ -24,13 +22,13 @@ public class WorkflowInstanceStep {
     private String status; // PENDING, IN_PROGRESS, APPROVED, REJECTED, SKIPPED
 
     @Column(name = "assigned_to")
-    private Long assignedTo;
+    private UUID assignedTo;
 
     @Column(name = "assigned_role")
     private String assignedRole;
 
     @Column(name = "action_taken_by")
-    private Long actionTakenBy;
+    private UUID actionTakenBy;
 
     @Column(name = "action_date")
     private LocalDateTime actionDate;
@@ -45,7 +43,7 @@ public class WorkflowInstanceStep {
     private LocalDateTime escalatedAt;
 
     @Column(name = "escalated_to")
-    private Long escalatedTo;
+    private UUID escalatedTo;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

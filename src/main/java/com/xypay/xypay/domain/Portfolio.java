@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -153,7 +154,7 @@ public class Portfolio extends BaseEntity {
     
     // Management
     @Column(name = "portfolio_manager_id")
-    private Long portfolioManagerId;
+    private UUID portfolioManagerId;
     
     @Column(name = "custodian", length = 200)
     private String custodian;
@@ -180,19 +181,18 @@ public class Portfolio extends BaseEntity {
     }
     
     public enum InvestmentObjective {
-        CAPITAL_PRESERVATION, INCOME, BALANCED, GROWTH, AGGRESSIVE_GROWTH, 
-        ABSOLUTE_RETURN, MARKET_NEUTRAL, LONG_SHORT
+        CAPITAL_PRESERVATION, INCOME, GROWTH, BALANCED, SPECULATION
     }
     
     public enum RiskProfile {
-        CONSERVATIVE, MODERATE_CONSERVATIVE, MODERATE, MODERATE_AGGRESSIVE, AGGRESSIVE
+        CONSERVATIVE, MODERATELY_CONSERVATIVE, MODERATE, MODERATELY_AGGRESSIVE, AGGRESSIVE
     }
     
     public enum PortfolioStatus {
-        ACTIVE, INACTIVE, CLOSED, SUSPENDED, LIQUIDATING
+        ACTIVE, INACTIVE, SUSPENDED, CLOSED, TERMINATED
     }
     
     public enum IfrsClassification {
-        FAIR_VALUE_PL, FAIR_VALUE_OCI, AMORTIZED_COST
+        AMORTIZED_COST, FVOCI, FAIR_VALUE_PL
     }
 }

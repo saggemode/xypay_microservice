@@ -2,15 +2,15 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "report_executions")
-public class ReportExecution {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ReportExecution extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "report_id")
@@ -26,7 +26,7 @@ public class ReportExecution {
     private LocalDateTime completedAt;
 
     @Column(name = "executed_by")
-    private Long executedBy;
+    private UUID executedBy;
 
     @Column(name = "file_path")
     private String filePath; // Path to generated report file

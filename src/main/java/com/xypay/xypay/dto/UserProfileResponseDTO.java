@@ -4,6 +4,7 @@ import com.xypay.xypay.domain.KYCProfile;
 import com.xypay.xypay.domain.UserProfile;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class UserProfileResponseDTO {
     
@@ -161,7 +162,7 @@ public class UserProfileResponseDTO {
     }
     
     public static class WalletResponseDTO {
-        private Long id;
+        private UUID id;
         private String accountNumber;
         private String alternativeAccountNumber;
         private String balance;
@@ -172,8 +173,8 @@ public class UserProfileResponseDTO {
         // Constructors, getters, setters
         public WalletResponseDTO() {}
         
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
+        public UUID getId() { return id; }
+        public void setId(UUID id) { this.id = id; }
         
         public String getAccountNumber() { return accountNumber; }
         public void setAccountNumber(String accountNumber) { this.accountNumber = accountNumber; }
@@ -195,7 +196,7 @@ public class UserProfileResponseDTO {
     }
     
     public static class TransactionResponseDTO {
-        private Long id;
+        private UUID id;
         private String reference;
         private String amount;
         private String transactionType;
@@ -206,8 +207,8 @@ public class UserProfileResponseDTO {
         // Constructors, getters, setters
         public TransactionResponseDTO() {}
         
-        public Long getId() { return id; }
-        public void setId(Long id) { this.id = id; }
+        public UUID getId() { return id; }
+        public void setId(UUID id) { this.id = id; }
         
         public String getReference() { return reference; }
         public void setReference(String reference) { this.reference = reference; }

@@ -7,6 +7,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.UUID;
 
 @Entity
 @Table(name = "audit_logs", indexes = {
@@ -14,7 +15,7 @@ import java.util.Map;
     @Index(name = "idx_audit_user_action", columnList = "user_id, action"),
     @Index(name = "idx_audit_severity", columnList = "severity")
 })
-public class AuditLog {
+public class AuditLog extends BaseEntity {
     
     public enum ActionType {
         USER_CREATED("user_created"),
@@ -60,9 +61,7 @@ public class AuditLog {
         }
     }
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    // ID moved to BaseEntity as UUID
     
     @CreationTimestamp
     @Column(name = "timestamp", nullable = false)
@@ -94,7 +93,7 @@ public class AuditLog {
     private String contentType;
     
     @Column(name = "object_id")
-    private Long objectId;
+    private UUID objectId;
     
     // Additional metadata as JSON
     @JdbcTypeCode(SqlTypes.JSON)
@@ -115,13 +114,6 @@ public class AuditLog {
     }
     
     // Getters and Setters
-    public Long getId() { 
-        return id; 
-    }
-    
-    public void setId(Long id) { 
-        this.id = id; 
-    }
     
     public LocalDateTime getTimestamp() { 
         return timestamp; 
@@ -187,11 +179,11 @@ public class AuditLog {
         this.contentType = contentType; 
     }
     
-    public Long getObjectId() { 
+    public UUID getObjectId() { 
         return objectId; 
     }
     
-    public void setObjectId(Long objectId) { 
+    public void setObjectId(UUID objectId) { 
         this.objectId = objectId; 
     }
     

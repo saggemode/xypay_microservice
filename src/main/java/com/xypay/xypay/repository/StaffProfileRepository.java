@@ -16,7 +16,7 @@ public interface StaffProfileRepository extends JpaRepository<StaffProfile, UUID
     
     Optional<StaffProfile> findByEmployeeId(String employeeId);
     
-    @Query("SELECT s FROM StaffProfile s WHERE s.canApproveKyc = true AND s.isActive = true")
+    @Query("SELECT s FROM StaffProfile s WHERE s.role.canApproveKyc = true AND s.isActive = true")
     Optional<StaffProfile> findFirstByCanApproveKycTrueAndIsActiveTrue();
     
     boolean existsByEmployeeId(String employeeId);

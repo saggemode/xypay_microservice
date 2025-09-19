@@ -2,24 +2,22 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "journal_entries")
-public class JournalEntry {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class JournalEntry extends BaseEntity {
     
     @Column(name = "tx_id")
-    private Long txId;
+    private UUID txId;
     
     @Column(name = "account_id")
-    private Long accountId;
+    private UUID accountId;
     
     @Column(name = "debit_credit")
     private String debitCredit;
@@ -31,22 +29,21 @@ public class JournalEntry {
     @Column(name = "gl_account")
     private String glAccount;
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    
 
-    public Long getTxId() {
+    public UUID getTxId() {
         return txId;
     }
 
-    public void setTxId(Long txId) {
+    public void setTxId(UUID txId) {
         this.txId = txId;
     }
 
-    public Long getAccountId() {
+    public UUID getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(Long accountId) {
+    public void setAccountId(UUID accountId) {
         this.accountId = accountId;
     }
 }

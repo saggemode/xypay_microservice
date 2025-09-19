@@ -4,6 +4,8 @@ import com.xypay.xypay.domain.*;
 import com.xypay.xypay.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -338,8 +341,12 @@ public class TargetSavingService {
             }
             
             TargetSaving targetSaving = targetOpt.get();
+            Pageable limit = PageRequest.of(0, 10);
             List<TargetSavingDeposit> recentDeposits = targetSavingDepositRepository
-                .findByTargetSavingOrderByDepositDateDesc(targetSaving, 10);
+                .findByTargetSavingOrderByDepositDateDesc(targetSaving)
+                .stream()
+                .limit(10)
+                .collect(Collectors.toList());
             
             return Map.of(
                 "success", true,

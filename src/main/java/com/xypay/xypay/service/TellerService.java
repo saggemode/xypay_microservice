@@ -6,8 +6,11 @@ import com.xypay.xypay.repository.WalletRepository;
 import com.xypay.xypay.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -16,6 +19,8 @@ public class TellerService {
     private WalletRepository walletRepository;
     @Autowired
     private TransactionRepository transactionRepository;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public String deposit(String accountNumber, BigDecimal amount) {
         Optional<Wallet> walletOpt = walletRepository.findByAccountNumberOrAlternativeAccountNumber(accountNumber, accountNumber);
@@ -32,6 +37,24 @@ public class TellerService {
         tx.setType("DEPOSIT");
         tx.setStatus("SUCCESS");
         tx.setDirection("CREDIT");
+        tx.setDescription("Teller Deposit: " + amount);
+        tx.setChannel("TELLER");
+        
+        // Set metadata with sender information
+        try {
+            Map<String, Object> metadata = new HashMap<>();
+            metadata.put("transaction_type", "teller_deposit");
+            metadata.put("sender_account", "Teller Counter");
+            metadata.put("sender_name", "Teller");
+            metadata.put("teller_account", accountNumber);
+            metadata.put("amount", amount.toString());
+            tx.setMetadata(objectMapper.writeValueAsString(metadata));
+        } catch (Exception e) {
+            // Log warning but don't fail the transaction
+            System.err.println("Failed to serialize teller deposit metadata: " + e.getMessage());
+            tx.setMetadata("{}");
+        }
+        
         transactionRepository.save(tx);
         return "Deposit successful. New balance: " + wallet.getBalance();
     }

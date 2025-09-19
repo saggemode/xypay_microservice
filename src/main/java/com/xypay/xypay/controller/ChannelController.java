@@ -5,6 +5,7 @@ import com.xypay.xypay.service.ChannelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/channels")
@@ -24,14 +25,14 @@ public class ChannelController {
     }
     
     @GetMapping("/{channelId}")
-    public ResponseEntity<Channel> getChannel(@PathVariable Long channelId) {
+    public ResponseEntity<Channel> getChannel(@PathVariable UUID channelId) {
         Channel channel = channelService.getChannel(channelId);
         return ResponseEntity.ok(channel);
     }
     
     @PostMapping("/{channelId}/status")
     public ResponseEntity<Channel> updateChannelStatus(
-            @PathVariable Long channelId,
+            @PathVariable UUID channelId,
             @RequestParam String status) {
         
         Channel channel = channelService.updateChannelStatus(channelId, status);

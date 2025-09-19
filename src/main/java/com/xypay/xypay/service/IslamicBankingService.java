@@ -555,7 +555,7 @@ public class IslamicBankingService {
         Map<String, Object> metrics = new HashMap<>();
         
         List<IslamicBankingContract> activeContracts = islamicContractRepository
-            .findByBankIdAndContractStatus(bankId.getMostSignificantBits(), IslamicBankingContract.ContractStatus.ACTIVE); // Convert UUID to Long
+            .findByBankIdAndContractStatus(bankId, IslamicBankingContract.ContractStatus.ACTIVE);
         
         BigDecimal totalFinancing = activeContracts.stream()
             .map(IslamicBankingContract::getPrincipalAmount)
@@ -588,14 +588,14 @@ public class IslamicBankingService {
     }
 
     public List<IslamicBankingContract> getContractsByCustomer(UUID customerId) {
-        return islamicContractRepository.findByCustomerId(customerId.getMostSignificantBits()); // Convert UUID to Long
+        return islamicContractRepository.findByCustomerId(customerId);
     }
 
     public List<IslamicPayment> getContractPayments(UUID contractId) {
-        return islamicPaymentRepository.findByIslamicContractIdOrderByDueDateAsc(contractId.getMostSignificantBits()); // Convert UUID to Long
+        return islamicPaymentRepository.findByIslamicContractIdOrderByDueDateAsc(contractId);
     }
 
     public List<IslamicBankingProduct> getActiveIslamicProducts(UUID bankId) {
-        return islamicProductRepository.findByBankIdAndIsActiveTrue(bankId.getMostSignificantBits()); // Convert UUID to Long
+        return islamicProductRepository.findByBankIdAndIsActiveTrue(bankId);
     }
 }

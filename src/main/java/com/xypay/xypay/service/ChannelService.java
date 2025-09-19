@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ChannelService {
@@ -25,7 +26,7 @@ public class ChannelService {
         return channelRepository.save(channel);
     }
     
-    public Channel getChannel(Long channelId) {
+    public Channel getChannel(UUID channelId) {
         return channelRepository.findById(channelId)
                 .orElseThrow(() -> new RuntimeException("Channel not found"));
     }
@@ -34,7 +35,7 @@ public class ChannelService {
         return channelRepository.findByBranchId(branchId);
     }
     
-    public Channel updateChannelStatus(Long channelId, String status) {
+    public Channel updateChannelStatus(UUID channelId, String status) {
         Channel channel = getChannel(channelId);
         channel.setStatus(status);
         return channelRepository.save(channel);

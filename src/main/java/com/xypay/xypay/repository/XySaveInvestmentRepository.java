@@ -14,22 +14,22 @@ import java.util.UUID;
 @Repository
 public interface XySaveInvestmentRepository extends JpaRepository<XySaveInvestment, UUID> {
     
-    List<XySaveInvestment> findByXySaveAccount(XySaveAccount account);
+    List<XySaveInvestment> findByXysaveAccount(XySaveAccount account);
     
-    List<XySaveInvestment> findByXySaveAccountAndIsActiveTrue(XySaveAccount account);
+    List<XySaveInvestment> findByXysaveAccountAndIsActiveTrue(XySaveAccount account);
     
-    List<XySaveInvestment> findByXySaveAccountOrderByCreatedAtDesc(XySaveAccount account);
+    List<XySaveInvestment> findByXysaveAccountOrderByCreatedAtDesc(XySaveAccount account);
     
-    @Query("SELECT i FROM XySaveInvestment i WHERE i.xySaveAccount.user.id = :userId ORDER BY i.createdAt DESC")
+    @Query("SELECT i FROM XySaveInvestment i WHERE i.xysaveAccount.user.id = :userId ORDER BY i.createdAt DESC")
     List<XySaveInvestment> findByUserIdOrderByCreatedAtDesc(@Param("userId") UUID userId);
     
-    @Query("SELECT i FROM XySaveInvestment i WHERE i.xySaveAccount.user.id = :userId AND i.isActive = true")
+    @Query("SELECT i FROM XySaveInvestment i WHERE i.xysaveAccount.user.id = :userId AND i.isActive = true")
     List<XySaveInvestment> findActiveInvestmentsByUserId(@Param("userId") UUID userId);
     
     @Query("SELECT i FROM XySaveInvestment i WHERE i.maturityDate <= :date AND i.isActive = true")
     List<XySaveInvestment> findMaturedInvestments(@Param("date") LocalDate date);
     
-    @Query("SELECT i FROM XySaveInvestment i WHERE i.xySaveAccount.user.id = :userId AND i.investmentType = :investmentType")
+    @Query("SELECT i FROM XySaveInvestment i WHERE i.xysaveAccount.user.id = :userId AND i.investmentType = :investmentType")
     List<XySaveInvestment> findByUserIdAndInvestmentType(@Param("userId") UUID userId, 
                                                         @Param("investmentType") XySaveInvestment.InvestmentType investmentType);
 }

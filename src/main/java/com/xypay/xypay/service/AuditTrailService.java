@@ -11,8 +11,8 @@ public class AuditTrailService {
         public final String event;
         public final String details;
         public final String actor;
-        public final Long entityId;
-        public AuditLog(Long entityId, String event, String details, String actor) {
+        public final java.util.UUID entityId;
+        public AuditLog(java.util.UUID entityId, String event, String details, String actor) {
             this.timestamp = LocalDateTime.now();
             this.event = event;
             this.details = details;
@@ -27,10 +27,10 @@ public class AuditTrailService {
     public void logEvent(String event, String details) {
         logs.add(new AuditLog(event, details));
     }
-    public void logComplianceAction(Long entityId, String event, String details, String actor) {
+    public void logComplianceAction(java.util.UUID entityId, String event, String details, String actor) {
         logs.add(new AuditLog(entityId, event, details, actor));
     }
-    public void logFinancialTransaction(Long entityId, String event, String details, String actor) {
+    public void logFinancialTransaction(java.util.UUID entityId, String event, String details, String actor) {
         logs.add(new AuditLog(entityId, event, details, actor));
     }
     public List<AuditLog> getLogs() {

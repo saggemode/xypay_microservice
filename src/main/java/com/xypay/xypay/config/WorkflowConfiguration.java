@@ -1,5 +1,6 @@
 package com.xypay.xypay.config;
 
+import com.xypay.xypay.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
@@ -8,11 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "workflow_configurations")
-public class WorkflowConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class WorkflowConfiguration extends BaseEntity {
     
     @Column(name = "workflow_name")
     private String workflowName;
@@ -38,11 +35,6 @@ public class WorkflowConfiguration {
     @Column(name = "menu_navigation")
     private String menuNavigation; // JSON format of menu and navigation personalization
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

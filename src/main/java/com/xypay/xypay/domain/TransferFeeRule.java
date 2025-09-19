@@ -17,6 +17,28 @@ import java.math.BigDecimal;
 })
 public class TransferFeeRule extends BaseEntity {
     
+    public enum BankType {
+        INTERNAL("internal", "Internal Transfer"),
+        EXTERNAL("external", "External Transfer"),
+        BOTH("both", "Both Internal and External");
+        
+        private final String code;
+        private final String description;
+        
+        BankType(String code, String description) {
+            this.code = code;
+            this.description = description;
+        }
+        
+        public String getCode() {
+            return code;
+        }
+        
+        public String getDescription() {
+            return description;
+        }
+    }
+    
     @Column(name = "name", length = 100, nullable = false)
     private String name;
     
@@ -34,7 +56,7 @@ public class TransferFeeRule extends BaseEntity {
     
     @Enumerated(EnumType.STRING)
     @Column(name = "bank_type", length = 20, nullable = false)
-    private String bankType = "both"; // internal, external, both
+    private BankType bankType = BankType.BOTH;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "kyc_level", length = 20)
@@ -50,7 +72,7 @@ public class TransferFeeRule extends BaseEntity {
     public TransferFeeRule() {}
     
     public TransferFeeRule(String name, BigDecimal minAmount, BigDecimal maxAmount, 
-                          BigDecimal feePercent, BigDecimal feeFixed, String bankType) {
+                          BigDecimal feePercent, BigDecimal feeFixed, BankType bankType) {
         this.name = name;
         this.minAmount = minAmount;
         this.maxAmount = maxAmount;
@@ -86,7 +108,7 @@ public class TransferFeeRule extends BaseEntity {
             return false;
         }
         
-        if (!bankType.equals("both") && !bankType.equals(transferType)) {
+        if (bankType != BankType.BOTH && !bankType.getCode().equals(transferType)) {
             return false;
         }
         

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Repository
 public interface TargetSavingDepositRepository extends JpaRepository<TargetSavingDeposit, UUID> {
-    List<TargetSavingDeposit> findByTargetSavingOrderByDepositDateDesc(TargetSaving targetSaving, int limit);
+    List<TargetSavingDeposit> findByTargetSavingOrderByDepositDateDesc(TargetSaving targetSaving);
     List<TargetSavingDeposit> findByTargetSaving(TargetSaving targetSaving);
     Page<TargetSavingDeposit> findByTargetSavingOrderByDepositDateDesc(TargetSaving targetSaving, Pageable pageable);
     List<TargetSavingDeposit> findByTargetSavingUserOrderByDepositDateDesc(User user);

@@ -1,5 +1,6 @@
 package com.xypay.xypay.config;
 
+import com.xypay.xypay.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -9,11 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "risk_compliance_configurations")
-public class RiskComplianceConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class RiskComplianceConfiguration extends BaseEntity {
     
     @Column(name = "configuration_name")
     private String configurationName;

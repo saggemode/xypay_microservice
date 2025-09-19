@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -73,12 +74,12 @@ public class CSOService {
             .toList();
     }
 
-    public Customer getCustomerById(Long customerId) {
+    public Customer getCustomerById(UUID customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
     }
 
-    public String updateCustomer(Long customerId, String name) {
+    public String updateCustomer(UUID customerId, String name) {
         Customer customer = getCustomerById(customerId);
         customer.setName(name);
         customerRepository.save(customer);
@@ -93,7 +94,7 @@ public class CSOService {
         return complaintRepository.findAll();
     }
 
-    public void updateComplaintStatus(Long id, String status) {
+    public void updateComplaintStatus(UUID id, String status) {
         complaintRepository.findById(id).ifPresent(c -> {
             c.setStatus(status);
             complaintRepository.save(c);
@@ -112,7 +113,7 @@ public class CSOService {
         return kycDocumentRepository.findAll();
     }
 
-    public void updateKYCDocumentStatus(Long id, String status) {
+    public void updateKYCDocumentStatus(UUID id, String status) {
         kycDocumentRepository.findById(id).ifPresent(doc -> {
             doc.setStatus(status);
             kycDocumentRepository.save(doc);

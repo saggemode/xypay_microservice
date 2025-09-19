@@ -9,11 +9,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "user_profiles")
-public class UserProfile {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserProfile extends BaseEntity {
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -64,13 +60,6 @@ public class UserProfile {
     @Column(name = "transaction_pin")
     private String transactionPin;
     
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-    
-    @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
     
     // Constructors
     public UserProfile() {}
@@ -168,13 +157,6 @@ public class UserProfile {
     }
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public User getUser() {
         return user;
@@ -288,21 +270,6 @@ public class UserProfile {
         this.transactionPin = transactionPin;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public String getPhoneVerificationToken() {
         return phoneVerificationToken;
@@ -323,7 +290,7 @@ public class UserProfile {
     @Override
     public String toString() {
         return "UserProfile{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", phone='" + phone + '\'' +
                 ", isVerified=" + isVerified +
                 '}';

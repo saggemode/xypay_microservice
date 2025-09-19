@@ -7,12 +7,13 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.util.UUID;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
+public interface AuditLogRepository extends JpaRepository<AuditLog, UUID> {
     List<AuditLog> findByUserAndActionAndTimestampAfter(User user, String action, LocalDateTime timestamp);
     
     List<AuditLog> findByTimestampBefore(LocalDateTime timestamp);
@@ -24,9 +25,9 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     
     @Modifying
     @Query("UPDATE AuditLog a SET a.user = null WHERE a.user.id = :userId")
-    void nullifyUserReferences(@Param("userId") Long userId);
+    void nullifyUserReferences(@Param("userId") UUID userId);
     
     @Modifying
     @Query("DELETE FROM AuditLog a WHERE a.user.id = :userId")
-    void deleteAllByUserId(@Param("userId") Long userId);
+    void deleteAllByUserId(@Param("userId") UUID userId);
 }

@@ -4,14 +4,12 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "workflow_instances")
-public class WorkflowInstance {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class WorkflowInstance extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_definition_id")
@@ -21,16 +19,16 @@ public class WorkflowInstance {
     private String entityType; // TRANSACTION, LOAN_APPLICATION, KYC_DOCUMENT, etc.
 
     @Column(name = "entity_id")
-    private Long entityId;
+    private UUID entityId;
 
     @Column(name = "current_step_id")
-    private Long currentStepId;
+    private UUID currentStepId;
 
     @Column(name = "status")
     private String status; // PENDING, IN_PROGRESS, APPROVED, REJECTED, CANCELLED
 
     @Column(name = "initiated_by")
-    private Long initiatedBy;
+    private UUID initiatedBy;
 
     @Column(name = "priority")
     private String priority; // HIGH, MEDIUM, LOW

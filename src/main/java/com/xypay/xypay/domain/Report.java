@@ -2,16 +2,15 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 import java.util.List;
+import java.util.UUID;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "reports")
-public class Report {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Report extends BaseEntity {
 
     @Column(name = "report_name", nullable = false)
     private String reportName;
@@ -46,25 +45,10 @@ public class Report {
     private String scheduleCron; // Cron expression for scheduled reports
 
     @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private UUID createdBy;
 
     @OneToMany(mappedBy = "report", cascade = CascadeType.ALL)
     private List<ReportExecution> executions;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    
 }

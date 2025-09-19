@@ -5,6 +5,7 @@ import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,6 +25,10 @@ public class XySaveGoal {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "xysave_account_id", nullable = false)
+    private XySaveAccount xysaveAccount;
     
     @Column(name = "name", length = 100, nullable = false)
     private String name;
@@ -66,7 +71,7 @@ public class XySaveGoal {
         if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) <= 0) {
             return BigDecimal.ZERO;
         }
-        return currentAmount.divide(targetAmount, 4, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal("100"));
+        return currentAmount.divide(targetAmount, 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100"));
     }
     
     public boolean isCompleted() {

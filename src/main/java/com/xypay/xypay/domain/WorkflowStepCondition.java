@@ -2,15 +2,14 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
 @Table(name = "workflow_step_conditions")
-public class WorkflowStepCondition {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class WorkflowStepCondition extends BaseEntity {
+    
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_step_id")
@@ -31,11 +30,5 @@ public class WorkflowStepCondition {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+    
 }

@@ -22,7 +22,7 @@ public interface LoanProductRepository extends JpaRepository<LoanProduct, UUID> 
     
     List<LoanProduct> findByCurrencyCode(String currencyCode);
     
-    List<LoanProduct> findByBankId(Long bankId);
+    List<LoanProduct> findByBankId(UUID bankId);
     
     List<LoanProduct> findByShariaCompliant(Boolean shariaCompliant);
     

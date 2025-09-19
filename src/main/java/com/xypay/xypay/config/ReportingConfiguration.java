@@ -2,16 +2,14 @@ package com.xypay.xypay.config;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.EqualsAndHashCode;
+import com.xypay.xypay.domain.BaseEntity;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "reporting_configurations")
-public class ReportingConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ReportingConfiguration extends BaseEntity {
     
     @Column(name = "report_name")
     private String reportName;
@@ -36,12 +34,6 @@ public class ReportingConfiguration {
     
     @Column(name = "dashboard_widgets")
     private String dashboardWidgets; // JSON format of dashboard widget configurations
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

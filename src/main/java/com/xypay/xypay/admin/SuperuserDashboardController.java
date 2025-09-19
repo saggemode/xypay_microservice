@@ -36,4 +36,9 @@ public class SuperuserDashboardController {
 
         return "enterprise-dashboard";
     }
+
+    @GetMapping("/admin/smartearn")
+    public String smartEarnManagement() {
+        return "admin/admin-smartearn";
+    }
 }

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartEarn Dashboard - XyPay</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .smartearn-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .stats-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .interest-rate {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #28a745;
+        }
+        .action-btn {
+            border-radius: 25px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            margin: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .deposit-btn {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            color: white;
+        }
+        .withdraw-btn {
+            background: linear-gradient(45deg, #dc3545, #fd7e14);
+            border: none;
+            color: white;
+        }
+        .transaction-item {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 100%;
+        }
+        .feature-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <!-- Header -->
+        <div class="smartearn-header">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1><i class="fas fa-chart-line me-3"></i>SmartEarn</h1>
+                        <p class="lead mb-0">High-yield savings with daily interest and flexible withdrawals</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <div class="interest-rate">21.05% APY</div>
+                        <small>Effective Annual Yield</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <!-- Account Status -->
+            <div class="row mb-4" id="accountStatus" style="display: none;">
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="accountStatusMessage"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Stats -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon text-primary">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <h4 id="currentBalance">₦0.00</h4>
+                        <p class="text-muted">Current Balance</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon text-success">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h4 id="totalInterest">₦0.00</h4>
+                        <p class="text-muted">Total Interest Earned</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon text-warning">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <h4 id="dailyInterest">₦0.00</h4>
+                        <p class="text-muted">Daily Interest</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="stats-card text-center">
+                        <div class="stats-icon text-info">
+                            <i class="fas fa-percentage"></i>
+                        </div>
+                        <h4>21.05%</h4>
+                        <p class="text-muted">Annual Interest Rate</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row mb-4">
+                <div class="col-12 text-center">
+                    <button class="btn action-btn deposit-btn" onclick="showDepositModal()">
+                        <i class="fas fa-plus me-2"></i>Deposit Money
+                    </button>
+                    <button class="btn action-btn withdraw-btn" onclick="showWithdrawModal()">
+                        <i class="fas fa-minus me-2"></i>Withdraw Money
+                    </button>
+                    <button class="btn btn-outline-primary action-btn" onclick="loadTransactionHistory()">
+                        <i class="fas fa-history me-2"></i>Transaction History
+                    </button>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h5>No Holding Period</h5>
+                        <p class="text-muted">Save and withdraw anytime without penalties</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h5>Same Day Confirmation</h5>
+                        <p class="text-muted">Transactions before 10:30 AM confirmed same day</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <h5>Daily Interest</h5>
+                        <p class="text-muted">Earn interest daily, updated at 11 AM</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Transactions -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5><i class="fas fa-history me-2"></i>Recent Transactions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div id="transactionList">
+                                <div class="text-center text-muted">
+                                    <i class="fas fa-spinner fa-spin"></i> Loading transactions...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Deposit Modal -->
+    <div class="modal fade" id="depositModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Deposit to SmartEarn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="depositForm">
+                        <div class="mb-3">
+                            <label for="depositAmount" class="form-label">Amount (₦)</label>
+                            <input type="number" class="form-control" id="depositAmount" step="0.01" min="0.01" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="depositDescription" class="form-label">Description (Optional)</label>
+                            <input type="text" class="form-control" id="depositDescription" placeholder="e.g., Monthly savings">
+                        </div>
+                        <div class="alert alert-info">
+                            <strong>Processing Fee:</strong> 1% (minimum ₦10, maximum ₦3,000)
+                            <br><span id="processingFeeDisplay">₦0.00</span>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="processDeposit()">Deposit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdraw Modal -->
+    <div class="modal fade" id="withdrawModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Withdraw from SmartEarn</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="withdrawForm">
+                        <div class="mb-3">
+                            <label for="withdrawAmount" class="form-label">Amount (₦)</label>
+                            <input type="number" class="form-control" id="withdrawAmount" step="0.01" min="0.01" required>
+                            <div class="form-text">Available balance: <span id="availableBalance">₦0.00</span></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="withdrawDescription" class="form-label">Description (Optional)</label>
+                            <input type="text" class="form-control" id="withdrawDescription" placeholder="e.g., Emergency fund">
+                        </div>
+                        <div class="alert alert-success">
+                            <strong>No Fees:</strong> Withdrawals are free with no penalties
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" onclick="processWithdrawal()">Withdraw</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUserId = null;
+        let currentAccount = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get user ID from session or URL parameter
+            currentUserId = getUserId();
+            if (currentUserId) {
+                loadAccountData();
+                loadTransactionHistory();
+            } else {
+                showAccountStatus('Please log in to access SmartEarn', 'danger');
+            }
+        });
+
+        function getUserId() {
+            // This should be replaced with actual user ID retrieval
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('userId') || 'test-user-id';
+        }
+
+        function loadAccountData() {
+            fetch(`/api/smartearn/account?userId=${currentUserId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentAccount = data.account;
+                        updateAccountDisplay();
+                    } else {
+                        if (data.message.includes('not found')) {
+                            createAccount();
+                        } else {
+                            showAccountStatus(data.message, 'danger');
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading account:', error);
+                    showAccountStatus('Error loading account data', 'danger');
+                });
+        }
+
+        function createAccount() {
+            fetch(`/api/smartearn/create-account?userId=${currentUserId}`, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        currentAccount = data.account;
+                        updateAccountDisplay();
+                        showAccountStatus('SmartEarn account created successfully!', 'success');
+                    } else {
+                        showAccountStatus(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error creating account:', error);
+                    showAccountStatus('Error creating account', 'danger');
+                });
+        }
+
+        function updateAccountDisplay() {
+            if (currentAccount) {
+                document.getElementById('currentBalance').textContent = formatCurrency(currentAccount.balance);
+                document.getElementById('totalInterest').textContent = formatCurrency(currentAccount.totalInterestEarned);
+                document.getElementById('dailyInterest').textContent = formatCurrency(calculateDailyInterest(currentAccount.balance));
+                document.getElementById('availableBalance').textContent = formatCurrency(currentAccount.balance);
+            }
+        }
+
+        function calculateDailyInterest(balance) {
+            const dailyRate = 0.2105 / 365; // 21.05% annual rate
+            return balance * dailyRate;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: 'NGN'
+            }).format(amount);
+        }
+
+        function showAccountStatus(message, type) {
+            const statusDiv = document.getElementById('accountStatus');
+            const messageSpan = document.getElementById('accountStatusMessage');
+            
+            statusDiv.className = `alert alert-${type}`;
+            messageSpan.textContent = message;
+            statusDiv.style.display = 'block';
+            
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        function showDepositModal() {
+            if (!currentAccount) {
+                showAccountStatus('Please create an account first', 'warning');
+                return;
+            }
+            
+            document.getElementById('depositAmount').value = '';
+            document.getElementById('depositDescription').value = '';
+            document.getElementById('processingFeeDisplay').textContent = '₦0.00';
+            
+            new bootstrap.Modal(document.getElementById('depositModal')).show();
+        }
+
+        function showWithdrawModal() {
+            if (!currentAccount) {
+                showAccountStatus('Please create an account first', 'warning');
+                return;
+            }
+            
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('withdrawDescription').value = '';
+            document.getElementById('withdrawAmount').max = currentAccount.balance;
+            
+            new bootstrap.Modal(document.getElementById('withdrawModal')).show();
+        }
+
+        function calculateProcessingFee() {
+            const amount = parseFloat(document.getElementById('depositAmount').value) || 0;
+            if (amount > 0) {
+                fetch(`/api/smartearn/calculate-fee?amount=${amount}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            document.getElementById('processingFeeDisplay').textContent = formatCurrency(data.processingFee);
+                        }
+                    })
+                    .catch(error => console.error('Error calculating fee:', error));
+            } else {
+                document.getElementById('processingFeeDisplay').textContent = '₦0.00';
+            }
+        }
+
+        function processDeposit() {
+            const amount = parseFloat(document.getElementById('depositAmount').value);
+            const description = document.getElementById('depositDescription').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (amount > 1000000) { // 1 million limit
+                alert('Maximum deposit amount is ₦1,000,000');
+                return;
+            }
+            
+            fetch(`/api/smartearn/deposit?userId=${currentUserId}&amount=${amount}&description=${encodeURIComponent(description)}`, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('depositModal')).hide();
+                        showAccountStatus('Deposit processed successfully!', 'success');
+                        loadAccountData();
+                        loadTransactionHistory();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error processing deposit:', error);
+                    alert('Error processing deposit');
+                });
+        }
+
+        function processWithdrawal() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const description = document.getElementById('withdrawDescription').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (amount > currentAccount.balance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            fetch(`/api/smartearn/withdraw?userId=${currentUserId}&amount=${amount}&description=${encodeURIComponent(description)}`, {
+                method: 'POST'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('withdrawModal')).hide();
+                        showAccountStatus('Withdrawal processed successfully!', 'success');
+                        loadAccountData();
+                        loadTransactionHistory();
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error processing withdrawal:', error);
+                    alert('Error processing withdrawal');
+                });
+        }
+
+        function loadTransactionHistory() {
+            fetch(`/api/smartearn/transactions?userId=${currentUserId}&limit=10`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayTransactions(data.transactions);
+                    } else {
+                        document.getElementById('transactionList').innerHTML = 
+                            '<div class="text-center text-muted">Error loading transactions</div>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading transactions:', error);
+                    document.getElementById('transactionList').innerHTML = 
+                        '<div class="text-center text-muted">Error loading transactions</div>';
+                });
+        }
+
+        function displayTransactions(transactions) {
+            const container = document.getElementById('transactionList');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted">No transactions yet</div>';
+                return;
+            }
+            
+            container.innerHTML = transactions.map(transaction => `
+                <div class="transaction-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-${transaction.transactionType === 'DEPOSIT' ? 'plus' : 'minus'} text-${transaction.transactionType === 'DEPOSIT' ? 'success' : 'danger'} me-3"></i>
+                                <div>
+                                    <h6 class="mb-0">${transaction.transactionType}</h6>
+                                    <small class="text-muted">${transaction.description || 'No description'}</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h6 class="mb-0 text-${transaction.transactionType === 'DEPOSIT' ? 'success' : 'danger'}">
+                                ${transaction.transactionType === 'DEPOSIT' ? '+' : '-'}${formatCurrency(transaction.amount)}
+                            </h6>
+                            ${transaction.processingFee > 0 ? `<small class="text-muted">Fee: ${formatCurrency(transaction.processingFee)}</small>` : ''}
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <span class="badge bg-${getStatusColor(transaction.status)}">${transaction.status}</span>
+                            <br><small class="text-muted">${formatDate(transaction.transactionTime)}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'SUCCESS': return 'success';
+                case 'PENDING': return 'warning';
+                case 'FAILED': return 'danger';
+                default: return 'secondary';
+            }
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-NG', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Event listeners
+        document.getElementById('depositAmount').addEventListener('input', calculateProcessingFee);
+    </script>
+</body>
+</html>

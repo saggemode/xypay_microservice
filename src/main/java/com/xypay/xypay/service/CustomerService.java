@@ -7,6 +7,7 @@ import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class CustomerService {
@@ -27,7 +28,7 @@ public class CustomerService {
         customer.setCreatedAt(LocalDateTime.now());
         return customerRepository.save(customer);
     }
-    public Customer getCustomer(Long customerId) {
+    public Customer getCustomer(UUID customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
         customer.setLegalId(textEncryptor.decrypt(customer.getLegalId()));
@@ -41,7 +42,7 @@ public class CustomerService {
         }
         return c;
     }
-    public String verifyKYC(Long customerId, String documentType) {
+    public String verifyKYC(UUID customerId, String documentType) {
         Customer customer = getCustomer(customerId);
         customer.setKycStatus("VERIFIED:" + documentType);
         customerRepository.save(customer);

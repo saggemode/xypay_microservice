@@ -81,7 +81,27 @@ public class RateConfigurationService {
         return rateConfigurationRepository.findAll();
     }
     
-    public Map<String, Object> updateRateConfiguration(Long id, Map<String, Object> request) {
+    public Map<String, Object> getRateConfigurationById(UUID id) {
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            Optional<RateConfiguration> configOpt = rateConfigurationRepository.findById(id);
+            if (configOpt.isPresent()) {
+                response.put("success", true);
+                response.put("data", configOpt.get());
+            } else {
+                response.put("success", false);
+                response.put("message", "Rate configuration not found");
+            }
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("message", "Failed to get rate configuration: " + e.getMessage());
+        }
+        
+        return response;
+    }
+    
+    public Map<String, Object> updateRateConfiguration(UUID id, Map<String, Object> request) {
         Map<String, Object> response = new HashMap<>();
         
         try {
@@ -125,7 +145,7 @@ public class RateConfigurationService {
         return response;
     }
     
-    public Map<String, Object> deleteRateConfiguration(Long id) {
+    public Map<String, Object> deleteRateConfiguration(UUID id) {
         Map<String, Object> response = new HashMap<>();
         
         try {

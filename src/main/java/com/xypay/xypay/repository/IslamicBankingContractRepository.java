@@ -14,15 +14,15 @@ import java.util.UUID;
 @Repository
 public interface IslamicBankingContractRepository extends JpaRepository<IslamicBankingContract, UUID> {
     
-    List<IslamicBankingContract> findByCustomerId(Long customerId);
+    List<IslamicBankingContract> findByCustomerId(UUID customerId);
     
-    List<IslamicBankingContract> findByBankId(Long bankId);
+    List<IslamicBankingContract> findByBankId(UUID bankId);
     
-    List<IslamicBankingContract> findByBankIdAndContractStatus(Long bankId, IslamicBankingContract.ContractStatus status);
+    List<IslamicBankingContract> findByBankIdAndContractStatus(UUID bankId, IslamicBankingContract.ContractStatus status);
     
     List<IslamicBankingContract> findByContractStatus(IslamicBankingContract.ContractStatus status);
     
-    List<IslamicBankingContract> findByIslamicProductId(Long productId);
+    List<IslamicBankingContract> findByIslamicProductId(UUID productId);
     
     List<IslamicBankingContract> findByRiskRating(IslamicBankingContract.RiskRating riskRating);
     
@@ -56,5 +56,5 @@ public interface IslamicBankingContractRepository extends JpaRepository<IslamicB
     BigDecimal getTotalProvisions();
     
     @Query("SELECT ibc FROM IslamicBankingContract ibc WHERE ibc.approvalWorkflowId = :workflowId")
-    IslamicBankingContract findByApprovalWorkflowId(@Param("workflowId") Long workflowId);
+    IslamicBankingContract findByApprovalWorkflowId(@Param("workflowId") UUID workflowId);
 }

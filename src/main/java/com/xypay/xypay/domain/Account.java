@@ -2,18 +2,15 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Entity
 @Table(name = "accounts")
-public class Account {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Account extends BaseEntity {
     
     @Column(name = "customer_id")
-    private Long customerId;
+    private UUID customerId;
     
     @Column(name = "account_number")
     private String accountNumber;
@@ -25,26 +22,15 @@ public class Account {
     
     private String status;
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
     @Column(name = "ledger_balance")
     private java.math.BigDecimal ledgerBalance;
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getCustomerId() {
+    public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(UUID customerId) {
         this.customerId = customerId;
     }
 
@@ -80,13 +66,6 @@ public class Account {
         this.status = status;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
     public java.math.BigDecimal getLedgerBalance() { return ledgerBalance; }
     public void setLedgerBalance(java.math.BigDecimal ledgerBalance) { this.ledgerBalance = ledgerBalance; }

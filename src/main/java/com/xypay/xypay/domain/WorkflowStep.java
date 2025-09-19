@@ -2,17 +2,17 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @Entity
 @Table(name = "workflow_steps")
-public class WorkflowStep {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@EqualsAndHashCode(callSuper = true)
+public class WorkflowStep extends BaseEntity {
+    
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "workflow_definition_id")
@@ -31,7 +31,7 @@ public class WorkflowStep {
     private String approverRole;
 
     @Column(name = "approver_user_id")
-    private Long approverUserId;
+    private UUID approverUserId;
 
     @Column(name = "approval_limit")
     private BigDecimal approvalLimit;
@@ -51,23 +51,10 @@ public class WorkflowStep {
     @Column(name = "escalation_to_role")
     private String escalationToRole;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    
 
     @OneToMany(mappedBy = "workflowStep", cascade = CascadeType.ALL)
     private List<WorkflowStepCondition> conditions;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    
 }

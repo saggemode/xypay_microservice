@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/alerts-integration")
@@ -43,14 +44,14 @@ public class AlertsIntegrationAdminController {
     
     @PutMapping("/alert-config/{id}")
     public ResponseEntity<com.xypay.xypay.domain.AlertNotificationConfiguration> updateAlertConfig(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody com.xypay.xypay.domain.AlertNotificationConfiguration config) {
         com.xypay.xypay.domain.AlertNotificationConfiguration updatedConfig = configurationService.updateAlertNotificationConfiguration(id, config);
         return ResponseEntity.ok(updatedConfig);
     }
     
     @DeleteMapping("/alert-config/{id}")
-    public ResponseEntity<Void> deleteAlertConfig(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteAlertConfig(@PathVariable UUID id) {
         configurationService.deleteAlertNotificationConfiguration(id);
         return ResponseEntity.noContent().build();
     }
@@ -86,14 +87,14 @@ public class AlertsIntegrationAdminController {
     
     @PutMapping("/integration-config/{id}")
     public ResponseEntity<com.xypay.xypay.domain.IntegrationConfiguration> updateIntegrationConfig(
-            @PathVariable Long id,
+            @PathVariable UUID id,
             @RequestBody com.xypay.xypay.domain.IntegrationConfiguration config) {
         com.xypay.xypay.domain.IntegrationConfiguration updatedConfig = configurationService.updateIntegrationConfiguration(id, config);
         return ResponseEntity.ok(updatedConfig);
     }
     
     @DeleteMapping("/integration-config/{id}")
-    public ResponseEntity<Void> deleteIntegrationConfig(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteIntegrationConfig(@PathVariable UUID id) {
         configurationService.deleteIntegrationConfiguration(id);
         return ResponseEntity.noContent().build();
     }

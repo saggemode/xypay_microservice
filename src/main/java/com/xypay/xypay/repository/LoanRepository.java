@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface LoanRepository extends JpaRepository<Loan, UUID> {
     
-    List<Loan> findByCustomerId(Long customerId);
+    List<Loan> findByCustomerId(UUID customerId);
     
     List<Loan> findByStatus(Loan.LoanStatus status);
     
@@ -27,9 +27,9 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
     
     List<Loan> findByBaselClassification(Loan.BaselClassification classification);
     
-    List<Loan> findByLoanProductId(Long productId);
+    List<Loan> findByLoanProductId(UUID productId);
     
-    List<Loan> findByBranchId(Long branchId);
+    List<Loan> findByBranchId(UUID branchId);
     
     List<Loan> findByShariaCompliant(Boolean shariaCompliant);
     
@@ -61,5 +61,5 @@ public interface LoanRepository extends JpaRepository<Loan, UUID> {
     BigDecimal getTotalProvisionAmount();
     
     @Query("SELECT l FROM Loan l WHERE l.approvalWorkflowId = :workflowId")
-    Optional<Loan> findByApprovalWorkflowId(@Param("workflowId") Long workflowId);
+    Optional<Loan> findByApprovalWorkflowId(@Param("workflowId") UUID workflowId);
 }

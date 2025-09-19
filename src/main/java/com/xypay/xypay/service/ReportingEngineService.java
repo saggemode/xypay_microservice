@@ -60,16 +60,13 @@ public class ReportingEngineService {
      * Execute a report synchronously
      */
     public ReportExecution executeReport(UUID reportId, Map<String, Object> parameters, UUID executedBy) {
-        Report report = reportRepository.findAll().stream()
-            .filter(r -> r.getId().equals(reportId))
-            .findFirst()
+        Report report = reportRepository.findById(reportId)
             .orElseThrow(() -> new RuntimeException("Report not found"));
 
         // Create execution record
         ReportExecution execution = new ReportExecution();
         execution.setReport(report);
-        // Note: setExecutedBy expects Long but we have UUID - this would need to be updated in ReportExecution
-        // execution.setExecutedBy(executedBy);
+        execution.setExecutedBy(executedBy);
         execution.setExecutionStatus("RUNNING");
         execution.setStartedAt(LocalDateTime.now());
         
@@ -147,10 +144,8 @@ public class ReportingEngineService {
         
         for (Report report : reports) {
             try {
-                // Note: report.getId() returns Long but executeReport expects UUID - using alternative approach
-                // ReportExecution execution = executeReport(report.getId(), parameters, UUID.fromString("00000000-0000-0000-0000-000000000001")); // System user
-                // For now, skip this call to avoid compilation errors
-                logger.info("Skipping report execution for {} due to ID type mismatch", report.getReportName());
+            ReportExecution execution = executeReport(report.getId(), parameters, UUID.fromString("00000000-0000-0000-0000-000000000001"));
+            executions.add(execution);
             } catch (Exception e) {
                 logger.error("Failed to generate regulatory report {}: {}", report.getReportName(), e.getMessage());
             }
@@ -183,9 +178,9 @@ public class ReportingEngineService {
     /**
      * Generate report file based on format
      */
-    private String generateReportFile(Report report, List<Map<String, Object>> data, Long executionId) throws IOException {
+    private String generateReportFile(Report report, List<Map<String, Object>> data, java.util.UUID executionId) throws IOException {
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
-        String fileName = String.format("%s_%s_%d", report.getReportName().replaceAll("\\s+", "_"), timestamp, executionId);
+        String fileName = String.format("%s_%s_%s", report.getReportName().replaceAll("\\s+", "_"), timestamp, executionId);
         
         // Ensure reports directory exists
         Path reportsDir = Paths.get(REPORTS_BASE_PATH);

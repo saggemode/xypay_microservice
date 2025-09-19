@@ -2,6 +2,7 @@ package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 
@@ -11,7 +12,7 @@ public class Balance {
     
     @Id
     @Column(name = "account_id")
-    private Long accountId;
+    private UUID accountId;
     
     @Column(name = "ledger_balance")
     private BigDecimal ledgerBalance;
@@ -26,11 +27,11 @@ public class Balance {
     private LocalDateTime asOf;
 
     // Getters and Setters
-    public Long getAccountId() {
+    public UUID getAccountId() {
         return accountId;
     }
 
-    public void setAccountId(Long accountId) {
+    public void setAccountId(UUID accountId) {
         this.accountId = accountId;
     }
 

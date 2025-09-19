@@ -16,30 +16,26 @@ public interface IslamicBankingProductRepository extends JpaRepository<IslamicBa
     
     Optional<IslamicBankingProduct> findByProductCode(String productCode);
     
-    List<IslamicBankingProduct> findByBankId(Long bankId);
+    List<IslamicBankingProduct> findByBankId(UUID bankId);
     
-    List<IslamicBankingProduct> findByBankIdAndIsActiveTrue(Long bankId);
+    List<IslamicBankingProduct> findByBankIdAndIsActiveTrue(UUID bankId);
     
     List<IslamicBankingProduct> findByProductCategory(IslamicBankingProduct.ProductCategory productCategory);
     
     List<IslamicBankingProduct> findByIslamicStructure(IslamicBankingProduct.IslamicStructure islamicStructure);
     
-    List<IslamicBankingProduct> findByShariaBoardApprovedTrue();
+    List<IslamicBankingProduct> findByRiskCategory(IslamicBankingProduct.RiskCategory riskCategory);
     
-    List<IslamicBankingProduct> findByCurrencyCode(String currencyCode);
+    List<IslamicBankingProduct> findByMinimumAmountLessThanEqual(BigDecimal amount);
     
     List<IslamicBankingProduct> findByIsActiveTrue();
     
-    @Query("SELECT ibp FROM IslamicBankingProduct ibp WHERE ibp.productName LIKE CONCAT('%', :name, '%')")
-    List<IslamicBankingProduct> findByProductNameContaining(@Param("name") String name);
+    @Query("SELECT p FROM IslamicBankingProduct p WHERE p.bank.id = :bankId AND p.productName LIKE %:searchTerm%")
+    List<IslamicBankingProduct> findByBankIdAndProductNameContaining(@Param("bankId") UUID bankId, @Param("searchTerm") String searchTerm);
     
-    @Query("SELECT ibp FROM IslamicBankingProduct ibp WHERE ibp.minimumAmount <= :amount AND ibp.maximumAmount >= :amount")
-    List<IslamicBankingProduct> findByAmountRange(@Param("amount") BigDecimal amount);
+    @Query("SELECT COUNT(p) FROM IslamicBankingProduct p WHERE p.bank.id = :bankId AND p.isActive = true")
+    Long countActiveByBankId(@Param("bankId") UUID bankId);
     
-    @Query("SELECT COUNT(ibp) FROM IslamicBankingProduct ibp WHERE ibp.isActive = true")
-    Long countActiveProducts();
-    
-    @Query("SELECT ibp FROM IslamicBankingProduct ibp WHERE ibp.bank.id = :bankId AND ibp.productCategory = :category AND ibp.isActive = true")
-    List<IslamicBankingProduct> findByBankIdAndCategoryAndActive(@Param("bankId") Long bankId, 
-                                                               @Param("category") IslamicBankingProduct.ProductCategory category);
+    @Query("SELECT p FROM IslamicBankingProduct p WHERE p.bank.id = :bankId AND p.productCategory = :category AND p.shariaBoardApproved = true")
+    List<IslamicBankingProduct> findByBankIdAndProductCategoryAndShariaCompliant(@Param("bankId") UUID bankId, @Param("category") IslamicBankingProduct.ProductCategory category);
 }

@@ -2,17 +2,15 @@ package com.xypay.xypay.config;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import com.xypay.xypay.domain.BaseEntity;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "charge_configurations")
-public class ChargeConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class ChargeConfiguration extends BaseEntity {
     
     @Column(name = "charge_name")
     private String chargeName;
@@ -46,12 +44,6 @@ public class ChargeConfiguration {
     
     @Column(name = "waiver_conditions")
     private String waiverConditions; // JSON format for waiver conditions
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

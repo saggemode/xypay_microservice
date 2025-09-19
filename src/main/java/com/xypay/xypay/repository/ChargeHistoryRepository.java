@@ -15,7 +15,7 @@ public interface ChargeHistoryRepository extends JpaRepository<ChargeHistory, UU
     
     List<ChargeHistory> findByChargeTypeOrderByCreatedAtDesc(ChargeHistory.ChargeType chargeType);
     
-    List<ChargeHistory> findByChangedByOrderByCreatedAtDesc(UUID changedById);
+    List<ChargeHistory> findByChangedBy_IdOrderByCreatedAtDesc(UUID changedById);
     
     List<ChargeHistory> findByEffectiveFromBetweenOrderByEffectiveFromDesc(LocalDateTime start, LocalDateTime end);
     

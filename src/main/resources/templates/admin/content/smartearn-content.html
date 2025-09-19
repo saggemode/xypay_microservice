@@ -1,0 +1,630 @@
+<!-- SmartEarn Management Content -->
+<!-- Flash Messages -->
+<div th:if="${successMessage}" class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+    <span class="block sm:inline" th:text="${successMessage}">Success message</span>
+    <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+<div th:if="${errorMessage}" class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+    <span class="block sm:inline" th:text="${errorMessage}">Error message</span>
+    <button class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none'">
+        <i class="fas fa-times"></i>
+    </button>
+</div>
+
+<div class="mb-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">SmartEarn Management</h1>
+            <p class="text-gray-600 mt-1">Monitor and manage SmartEarn accounts, transactions, and interest calculations</p>
+        </div>
+        <div class="flex space-x-3">
+            <button onclick="triggerInterestCalculation()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                <i class="fas fa-calculator mr-2"></i>Calculate Interest
+            </button>
+            <button onclick="triggerInterestCrediting()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                <i class="fas fa-coins mr-2"></i>Credit Interest
+            </button>
+            <button onclick="loadDashboardStats()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-users text-white text-sm"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Accounts</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalAccounts">0</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-wallet text-white text-sm"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Balance</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalBalance">₦0.00</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-chart-line text-white text-sm"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Total Interest</p>
+                <p class="text-2xl font-bold text-gray-900" id="totalInterest">₦0.00</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-lg shadow p-6">
+        <div class="flex items-center">
+            <div class="flex-shrink-0">
+                <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exchange-alt text-white text-sm"></i>
+                </div>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-500">Today's Transactions</p>
+                <p class="text-2xl font-bold text-gray-900" id="transactionsToday">0</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="bg-white rounded-lg shadow mb-6">
+    <div class="border-b border-gray-200">
+        <nav class="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+            <button onclick="showTab('accounts')" id="accounts-tab" class="tab-button active py-4 px-1 border-b-2 border-blue-500 font-medium text-sm text-blue-600">
+                <i class="fas fa-users mr-2"></i>Accounts
+            </button>
+            <button onclick="showTab('transactions')" id="transactions-tab" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <i class="fas fa-exchange-alt mr-2"></i>Transactions
+            </button>
+            <button onclick="showTab('interest')" id="interest-tab" class="tab-button py-4 px-1 border-b-2 border-transparent font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                <i class="fas fa-chart-line mr-2"></i>Interest History
+            </button>
+        </nav>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="p-6">
+        <!-- Accounts Tab -->
+        <div id="accounts-content" class="tab-content">
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">SmartEarn Accounts</h3>
+                <button onclick="loadAccounts()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                    <i class="fas fa-sync-alt mr-2"></i>Refresh
+                </button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account Number</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Earned</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="accountsTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Loading accounts...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav class="mt-4" aria-label="Accounts pagination">
+                <ul class="pagination justify-content-center flex justify-center space-x-2" id="accountsPagination">
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Transactions Tab -->
+        <div id="transactions-content" class="tab-content hidden">
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">SmartEarn Transactions</h3>
+                <div class="flex space-x-2">
+                    <select id="transactionStatusFilter" onchange="loadTransactions()" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">All Status</option>
+                        <option value="SUCCESS">Success</option>
+                        <option value="PENDING">Pending</option>
+                        <option value="FAILED">Failed</option>
+                    </select>
+                    <select id="transactionTypeFilter" onchange="loadTransactions()" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                        <option value="">All Types</option>
+                        <option value="DEPOSIT">Deposit</option>
+                        <option value="WITHDRAWAL">Withdrawal</option>
+                        <option value="INTEREST_CREDIT">Interest Credit</option>
+                    </select>
+                    <button onclick="loadTransactions()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reference</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Processing Fee</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Loading transactions...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav class="mt-4" aria-label="Transactions pagination">
+                <ul class="pagination justify-content-center flex justify-center space-x-2" id="transactionsPagination">
+                </ul>
+            </nav>
+        </div>
+
+        <!-- Interest History Tab -->
+        <div id="interest-content" class="tab-content hidden">
+            <div class="mb-4 flex justify-between items-center">
+                <h3 class="text-lg font-medium text-gray-900">Interest History</h3>
+                <div class="flex space-x-2">
+                    <input type="date" id="interestStartDate" onchange="loadInterestHistory()" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <input type="date" id="interestEndDate" onchange="loadInterestHistory()" class="px-3 py-2 border border-gray-300 rounded-md text-sm">
+                    <button onclick="loadInterestHistory()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium">
+                        <i class="fas fa-sync-alt mr-2"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Account</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Balance</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Rate</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Interest Earned</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Credited</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="interestTableBody" class="bg-white divide-y divide-gray-200">
+                        <tr>
+                            <td colspan="7" class="px-6 py-4 text-center text-gray-500">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Loading interest history...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <nav class="mt-4" aria-label="Interest pagination">
+                <ul class="pagination justify-content-center flex justify-center space-x-2" id="interestPagination">
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentPage = 0;
+const pageSize = 20;
+
+// Initialize page
+document.addEventListener('DOMContentLoaded', function() {
+    loadDashboardStats();
+    loadAccounts();
+    
+    // Set default date range for interest history
+    const today = new Date();
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+    document.getElementById('interestStartDate').value = lastMonth.toISOString().split('T')[0];
+    document.getElementById('interestEndDate').value = today.toISOString().split('T')[0];
+});
+
+function showTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.add('hidden');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active', 'border-blue-500', 'text-blue-600');
+        button.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabName + '-content').classList.remove('hidden');
+    
+    // Add active class to selected tab button
+    const activeButton = document.getElementById(tabName + '-tab');
+    activeButton.classList.add('active', 'border-blue-500', 'text-blue-600');
+    activeButton.classList.remove('border-transparent', 'text-gray-500');
+    
+    // Load data for the tab
+    if (tabName === 'transactions') {
+        loadTransactions();
+    } else if (tabName === 'interest') {
+        loadInterestHistory();
+    }
+}
+
+function loadDashboardStats() {
+    fetch('/api/admin/smartearn/dashboard')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const stats = data.stats;
+                document.getElementById('totalAccounts').textContent = stats.totalAccounts.toLocaleString();
+                document.getElementById('totalBalance').textContent = formatCurrency(stats.totalBalance);
+                document.getElementById('totalInterest').textContent = formatCurrency(stats.totalInterestEarned);
+                document.getElementById('transactionsToday').textContent = stats.transactionsToday.toLocaleString();
+            }
+        })
+        .catch(error => {
+            console.error('Error loading dashboard stats:', error);
+        });
+}
+
+function loadAccounts(page = 0) {
+    fetch(`/api/admin/smartearn/accounts?page=${page}&size=${pageSize}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayAccounts(data.accounts);
+                updatePagination('accountsPagination', data, page, loadAccounts);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading accounts:', error);
+            document.getElementById('accountsTableBody').innerHTML = 
+                '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading accounts</td></tr>';
+        });
+}
+
+function displayAccounts(accounts) {
+    const tbody = document.getElementById('accountsTableBody');
+    
+    if (accounts.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No accounts found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = accounts.map(account => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${account.accountNumber}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${account.user ? account.user.email || 'N/A' : 'N/A'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatCurrency(account.balance)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatCurrency(account.totalInterestEarned)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${account.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">
+                    ${account.isActive ? 'Active' : 'Inactive'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDate(account.createdAt)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <div class="flex space-x-2">
+                    <button onclick="viewAccount('${account.id}')" class="text-blue-600 hover:text-blue-900" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button onclick="${account.isActive ? 'deactivateAccount' : 'activateAccount'}('${account.id}')" 
+                            class="text-${account.isActive ? 'yellow' : 'green'}-600 hover:text-${account.isActive ? 'yellow' : 'green'}-900" 
+                            title="${account.isActive ? 'Deactivate' : 'Activate'}">
+                        <i class="fas fa-${account.isActive ? 'pause' : 'play'}"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function loadTransactions(page = 0) {
+    const status = document.getElementById('transactionStatusFilter').value;
+    const type = document.getElementById('transactionTypeFilter').value;
+    
+    let url = `/api/admin/smartearn/transactions?page=${page}&size=${pageSize}`;
+    if (status) url += `&status=${status}`;
+    if (type) url += `&type=${type}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayTransactions(data.transactions);
+                updatePagination('transactionsPagination', data, page, loadTransactions);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading transactions:', error);
+            document.getElementById('transactionsTableBody').innerHTML = 
+                '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading transactions</td></tr>';
+        });
+}
+
+function displayTransactions(transactions) {
+    const tbody = document.getElementById('transactionsTableBody');
+    
+    if (transactions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No transactions found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = transactions.map(transaction => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-mono text-gray-900">${transaction.reference}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTransactionTypeColor(transaction.transactionType)}">
+                    ${transaction.transactionType}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatCurrency(transaction.amount)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${transaction.processingFee > 0 ? formatCurrency(transaction.processingFee) : '-'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(transaction.status)}">
+                    ${transaction.status}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDate(transaction.transactionTime)}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${transaction.description || '-'}</div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function loadInterestHistory(page = 0) {
+    const startDate = document.getElementById('interestStartDate').value;
+    const endDate = document.getElementById('interestEndDate').value;
+    
+    let url = `/api/admin/smartearn/interest-history?page=${page}&size=${pageSize}`;
+    if (startDate) url += `&startDate=${startDate}`;
+    if (endDate) url += `&endDate=${endDate}`;
+    
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayInterestHistory(data.interestHistory);
+                updatePagination('interestPagination', data, page, loadInterestHistory);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading interest history:', error);
+            document.getElementById('interestTableBody').innerHTML = 
+                '<tr><td colspan="7" class="px-6 py-4 text-center text-red-500">Error loading interest history</td></tr>';
+        });
+}
+
+function displayInterestHistory(interestHistory) {
+    const tbody = document.getElementById('interestTableBody');
+    
+    if (interestHistory.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-4 text-center text-gray-500">No interest history found</td></tr>';
+        return;
+    }
+    
+    tbody.innerHTML = interestHistory.map(history => `
+        <tr>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm font-medium text-gray-900">${history.smartEarnAccount ? history.smartEarnAccount.accountNumber : 'N/A'}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatDate(history.interestDate)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatCurrency(history.balanceAtStart)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${(history.interestRate * 100).toFixed(4)}%</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <div class="text-sm text-gray-900">${formatCurrency(history.interestEarned)}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full ${history.isCredited ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">
+                    ${history.isCredited ? 'Yes' : 'No'}
+                </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                ${formatDate(history.createdAt)}
+            </td>
+        </tr>
+    `).join('');
+}
+
+function updatePagination(paginationId, data, currentPage, loadFunction) {
+    const pagination = document.getElementById(paginationId);
+    const totalPages = data.totalPages;
+    
+    if (totalPages <= 1) {
+        pagination.innerHTML = '';
+        return;
+    }
+    
+    let paginationHTML = '';
+    
+    // Previous button
+    if (currentPage > 0) {
+        paginationHTML += `<li><button onclick="${loadFunction.name}(${currentPage - 1})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">Previous</button></li>`;
+    }
+    
+    // Page numbers
+    for (let i = 0; i < totalPages; i++) {
+        if (i === currentPage) {
+            paginationHTML += `<li><button class="px-3 py-2 text-sm font-medium text-white bg-blue-600 border border-blue-600">${i + 1}</button></li>`;
+        } else {
+            paginationHTML += `<li><button onclick="${loadFunction.name}(${i})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 hover:bg-gray-50">${i + 1}</button></li>`;
+        }
+    }
+    
+    // Next button
+    if (currentPage < totalPages - 1) {
+        paginationHTML += `<li><button onclick="${loadFunction.name}(${currentPage + 1})" class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">Next</button></li>`;
+    }
+    
+    pagination.innerHTML = paginationHTML;
+}
+
+function triggerInterestCalculation() {
+    if (confirm('Are you sure you want to trigger interest calculation for all accounts?')) {
+        fetch('/api/admin/smartearn/calculate-interest', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Interest calculation triggered successfully');
+                    loadDashboardStats();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error triggering interest calculation:', error);
+                alert('Error triggering interest calculation');
+            });
+    }
+}
+
+function triggerInterestCrediting() {
+    if (confirm('Are you sure you want to trigger interest crediting for all accounts?')) {
+        fetch('/api/admin/smartearn/credit-interest', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Interest crediting triggered successfully');
+                    loadDashboardStats();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error triggering interest crediting:', error);
+                alert('Error triggering interest crediting');
+            });
+    }
+}
+
+function activateAccount(accountId) {
+    if (confirm('Are you sure you want to activate this account?')) {
+        fetch(`/api/admin/smartearn/accounts/${accountId}/activate`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account activated successfully');
+                    loadAccounts();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error activating account:', error);
+                alert('Error activating account');
+            });
+    }
+}
+
+function deactivateAccount(accountId) {
+    if (confirm('Are you sure you want to deactivate this account?')) {
+        fetch(`/api/admin/smartearn/accounts/${accountId}/deactivate`, { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Account deactivated successfully');
+                    loadAccounts();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deactivating account:', error);
+                alert('Error deactivating account');
+            });
+    }
+}
+
+function viewAccount(accountId) {
+    alert('Account details view not implemented yet');
+}
+
+function formatCurrency(amount) {
+    return new Intl.NumberFormat('en-NG', {
+        style: 'currency',
+        currency: 'NGN'
+    }).format(amount);
+}
+
+function formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-NG', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function getStatusColor(status) {
+    switch (status) {
+        case 'SUCCESS': return 'bg-green-100 text-green-800';
+        case 'PENDING': return 'bg-yellow-100 text-yellow-800';
+        case 'FAILED': return 'bg-red-100 text-red-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+
+function getTransactionTypeColor(type) {
+    switch (type) {
+        case 'DEPOSIT': return 'bg-green-100 text-green-800';
+        case 'WITHDRAWAL': return 'bg-red-100 text-red-800';
+        case 'INTEREST_CREDIT': return 'bg-blue-100 text-blue-800';
+        default: return 'bg-gray-100 text-gray-800';
+    }
+}
+</script>

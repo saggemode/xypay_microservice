@@ -67,14 +67,17 @@ public class STPController {
     }
 
     @PutMapping("/rules/{ruleId}")
-    public ResponseEntity<STPRule> updateRule(@PathVariable Long ruleId, @RequestBody STPRule rule) {
-        rule.setId(ruleId);
-        STPRule updatedRule = stpRuleRepository.save(rule);
+    public ResponseEntity<STPRule> updateRule(@PathVariable UUID ruleId, @RequestBody STPRule rule) {
+        STPRule existing = stpRuleRepository.findById(ruleId).orElseThrow(() -> new RuntimeException("Rule not found"));
+        existing.setEntityType(rule.getEntityType());
+        existing.setPriority(rule.getPriority());
+        existing.setIsActive(rule.getIsActive());
+        STPRule updatedRule = stpRuleRepository.save(existing);
         return ResponseEntity.ok(updatedRule);
     }
 
     @DeleteMapping("/rules/{ruleId}")
-    public ResponseEntity<String> deleteRule(@PathVariable Long ruleId) {
+    public ResponseEntity<String> deleteRule(@PathVariable UUID ruleId) {
         stpRuleRepository.deleteById(ruleId);
         return ResponseEntity.ok("Rule deleted successfully");
     }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class LedgerService {
@@ -29,8 +30,8 @@ public class LedgerService {
         try {
             // Create debit entry
             JournalEntry debitEntry = new JournalEntry();
-            debitEntry.setTxId(transaction.getId().getMostSignificantBits()); // Convert UUID to Long
-            debitEntry.setAccountId(transaction.getWallet().getId().getMostSignificantBits()); // Convert UUID to Long
+            debitEntry.setTxId(transaction.getId());
+            debitEntry.setAccountId(transaction.getWallet().getId());
             debitEntry.setDebitCredit("DEBIT");
             debitEntry.setAmount(transaction.getAmount());
             debitEntry.setCurrency(transaction.getCurrency());
@@ -42,8 +43,8 @@ public class LedgerService {
             
             // Create credit entry
             JournalEntry creditEntry = new JournalEntry();
-            creditEntry.setTxId(transaction.getId().getMostSignificantBits()); // Convert UUID to Long
-            creditEntry.setAccountId(transaction.getWallet().getId().getMostSignificantBits()); // Convert UUID to Long
+            creditEntry.setTxId(transaction.getId());
+            creditEntry.setAccountId(transaction.getWallet().getId());
             creditEntry.setDebitCredit("CREDIT");
             creditEntry.setAmount(transaction.getAmount());
             creditEntry.setCurrency(transaction.getCurrency());
@@ -55,7 +56,7 @@ public class LedgerService {
             
             // Log the journal entry creation
             auditTrailService.logFinancialTransaction(
-                transaction.getId().getMostSignificantBits(), // Convert UUID to Long
+                transaction.getId(),
                 "JOURNAL_ENTRIES_CREATED", 
                 "Created debit entry " + debitEntry.getId() + 
                 " and credit entry " + creditEntry.getId(), 
@@ -80,8 +81,8 @@ public class LedgerService {
         try {
             // Create reversal debit entry (opposite of original credit)
             JournalEntry reversalDebitEntry = new JournalEntry();
-            reversalDebitEntry.setTxId(originalTransaction.getId().getMostSignificantBits()); // Convert UUID to Long
-            reversalDebitEntry.setAccountId(originalTransaction.getWallet().getId().getMostSignificantBits()); // Convert UUID to Long
+            reversalDebitEntry.setTxId(originalTransaction.getId());
+            reversalDebitEntry.setAccountId(originalTransaction.getWallet().getId());
             reversalDebitEntry.setDebitCredit("DEBIT");
             reversalDebitEntry.setAmount(originalTransaction.getAmount());
             reversalDebitEntry.setCurrency(originalTransaction.getCurrency());
@@ -93,8 +94,8 @@ public class LedgerService {
             
             // Create reversal credit entry (opposite of original debit)
             JournalEntry reversalCreditEntry = new JournalEntry();
-            reversalCreditEntry.setTxId(originalTransaction.getId().getMostSignificantBits()); // Convert UUID to Long
-            reversalCreditEntry.setAccountId(originalTransaction.getWallet().getId().getMostSignificantBits()); // Convert UUID to Long
+            reversalCreditEntry.setTxId(originalTransaction.getId());
+            reversalCreditEntry.setAccountId(originalTransaction.getWallet().getId());
             reversalCreditEntry.setDebitCredit("CREDIT");
             reversalCreditEntry.setAmount(originalTransaction.getAmount());
             reversalCreditEntry.setCurrency(originalTransaction.getCurrency());
@@ -106,7 +107,7 @@ public class LedgerService {
             
             // Log the journal entry reversal
             auditTrailService.logFinancialTransaction(
-                originalTransaction.getId().getMostSignificantBits(), // Convert UUID to Long
+                originalTransaction.getId(),
                 "JOURNAL_ENTRIES_REVERSED", 
                 "Reversed with debit entry " + reversalDebitEntry.getId() + 
                 " and credit entry " + reversalCreditEntry.getId(), 
@@ -154,7 +155,7 @@ public class LedgerService {
             
             // Log the validation
             auditTrailService.logFinancialTransaction(
-                Long.parseLong(transactionId), // Convert String to Long
+                UUID.fromString(transactionId),
                 "JOURNAL_ENTRIES_VALIDATED", 
                 "Validated journal entries for transaction", 
                 "SYSTEM"

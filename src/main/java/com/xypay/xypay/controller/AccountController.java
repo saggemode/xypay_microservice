@@ -5,6 +5,7 @@ import com.xypay.xypay.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accounts")
@@ -13,22 +14,22 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/open")
-    public ResponseEntity<Account> openAccount(@RequestParam Long customerId, @RequestParam String currency, @RequestParam String accountType) {
+    public ResponseEntity<Account> openAccount(@RequestParam UUID customerId, @RequestParam String currency, @RequestParam String accountType) {
         return ResponseEntity.ok(accountService.openAccount(customerId, currency, accountType));
     }
 
     @PostMapping("/{accountId}/close")
-    public ResponseEntity<String> closeAccount(@PathVariable Long accountId) {
+    public ResponseEntity<String> closeAccount(@PathVariable UUID accountId) {
         return ResponseEntity.ok(accountService.closeAccount(accountId));
     }
 
     @GetMapping("/{accountId}/status")
-    public ResponseEntity<String> getAccountStatus(@PathVariable Long accountId) {
+    public ResponseEntity<String> getAccountStatus(@PathVariable UUID accountId) {
         return ResponseEntity.ok(accountService.getAccountStatus(accountId));
     }
 
     @GetMapping("/{accountId}")
-    public ResponseEntity<Account> getAccount(@PathVariable Long accountId) {
+    public ResponseEntity<Account> getAccount(@PathVariable UUID accountId) {
         return ResponseEntity.ok(accountService.getAccount(accountId));
     }
 }

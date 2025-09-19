@@ -2,18 +2,19 @@ package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.ReportExecution;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface ReportExecutionRepository extends JpaRepository<ReportExecution, Long> {
+public interface ReportExecutionRepository extends JpaRepository<ReportExecution, UUID> {
     
-    List<ReportExecution> findByReportIdOrderByCreatedAtDesc(Long reportId);
+    List<ReportExecution> findByReportIdOrderByCreatedAtDesc(UUID reportId);
     
     List<ReportExecution> findByExecutionStatus(String status);
     
-    List<ReportExecution> findByExecutedBy(Long userId);
+    List<ReportExecution> findByExecutedBy(UUID userId);
     
     @Query("SELECT re FROM ReportExecution re WHERE re.executionStatus = 'RUNNING' AND re.startedAt < :cutoffTime")
     List<ReportExecution> findStuckExecutions(@Param("cutoffTime") LocalDateTime cutoffTime);
@@ -22,5 +23,5 @@ public interface ReportExecutionRepository extends JpaRepository<ReportExecution
     List<ReportExecution> findExecutionsByDateRange(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT COUNT(re) FROM ReportExecution re WHERE re.report.id = :reportId AND re.executionStatus = 'COMPLETED'")
-    Long countSuccessfulExecutions(@Param("reportId") Long reportId);
+    Long countSuccessfulExecutions(@Param("reportId") UUID reportId);
 }

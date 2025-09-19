@@ -4,9 +4,10 @@ import com.xypay.xypay.domain.NotificationType;
 import com.xypay.xypay.domain.NotificationLevel;
 import com.xypay.xypay.domain.NotificationStatus;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 public class NotificationDTO {
-    private Long id;
+    private UUID id;
     private String recipientUsername;
     private String title;
     private String message;
@@ -25,11 +26,11 @@ public class NotificationDTO {
     private LocalDateTime updatedAt;
 
     // Getters and setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * REST Controller for Notification management.
@@ -103,7 +104,7 @@ public class NotificationController {
     @GetMapping("/{id}")
     public ResponseEntity<Notification> getNotification(
             Authentication authentication,
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         
         try {
             User currentUser = getCurrentUser(authentication);
@@ -197,7 +198,7 @@ public class NotificationController {
     @PutMapping("/{id}/read")
     public ResponseEntity<Notification> markAsRead(
             Authentication authentication,
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         
         try {
             User currentUser = getCurrentUser(authentication);
@@ -225,7 +226,7 @@ public class NotificationController {
     @PutMapping("/{id}/unread")
     public ResponseEntity<Notification> markAsUnread(
             Authentication authentication,
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         
         try {
             User currentUser = getCurrentUser(authentication);
@@ -274,7 +275,7 @@ public class NotificationController {
     @PutMapping("/bulk-read")
     public ResponseEntity<Map<String, Object>> bulkMarkAsRead(
             Authentication authentication,
-            @RequestBody List<Long> notificationIds) {
+            @RequestBody List<UUID> notificationIds) {
         
         try {
             User currentUser = getCurrentUser(authentication);
@@ -298,7 +299,7 @@ public class NotificationController {
     @PutMapping("/bulk-unread")
     public ResponseEntity<Map<String, Object>> bulkMarkAsUnread(
             Authentication authentication,
-            @RequestBody List<Long> notificationIds) {
+            @RequestBody List<UUID> notificationIds) {
         
         try {
             User currentUser = getCurrentUser(authentication);
@@ -322,7 +323,7 @@ public class NotificationController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, Object>> deleteNotification(
             Authentication authentication,
-            @PathVariable Long id) {
+            @PathVariable UUID id) {
         
         try {
             User currentUser = getCurrentUser(authentication);

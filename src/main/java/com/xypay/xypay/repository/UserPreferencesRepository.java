@@ -15,7 +15,7 @@ public interface UserPreferencesRepository extends JpaRepository<UserPreferences
     
     Optional<UserPreferences> findByUser(User user);
     
-    Optional<UserPreferences> findByUserId(Long userId);
+    Optional<UserPreferences> findByUserId(UUID userId);
     
     @Query("SELECT up FROM UserPreferences up WHERE up.spendSaveEnabled = true")
     List<UserPreferences> findUsersWithSpendSaveEnabled();

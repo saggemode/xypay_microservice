@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Entity
 @Table(name = "kyc_profiles")
-public class KYCProfile {
+public class KYCProfile extends BaseEntity {
     
     public enum KYCLevel {
         TIER_1("tier_1", "Tier 1"),
@@ -65,9 +65,6 @@ public class KYCProfile {
         public String getDisplayName() { return displayName; }
     }
     
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
     
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -150,15 +147,9 @@ public class KYCProfile {
     @Column(name = "proof_of_address")
     private String proofOfAddress;
     
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     // Constructors
     public KYCProfile() {
-        this.createdAt = LocalDateTime.now();
     }
     
     public KYCProfile(User user, LocalDate dateOfBirth, String address) {
@@ -244,7 +235,6 @@ public class KYCProfile {
         }
         
         this.kycLevel = KYCLevel.TIER_2;
-        this.updatedAt = LocalDateTime.now();
     }
     
     public void upgradeToTier3() throws IllegalStateException {
@@ -253,7 +243,6 @@ public class KYCProfile {
         }
         
         this.kycLevel = KYCLevel.TIER_3;
-        this.updatedAt = LocalDateTime.now();
     }
     
     public Map<String, Object> getTierLimits() {
@@ -305,7 +294,6 @@ public class KYCProfile {
         this.approvedBy = approver;
         this.approvedAt = LocalDateTime.now();
         this.rejectionReason = null;
-        this.updatedAt = LocalDateTime.now();
     }
     
     public void reject(String reason) {
@@ -313,22 +301,10 @@ public class KYCProfile {
         this.approvedBy = null;
         this.approvedAt = null;
         this.rejectionReason = reason;
-        this.updatedAt = LocalDateTime.now();
     }
     
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
     
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
     
     public User getUser() {
         return user;
@@ -530,19 +506,4 @@ public class KYCProfile {
         this.proofOfAddress = proofOfAddress;
     }
     
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-    
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-    
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 }

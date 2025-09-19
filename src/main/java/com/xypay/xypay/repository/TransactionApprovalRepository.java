@@ -14,11 +14,11 @@ public interface TransactionApprovalRepository extends JpaRepository<Transaction
     
     List<TransactionApproval> findByStatusOrderByCreatedAtDesc(TransactionApproval.ApprovalStatus status);
     
-    List<TransactionApproval> findByRequestedByOrderByCreatedAtDesc(UUID requestedById);
+    List<TransactionApproval> findByRequestedBy_IdOrderByCreatedAtDesc(UUID requestedById);
     
-    List<TransactionApproval> findByApprovedByOrderByCreatedAtDesc(UUID approvedById);
+    List<TransactionApproval> findByApprovedBy_IdOrderByCreatedAtDesc(UUID approvedById);
     
-    List<TransactionApproval> findByEscalatedToOrderByCreatedAtDesc(UUID escalatedToId);
+    List<TransactionApproval> findByEscalatedTo_IdOrderByCreatedAtDesc(UUID escalatedToId);
     
     @Query("SELECT ta FROM TransactionApproval ta WHERE ta.transaction.id = :transactionId")
     List<TransactionApproval> findByTransactionId(@Param("transactionId") UUID transactionId);

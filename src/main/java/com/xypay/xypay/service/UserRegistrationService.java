@@ -527,7 +527,7 @@ public class UserRegistrationService {
             userData.put("created_at", profile.getCreatedAt());
             
             // Get KYC level if exists
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId().getMostSignificantBits()); // Convert UUID to Long
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId());
             if (kycOpt.isPresent()) {
                 KYCProfile kyc = kycOpt.get();
                 userData.put("kyc_level", kyc.getKycLevel());
@@ -586,7 +586,7 @@ public class UserRegistrationService {
             userData.put("created_at", profile.getCreatedAt());
             
             // Get KYC level if exists
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId().getMostSignificantBits()); // Convert UUID to Long
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findByUserId(user.getId());
             if (kycOpt.isPresent()) {
                 KYCProfile kyc = kycOpt.get();
                 userData.put("kyc_level", kyc.getKycLevel());
@@ -645,7 +645,7 @@ public class UserRegistrationService {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Long profileId = Long.parseLong(userProfileId);
+            UUID profileId = UUID.fromString(userProfileId);
             Optional<UserProfile> profileOpt = userProfileRepository.findById(profileId);
             
             if (profileOpt.isEmpty()) {

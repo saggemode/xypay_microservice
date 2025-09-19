@@ -10,11 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notifications")
-public class Notification {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", updatable = false, nullable = false)
-    private Long id;
+public class Notification extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", nullable = false)
@@ -101,13 +97,6 @@ public class Notification {
     private LocalDateTime updatedAt;
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public User getRecipient() {
         return recipient;

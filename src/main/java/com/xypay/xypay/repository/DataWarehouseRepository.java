@@ -2,6 +2,7 @@ package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.DataWarehouse;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.math.BigDecimal;
@@ -9,7 +10,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface DataWarehouseRepository extends JpaRepository<DataWarehouse, Long> {
+public interface DataWarehouseRepository extends JpaRepository<DataWarehouse, UUID> {
     
     Optional<DataWarehouse> findByFactDate(LocalDate factDate);
     

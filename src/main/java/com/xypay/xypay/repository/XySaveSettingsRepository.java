@@ -13,5 +13,5 @@ public interface XySaveSettingsRepository extends JpaRepository<XySaveSettings, 
     
     Optional<XySaveSettings> findByUser(User user);
     
-    Optional<XySaveSettings> findByUserId(Long userId);
+    Optional<XySaveSettings> findByUserId(UUID userId);
 }

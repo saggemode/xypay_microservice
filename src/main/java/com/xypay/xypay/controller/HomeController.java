@@ -53,4 +53,9 @@ public class HomeController {
         model.addAttribute("pendingPayments", 3);
         return "dashboard";
     }
+
+    @GetMapping("/smartearn")
+    public String smartEarnDashboard() {
+        return "smartearn-dashboard";
+    }
 }

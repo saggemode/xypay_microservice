@@ -192,7 +192,7 @@ public class KYCService {
             response.put("message", "Failed to create KYC profile: " + e.getMessage());
             
             auditTrailService.logEvent("KYC_CREATION_ERROR", 
-                String.format("KYC creation failed for user ID: %d, error: %s", userId, e.getMessage()));
+                String.format("KYC creation failed for user ID: %s, error: %s", userId, e.getMessage()));
         }
         
         return response;
@@ -341,7 +341,7 @@ public class KYCService {
             response.put("message", "Failed to update KYC profile: " + e.getMessage());
             
             auditTrailService.logEvent("KYC_UPDATE_ERROR", 
-                String.format("KYC update failed for user ID: %d, error: %s", userId, e.getMessage()));
+                String.format("KYC update failed for user ID: %s, error: %s", userId, e.getMessage()));
         }
         
         return response;
@@ -521,7 +521,7 @@ public class KYCService {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId)); // Convert String to Long
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(java.util.UUID.fromString(kycProfileId));
             Optional<User> approverOpt = userRepository.findById(approverId);
             
             if (kycOpt.isEmpty() || approverOpt.isEmpty()) {
@@ -566,7 +566,7 @@ public class KYCService {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(Long.parseLong(kycProfileId)); // Convert String to Long
+            Optional<KYCProfile> kycOpt = kycProfileRepository.findById(java.util.UUID.fromString(kycProfileId));
             
             if (kycOpt.isEmpty()) {
                 response.put("success", false);

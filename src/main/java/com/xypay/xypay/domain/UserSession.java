@@ -12,11 +12,7 @@ import java.time.LocalDateTime;
     @Index(name = "idx_user_session_key", columnList = "session_key"),
     @Index(name = "idx_user_session_created", columnList = "created_at")
 })
-public class UserSession {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class UserSession extends BaseEntity {
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -30,10 +26,6 @@ public class UserSession {
     
     @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
-    
-    @CreationTimestamp
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
     
     @UpdateTimestamp
     @Column(name = "last_activity", nullable = false)
@@ -70,13 +62,6 @@ public class UserSession {
     }
     
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-    
-    public void setId(Long id) {
-        this.id = id;
-    }
     
     public User getUser() {
         return user;
@@ -110,13 +95,6 @@ public class UserSession {
         this.userAgent = userAgent;
     }
     
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
     
     public LocalDateTime getLastActivity() {
         return lastActivity;
@@ -147,6 +125,6 @@ public class UserSession {
         return String.format("%s - %s - %s", 
             user != null ? user.getUsername() : "null", 
             ipAddress, 
-            createdAt);
+            getCreatedAt());
     }
 }

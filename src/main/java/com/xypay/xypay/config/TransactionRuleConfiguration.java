@@ -1,5 +1,6 @@
 package com.xypay.xypay.config;
 
+import com.xypay.xypay.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -9,11 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "transaction_rule_configurations")
-public class TransactionRuleConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class TransactionRuleConfiguration extends BaseEntity {
     
     @Column(name = "rule_name")
     private String ruleName;
@@ -36,11 +33,6 @@ public class TransactionRuleConfiguration {
     @Column(name = "fraud_detection_params")
     private String fraudDetectionParams; // JSON format for fraud detection parameters
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

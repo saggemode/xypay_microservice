@@ -267,7 +267,7 @@ public class TargetSavingNotificationService {
                 
                 if (progressPercentage.compareTo(milestonePercentage) >= 0) {
                     // Check if we've already sent this milestone notification
-                    boolean existingNotification = notificationRepository.existsByRecipientAndSourceAndExtraDataContaining(
+                    boolean existingNotification = notificationRepository.existsByRecipientSourceAndExtraDataKeyValueLike(
                         user, "target_saving", "milestone_type", milestoneType
                     );
                     

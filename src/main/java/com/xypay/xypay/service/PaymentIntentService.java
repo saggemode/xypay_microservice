@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 @Service
 @Transactional
 public class PaymentIntentService {
@@ -58,7 +59,7 @@ public class PaymentIntentService {
     /**
      * Confirm payment intent
      */
-    public PaymentIntent confirmPaymentIntent(Long paymentIntentId) {
+    public PaymentIntent confirmPaymentIntent(UUID paymentIntentId) {
         logger.info("Confirming payment intent {}", paymentIntentId);
 
         PaymentIntent paymentIntent = paymentIntentRepository.findById(paymentIntentId)
@@ -93,7 +94,7 @@ public class PaymentIntentService {
     /**
      * Cancel payment intent
      */
-    public PaymentIntent cancelPaymentIntent(Long paymentIntentId, String reason) {
+    public PaymentIntent cancelPaymentIntent(UUID paymentIntentId, String reason) {
         logger.info("Cancelling payment intent {} with reason: {}", paymentIntentId, reason);
 
         PaymentIntent paymentIntent = paymentIntentRepository.findById(paymentIntentId)
@@ -112,7 +113,7 @@ public class PaymentIntentService {
     /**
      * Fail payment intent
      */
-    public PaymentIntent failPaymentIntent(Long paymentIntentId, String reason) {
+    public PaymentIntent failPaymentIntent(UUID paymentIntentId, String reason) {
         logger.info("Failing payment intent {} with reason: {}", paymentIntentId, reason);
 
         PaymentIntent paymentIntent = paymentIntentRepository.findById(paymentIntentId)
@@ -132,7 +133,7 @@ public class PaymentIntentService {
      * Get payment intent by ID
      */
     @Transactional(readOnly = true)
-    public Optional<PaymentIntent> getPaymentIntent(Long paymentIntentId) {
+    public Optional<PaymentIntent> getPaymentIntent(UUID paymentIntentId) {
         return paymentIntentRepository.findById(paymentIntentId);
     }
 
@@ -177,7 +178,7 @@ public class PaymentIntentService {
         
         for (PaymentIntent intent : expiredIntents) {
             try {
-                failPaymentIntent(intent.getId().getMostSignificantBits(), "Payment intent expired"); // Convert UUID to Long
+                failPaymentIntent(intent.getId(), "Payment intent expired");
                 logger.info("Expired payment intent {} processed", intent.getId());
             } catch (Exception e) {
                 logger.error("Failed to process expired payment intent {}: {}", 

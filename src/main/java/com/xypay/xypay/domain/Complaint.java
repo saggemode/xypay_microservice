@@ -1,16 +1,14 @@
 package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
+import java.util.UUID;
 
 @Entity
 @Table(name = "complaints")
-public class Complaint {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Complaint extends BaseEntity {
     
     @Column(name = "customer_id")
-    private Long customerId;
+    private UUID customerId;
     
     private String customerName;
     
@@ -20,10 +18,8 @@ public class Complaint {
     private String description;
     private String status;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-    public Long getCustomerId() { return customerId; }
-    public void setCustomerId(Long customerId) { this.customerId = customerId; }
+    public UUID getCustomerId() { return customerId; }
+    public void setCustomerId(UUID customerId) { this.customerId = customerId; }
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
     public String getComplaintType() { return complaintType; }

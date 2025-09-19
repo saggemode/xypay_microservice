@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface RealTimeMonitoringRepository extends JpaRepository<RealTimeMonitoring, UUID> {
     
-    List<RealTimeMonitoring> findByUserOrderByMonitoredAtDesc(UUID userId);
+    List<RealTimeMonitoring> findByUser_IdOrderByMonitoredAtDesc(UUID userId);
     
     List<RealTimeMonitoring> findByAlertLevelOrderByMonitoredAtDesc(SecurityLevel alertLevel);
     

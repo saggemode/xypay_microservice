@@ -31,13 +31,11 @@ public class TransactionPinController {
      */
     @PostMapping("/set/{userId}")
     public ResponseEntity<Map<String, Object>> setTransactionPin(
-            @PathVariable Long userId, 
+            @PathVariable UUID userId, 
             @RequestBody Map<String, String> request) {
         
         try {
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
-            User user = userRepository.findById(userIdUuid).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "error", "User not found"));
@@ -104,13 +102,11 @@ public class TransactionPinController {
      */
     @PostMapping("/verify/{userId}")
     public ResponseEntity<Map<String, Object>> verifyTransactionPin(
-            @PathVariable Long userId, 
+            @PathVariable UUID userId, 
             @RequestBody Map<String, String> request) {
         
         try {
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
-            User user = userRepository.findById(userIdUuid).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "error", "User not found"));
@@ -133,11 +129,9 @@ public class TransactionPinController {
      * Check if user has transaction PIN set
      */
     @GetMapping("/status/{userId}")
-    public ResponseEntity<Map<String, Object>> hasTransactionPin(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, Object>> hasTransactionPin(@PathVariable UUID userId) {
         try {
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
-            User user = userRepository.findById(userIdUuid).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "error", "User not found"));
@@ -167,13 +161,11 @@ public class TransactionPinController {
     @PostMapping("/reset/{userId}")
     @PreAuthorize("hasRole('ADMIN') or hasRole('SUPERUSER')")
     public ResponseEntity<Map<String, Object>> resetTransactionPin(
-            @PathVariable Long userId, 
+            @PathVariable UUID userId, 
             @RequestBody Map<String, Long> request) {
         
         try {
-            // Convert Long to UUID - this is a workaround for the ID type mismatch
-            UUID userIdUuid = new UUID(0L, userId); // Create UUID from Long
-            User user = userRepository.findById(userIdUuid).orElse(null);
+            User user = userRepository.findById(userId).orElse(null);
             
             if (user == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "error", "User not found"));

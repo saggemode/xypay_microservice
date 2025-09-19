@@ -6,8 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface WorkflowDefinitionRepository extends JpaRepository<WorkflowDefinition, Long> {
+public interface WorkflowDefinitionRepository extends JpaRepository<WorkflowDefinition, UUID> {
     List<WorkflowDefinition> findByOwner(String owner);
     
     List<WorkflowDefinition> findByWorkflowTypeAndIsActiveTrue(String workflowType);

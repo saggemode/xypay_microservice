@@ -8,9 +8,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface RateConfigurationRepository extends JpaRepository<RateConfiguration, Long> {
+public interface RateConfigurationRepository extends JpaRepository<RateConfiguration, UUID> {
     Optional<RateConfiguration> findByRateCode(String rateCode);
     List<RateConfiguration> findByRateType(String rateType);
     List<RateConfiguration> findByProductType(String productType);

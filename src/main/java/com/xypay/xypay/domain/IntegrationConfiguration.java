@@ -1,15 +1,10 @@
 package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "integration_configurations")
-public class IntegrationConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class IntegrationConfiguration extends BaseEntity {
     
     @Column(name = "integration_name")
     private String integrationName;
@@ -32,23 +27,10 @@ public class IntegrationConfiguration {
     @Column(name = "mapping_rules")
     private String mappingRules; // JSON format of field mapping rules
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-    
     @Column(name = "is_active")
     private Boolean isActive = true;
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getIntegrationName() {
         return integrationName;
@@ -106,21 +88,6 @@ public class IntegrationConfiguration {
         this.mappingRules = mappingRules;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public Boolean getIsActive() {
         return isActive;

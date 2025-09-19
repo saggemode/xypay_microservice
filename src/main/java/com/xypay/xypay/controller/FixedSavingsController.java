@@ -85,37 +85,6 @@ public class FixedSavingsController {
         }
     }
     
-    /**
-     * Get fixed savings settings for the current user
-     */
-    @GetMapping("/settings")
-    public ResponseEntity<ApiResponse<FixedSavingsSettingsDTO>> getFixedSavingsSettings(
-            Authentication authentication) {
-        try {
-            User currentUser = getCurrentUser(authentication);
-            FixedSavingsSettingsDTO settings = fixedSavingsService.getFixedSavingsSettings(currentUser);
-            return ResponseEntity.ok(ApiResponse.success(settings));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to retrieve fixed savings settings"));
-        }
-    }
-    
-    /**
-     * Update fixed savings settings for the current user
-     */
-    @PutMapping("/settings")
-    public ResponseEntity<ApiResponse<FixedSavingsSettingsDTO>> updateFixedSavingsSettings(
-            @Valid @RequestBody FixedSavingsSettingsDTO settingsDTO, Authentication authentication) {
-        try {
-            User currentUser = getCurrentUser(authentication);
-            FixedSavingsSettingsDTO updatedSettings = fixedSavingsService.updateFixedSavingsSettings(settingsDTO, currentUser);
-            return ResponseEntity.ok(ApiResponse.success(updatedSettings));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Failed to update fixed savings settings"));
-        }
-    }
     
     /**
      * Calculate interest rate information

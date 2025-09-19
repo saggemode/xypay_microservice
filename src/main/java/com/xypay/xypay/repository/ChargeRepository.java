@@ -13,11 +13,11 @@ import java.util.UUID;
 @Repository
 public interface ChargeRepository extends JpaRepository<Charge, UUID> {
     
-    List<Charge> findByTransactionOrderByCreatedAtDesc(UUID transactionId);
+    List<Charge> findByTransaction_IdOrderByCreatedAtDesc(UUID transactionId);
     
     List<Charge> findByStatusOrderByCreatedAtDesc(String status);
     
-    List<Charge> findByWaivedByOrderByCreatedAtDesc(UUID waivedById);
+    List<Charge> findByWaivedBy_IdOrderByCreatedAtDesc(UUID waivedById);
     
     @Query("SELECT c FROM Charge c WHERE c.transaction.id = :transactionId")
     Optional<Charge> findByTransactionId(@Param("transactionId") UUID transactionId);

@@ -14,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface TreasuryOperationRepository extends JpaRepository<TreasuryOperation, UUID> {
     
-    List<TreasuryOperation> findByBankId(Long bankId);
+    List<TreasuryOperation> findByBankId(UUID bankId);
     
     List<TreasuryOperation> findByOperationType(TreasuryOperation.OperationType operationType);
     

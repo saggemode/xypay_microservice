@@ -15,6 +15,7 @@ import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
 
@@ -69,7 +70,7 @@ public class SecurityConfig {
             )
             .formLogin(form -> form
                 .loginPage("/login")
-                .defaultSuccessUrl("/dashboard", true)
+                .successHandler(authenticationSuccessHandler())
                 .failureUrl("/login?error=true")
                 .permitAll()
             )
@@ -94,5 +95,30 @@ public class SecurityConfig {
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         
         return http.build();
+    }
+
+    @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            String targetUrl = "/user/dashboard";
+
+            if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_SUPERUSER".equals(a.getAuthority()))) {
+                targetUrl = "/superuser/dashboard/legacy";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()))) {
+                targetUrl = "/admin/dashboard";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_TELLER".equals(a.getAuthority()))) {
+                targetUrl = "/teller/dashboard";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_CUSTOMER_SERVICE_OFFICER".equals(a.getAuthority()))) {
+                targetUrl = "/cso/dashboard";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_LOAN_OFFICER".equals(a.getAuthority()))) {
+                targetUrl = "/loan-officer/dashboard";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_RELATIONSHIP_MANAGER".equals(a.getAuthority()))) {
+                targetUrl = "/rm/dashboard";
+            } else if (authentication.getAuthorities().stream().anyMatch(a -> "ROLE_USER".equals(a.getAuthority()))) {
+                targetUrl = "/user/dashboard";
+            }
+
+            response.sendRedirect(targetUrl);
+        };
     }
 }

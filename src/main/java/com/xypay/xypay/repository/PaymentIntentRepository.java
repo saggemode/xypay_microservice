@@ -9,9 +9,10 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
-public interface PaymentIntentRepository extends JpaRepository<PaymentIntent, Long> {
+public interface PaymentIntentRepository extends JpaRepository<PaymentIntent, UUID> {
     
     List<PaymentIntent> findByUserOrderByCreatedAtDesc(User user);
     

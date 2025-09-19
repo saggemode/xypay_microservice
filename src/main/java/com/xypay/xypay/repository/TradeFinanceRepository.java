@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface TradeFinanceRepository extends JpaRepository<TradeFinance, UUID> {
     
-    List<TradeFinance> findByCustomerId(Long customerId);
+    List<TradeFinance> findByCustomerId(UUID customerId);
     
-    List<TradeFinance> findByBankId(Long bankId);
+    List<TradeFinance> findByBankId(UUID bankId);
     
     List<TradeFinance> findByStatus(TradeFinance.TradeStatus status);
     

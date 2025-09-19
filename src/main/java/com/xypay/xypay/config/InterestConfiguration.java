@@ -1,5 +1,6 @@
 package com.xypay.xypay.config;
 
+import com.xypay.xypay.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
@@ -9,11 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "interest_configurations")
-public class InterestConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class InterestConfiguration extends BaseEntity {
     
     @Column(name = "configuration_name")
     private String configurationName;
@@ -42,11 +39,6 @@ public class InterestConfiguration {
     @Column(name = "tiered_rates")
     private String tieredRates; // JSON format for tiered interest rates
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;

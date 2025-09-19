@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface BehavioralAnalysisRepository extends JpaRepository<BehavioralAnalysis, UUID> {
     
-    Optional<BehavioralAnalysis> findByUser(UUID userId);
+    Optional<BehavioralAnalysis> findByUser_Id(UUID userId);
     
     List<BehavioralAnalysis> findByTrustScoreGreaterThanEqualOrderByTrustScoreDesc(Double minTrustScore);
     

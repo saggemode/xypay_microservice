@@ -3,21 +3,15 @@ package com.xypay.xypay.admin;
 import com.xypay.xypay.domain.Transaction;
 import com.xypay.xypay.domain.Wallet;
 import com.xypay.xypay.domain.User;
-import com.xypay.xypay.domain.XySaveTransaction;
-import com.xypay.xypay.domain.FixedSavingsTransaction;
-import com.xypay.xypay.domain.SpendAndSaveTransaction;
-import com.xypay.xypay.domain.SecurityTransaction;
 import com.xypay.xypay.repository.TransactionRepository;
 import com.xypay.xypay.repository.WalletRepository;
 import com.xypay.xypay.repository.UserRepository;
-import com.xypay.xypay.repository.XySaveTransactionRepository;
-import com.xypay.xypay.repository.FixedSavingsTransactionRepository;
-import com.xypay.xypay.repository.SpendAndSaveTransactionRepository;
-import com.xypay.xypay.repository.SecurityTransactionRepository;
-import com.xypay.xypay.service.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -30,10 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -51,7 +42,8 @@ public class TransactionManagementController {
     @Autowired
     private UserRepository userRepository;
     
-    
+    @Autowired
+    private ObjectMapper objectMapper;
     
     // Main transaction dashboard
     @GetMapping("/transactions/dashboard")
@@ -417,6 +409,23 @@ public class TransactionManagementController {
             tx2.setBalanceAfter(receiverWallet.getBalance().add(new BigDecimal("20000.0000")));
             tx2.setDirection("CREDIT");
             tx2.setProcessedAt(LocalDateTime.now());
+            
+            // Set metadata with sender information
+            try {
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("transaction_type", "admin_transfer");
+                metadata.put("sender_account", senderWallet.getAccountNumber());
+                metadata.put("sender_name", senderWallet.getUser().getFirstName() + " " + senderWallet.getUser().getLastName());
+                metadata.put("receiver_account", receiverWallet.getAccountNumber());
+                metadata.put("receiver_name", receiverWallet.getUser().getFirstName() + " " + receiverWallet.getUser().getLastName());
+                metadata.put("amount", "20000.0000");
+                metadata.put("admin_created", true);
+                tx2.setMetadata(objectMapper.writeValueAsString(metadata));
+            } catch (Exception e) {
+                System.err.println("Failed to serialize admin transfer metadata: " + e.getMessage());
+                tx2.setMetadata("{}");
+            }
+            
             transactionRepository.save(tx2);
         }
     }

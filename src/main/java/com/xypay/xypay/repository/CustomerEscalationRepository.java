@@ -14,11 +14,11 @@ public interface CustomerEscalationRepository extends JpaRepository<CustomerEsca
     
     List<CustomerEscalation> findByStatusOrderByPriorityDescCreatedAtDesc(CustomerEscalation.EscalationStatus status);
     
-    List<CustomerEscalation> findByCustomerOrderByCreatedAtDesc(UUID customerId);
+    List<CustomerEscalation> findByCustomerIdOrderByCreatedAtDesc(UUID customerId);
     
-    List<CustomerEscalation> findByCreatedByOrderByCreatedAtDesc(UUID createdById);
+    List<CustomerEscalation> findByCreatedByIdOrderByCreatedAtDesc(UUID createdById);
     
-    List<CustomerEscalation> findByAssignedToOrderByCreatedAtDesc(UUID assignedToId);
+    List<CustomerEscalation> findByAssignedToIdOrderByCreatedAtDesc(UUID assignedToId);
     
     List<CustomerEscalation> findByPriorityOrderByCreatedAtDesc(CustomerEscalation.Priority priority);
     

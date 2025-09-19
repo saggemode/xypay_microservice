@@ -1,15 +1,10 @@
 package com.xypay.xypay.domain;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "alert_notification_configurations")
-public class AlertNotificationConfiguration {
-    
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class AlertNotificationConfiguration extends BaseEntity {
     
     @Column(name = "alert_name")
     private String alertName;
@@ -29,23 +24,11 @@ public class AlertNotificationConfiguration {
     @Column(name = "recipients")
     private String recipients; // JSON array of recipient user IDs or roles
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-    
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
     
     @Column(name = "is_active")
     private Boolean isActive = true;
 
     // Getters and Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getAlertName() {
         return alertName;
@@ -95,21 +78,6 @@ public class AlertNotificationConfiguration {
         this.recipients = recipients;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
 
     public Boolean getIsActive() {
         return isActive;

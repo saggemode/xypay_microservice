@@ -13,7 +13,7 @@ import java.util.UUID;
 @Repository
 public interface AnomalyDetectionRepository extends JpaRepository<AnomalyDetection, UUID> {
     
-    List<AnomalyDetection> findByUserOrderByDetectedAtDesc(UUID userId);
+    List<AnomalyDetection> findByUserIdOrderByDetectedAtDesc(UUID userId);
     
     List<AnomalyDetection> findByIsAnomalyTrueOrderByDetectedAtDesc();
     

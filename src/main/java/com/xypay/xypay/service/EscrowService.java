@@ -11,8 +11,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 @Transactional
@@ -28,6 +31,9 @@ public class EscrowService {
     
     @Autowired
     private NotificationRepository notificationRepository;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
     
     /**
      * Create a new escrow account
@@ -157,6 +163,22 @@ public class EscrowService {
             sellerTransaction.setStatus("SUCCESS");
             sellerTransaction.setBalanceAfter(sellerWallet.getBalance());
             
+            // Set metadata with sender information
+            try {
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("transaction_type", "escrow_release");
+                metadata.put("sender_account", "Escrow System");
+                metadata.put("sender_name", "Escrow System");
+                metadata.put("escrow_id", escrowAccount.getEscrowId());
+                metadata.put("buyer_id", escrowAccount.getBuyer().getId().toString());
+                metadata.put("seller_id", escrowAccount.getSeller().getId().toString());
+                metadata.put("amount", escrowAccount.getAmount().toString());
+                sellerTransaction.setMetadata(objectMapper.writeValueAsString(metadata));
+            } catch (Exception e) {
+                logger.warn("Failed to serialize escrow release metadata: {}", e.getMessage());
+                sellerTransaction.setMetadata("{}");
+            }
+            
             // Mark escrow as released
             escrowAccount.release();
             escrowAccount = escrowAccountRepository.save(escrowAccount);
@@ -212,6 +234,23 @@ public class EscrowService {
             buyerTransaction.setReference("ESC-REF-" + escrowAccount.getEscrowId());
             buyerTransaction.setStatus("SUCCESS");
             buyerTransaction.setBalanceAfter(buyerWallet.getBalance());
+            
+            // Set metadata with sender information
+            try {
+                Map<String, Object> metadata = new HashMap<>();
+                metadata.put("transaction_type", "escrow_refund");
+                metadata.put("sender_account", "Escrow System");
+                metadata.put("sender_name", "Escrow System");
+                metadata.put("escrow_id", escrowAccount.getEscrowId());
+                metadata.put("buyer_id", escrowAccount.getBuyer().getId().toString());
+                metadata.put("seller_id", escrowAccount.getSeller().getId().toString());
+                metadata.put("amount", escrowAccount.getTotalAmount().toString());
+                metadata.put("refund_reason", reason);
+                buyerTransaction.setMetadata(objectMapper.writeValueAsString(metadata));
+            } catch (Exception e) {
+                logger.warn("Failed to serialize escrow refund metadata: {}", e.getMessage());
+                buyerTransaction.setMetadata("{}");
+            }
             
             // Mark escrow as refunded
             escrowAccount.refund();

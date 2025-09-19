@@ -111,7 +111,7 @@ public class AdminDashboardController {
     @GetMapping("/admin/accounts/{id}")
     @ResponseBody
     public ResponseEntity<Wallet> getAccount(@PathVariable UUID id) {
-        Optional<Wallet> wallet = walletRepository.findByIdWithUser(id.getMostSignificantBits()); // Convert UUID to Long
+        Optional<Wallet> wallet = walletRepository.findByIdWithUser(id);
         return wallet.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
     

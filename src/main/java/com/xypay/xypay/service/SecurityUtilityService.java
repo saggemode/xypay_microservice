@@ -42,7 +42,7 @@ public class SecurityUtilityService {
      */
     public AuditLog logAuditEvent(User user, AuditLog.ActionType action, String description, 
                                  AuditLog.SeverityLevel severity, String ipAddress, String userAgent, 
-                                 String contentType, Long objectId, Map<String, Object> metadata) {
+                                 String contentType, java.util.UUID objectId, Map<String, Object> metadata) {
         try {
             AuditLog auditLog = new AuditLog(user, action, description, severity, ipAddress, userAgent);
             auditLog.setContentType(contentType);
@@ -83,7 +83,6 @@ public class SecurityUtilityService {
             logger.warn("Security alert created: {} - {} - {}", alertType, severity, title);
             
             // Log the security alert creation as an audit event
-            // Note: alert.getId() returns UUID but logAuditEvent expects Long - using null for now
             logAuditEvent(
                 affectedUser, 
                 AuditLog.ActionType.SECURITY_ALERT, 
@@ -92,7 +91,7 @@ public class SecurityUtilityService {
                 ipAddress, 
                 null, 
                 "SecurityAlert", 
-                null, 
+                alert.getId(), 
                 null
             );
             

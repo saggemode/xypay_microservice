@@ -8,14 +8,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @Repository
-public interface KYCProfileRepository extends JpaRepository<KYCProfile, Long> {
+public interface KYCProfileRepository extends JpaRepository<KYCProfile, UUID> {
     
     Optional<KYCProfile> findByUser(User user);
     
-    Optional<KYCProfile> findByUserId(Long userId);
+    Optional<KYCProfile> findByUserId(UUID userId);
     
     Optional<KYCProfile> findByBvn(String bvn);
     

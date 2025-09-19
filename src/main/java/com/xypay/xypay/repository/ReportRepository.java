@@ -2,12 +2,13 @@ package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.Report;
 import org.springframework.data.jpa.repository.JpaRepository;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ReportRepository extends JpaRepository<Report, Long> {
+public interface ReportRepository extends JpaRepository<Report, UUID> {
     
     List<Report> findByReportTypeAndIsActiveTrue(String reportType);
     
@@ -17,7 +18,7 @@ public interface ReportRepository extends JpaRepository<Report, Long> {
     
     Optional<Report> findByReportNameAndIsActiveTrue(String reportName);
     
-    List<Report> findByCreatedBy(Long userId);
+    List<Report> findByCreatedBy(UUID userId);
     
     @Query("SELECT r FROM Report r WHERE r.isActive = true ORDER BY r.reportType, r.reportName")
     List<Report> findAllActiveReports();

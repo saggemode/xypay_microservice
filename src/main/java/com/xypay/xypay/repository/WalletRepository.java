@@ -20,5 +20,5 @@ public interface WalletRepository extends JpaRepository<Wallet, UUID> {
     List<Wallet> findAllWithUser();
     
     @Query("SELECT w FROM Wallet w JOIN FETCH w.user WHERE w.id = :id")
-    Optional<Wallet> findByIdWithUser(Long id);
+    Optional<Wallet> findByIdWithUser(UUID id);
 }

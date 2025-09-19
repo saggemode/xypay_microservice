@@ -4,16 +4,11 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "kyc_documents")
-public class KYCDocument {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class KYCDocument extends BaseEntity {
     private String customerName;
     private String fileName;
     private String status;
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
     public String getCustomerName() { return customerName; }
     public void setCustomerName(String customerName) { this.customerName = customerName; }
     public String getFileName() { return fileName; }

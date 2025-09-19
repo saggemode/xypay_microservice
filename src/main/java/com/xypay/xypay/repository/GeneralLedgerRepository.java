@@ -14,9 +14,9 @@ import java.util.UUID;
 @Repository
 public interface GeneralLedgerRepository extends JpaRepository<GeneralLedger, UUID> {
     
-    List<GeneralLedger> findByBankId(Long bankId);
+    List<GeneralLedger> findByBank_Id(java.util.UUID bankId);
     
-    List<GeneralLedger> findByChartOfAccountsId(Long chartOfAccountsId);
+    List<GeneralLedger> findByChartOfAccounts_Id(java.util.UUID chartOfAccountsId);
     
     List<GeneralLedger> findByReferenceNumber(String referenceNumber);
     
@@ -31,47 +31,47 @@ public interface GeneralLedgerRepository extends JpaRepository<GeneralLedger, UU
     List<GeneralLedger> findByReversalIndicatorTrue();
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.chartOfAccounts.id = :accountId AND gl.transactionDate BETWEEN :startDate AND :endDate ORDER BY gl.transactionDate")
-    List<GeneralLedger> findByAccountAndDateRange(@Param("accountId") Long accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<GeneralLedger> findByAccountAndDateRange(@Param("accountId") java.util.UUID accountId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.bank.id = :bankId AND gl.transactionDate BETWEEN :startDate AND :endDate ORDER BY gl.transactionDate")
-    List<GeneralLedger> findByBankAndDateRange(@Param("bankId") Long bankId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<GeneralLedger> findByBankAndDateRange(@Param("bankId") java.util.UUID bankId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.branch.id = :branchId AND gl.transactionDate BETWEEN :startDate AND :endDate ORDER BY gl.transactionDate")
-    List<GeneralLedger> findByBranchAndDateRange(@Param("branchId") Long branchId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    List<GeneralLedger> findByBranchAndDateRange(@Param("branchId") java.util.UUID branchId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT SUM(gl.debitAmount) FROM GeneralLedger gl WHERE gl.chartOfAccounts.id = :accountId AND gl.postingStatus = 'POSTED'")
-    BigDecimal sumDebitsByAccount(@Param("accountId") Long accountId);
+    BigDecimal sumDebitsByAccount(@Param("accountId") java.util.UUID accountId);
     
     @Query("SELECT SUM(gl.creditAmount) FROM GeneralLedger gl WHERE gl.chartOfAccounts.id = :accountId AND gl.postingStatus = 'POSTED'")
-    BigDecimal sumCreditsByAccount(@Param("accountId") Long accountId);
+    BigDecimal sumCreditsByAccount(@Param("accountId") java.util.UUID accountId);
     
     @Query("SELECT SUM(gl.debitAmount) - SUM(gl.creditAmount) FROM GeneralLedger gl WHERE gl.chartOfAccounts.id = :accountId AND gl.postingStatus = 'POSTED'")
-    BigDecimal getAccountBalance(@Param("accountId") Long accountId);
+    BigDecimal getAccountBalance(@Param("accountId") java.util.UUID accountId);
     
     @Query("SELECT SUM(gl.debitAmount) FROM GeneralLedger gl WHERE gl.chartOfAccounts.accountType = :accountType AND gl.bank.id = :bankId AND gl.postingStatus = 'POSTED'")
-    BigDecimal sumDebitsByAccountType(@Param("bankId") Long bankId, @Param("accountType") com.xypay.xypay.domain.ChartOfAccounts.AccountType accountType);
+    BigDecimal sumDebitsByAccountType(@Param("bankId") java.util.UUID bankId, @Param("accountType") com.xypay.xypay.domain.ChartOfAccounts.AccountType accountType);
     
     @Query("SELECT SUM(gl.creditAmount) FROM GeneralLedger gl WHERE gl.chartOfAccounts.accountType = :accountType AND gl.bank.id = :bankId AND gl.postingStatus = 'POSTED'")
-    BigDecimal sumCreditsByAccountType(@Param("bankId") Long bankId, @Param("accountType") com.xypay.xypay.domain.ChartOfAccounts.AccountType accountType);
+    BigDecimal sumCreditsByAccountType(@Param("bankId") java.util.UUID bankId, @Param("accountType") com.xypay.xypay.domain.ChartOfAccounts.AccountType accountType);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.sourceModule = :sourceModule AND gl.bank.id = :bankId ORDER BY gl.transactionDate DESC")
-    List<GeneralLedger> findByBankAndSourceModule(@Param("bankId") Long bankId, @Param("sourceModule") String sourceModule);
+    List<GeneralLedger> findByBankAndSourceModule(@Param("bankId") java.util.UUID bankId, @Param("sourceModule") String sourceModule);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.currencyCode = :currencyCode AND gl.bank.id = :bankId ORDER BY gl.transactionDate DESC")
-    List<GeneralLedger> findByBankAndCurrency(@Param("bankId") Long bankId, @Param("currencyCode") String currencyCode);
+    List<GeneralLedger> findByBankAndCurrency(@Param("bankId") java.util.UUID bankId, @Param("currencyCode") String currencyCode);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.ifrsStage = :ifrsStage AND gl.bank.id = :bankId")
-    List<GeneralLedger> findByBankAndIFRSStage(@Param("bankId") Long bankId, @Param("ifrsStage") GeneralLedger.IFRSStage ifrsStage);
+    List<GeneralLedger> findByBankAndIFRSStage(@Param("bankId") java.util.UUID bankId, @Param("ifrsStage") GeneralLedger.IFRSStage ifrsStage);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.makerCheckerStatus = :status AND gl.bank.id = :bankId")
-    List<GeneralLedger> findByBankAndMakerCheckerStatus(@Param("bankId") Long bankId, @Param("status") GeneralLedger.MakerCheckerStatus status);
+    List<GeneralLedger> findByBankAndMakerCheckerStatus(@Param("bankId") java.util.UUID bankId, @Param("status") GeneralLedger.MakerCheckerStatus status);
     
     @Query("SELECT COUNT(gl) FROM GeneralLedger gl WHERE gl.bank.id = :bankId AND gl.transactionDate BETWEEN :startDate AND :endDate")
-    Long countTransactionsByBankAndDateRange(@Param("bankId") Long bankId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
+    Long countTransactionsByBankAndDateRange(@Param("bankId") java.util.UUID bankId, @Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate);
     
     @Query("SELECT DISTINCT gl.sourceModule FROM GeneralLedger gl WHERE gl.bank.id = :bankId")
-    List<String> findDistinctSourceModulesByBank(@Param("bankId") Long bankId);
+    List<String> findDistinctSourceModulesByBank(@Param("bankId") java.util.UUID bankId);
     
     @Query("SELECT gl FROM GeneralLedger gl WHERE gl.description LIKE CONCAT('%', :searchTerm, '%') AND gl.bank.id = :bankId ORDER BY gl.transactionDate DESC")
-    List<GeneralLedger> searchByDescription(@Param("bankId") Long bankId, @Param("searchTerm") String searchTerm);
+    List<GeneralLedger> searchByDescription(@Param("bankId") java.util.UUID bankId, @Param("searchTerm") String searchTerm);
 }

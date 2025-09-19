@@ -88,9 +88,11 @@ public class XySaveAccount {
     }
     
     private String generateAccountNumber() {
-        String userId = String.format("%08d", user.getId());
-        String uuid = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
-        return "XS" + userId + uuid;
+        String userPart = (user != null && user.getId() != null)
+                ? user.getId().toString().replace("-", "").substring(0, 8).toUpperCase()
+                : "00000000";
+        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8).toUpperCase();
+        return "XS" + userPart + randomPart;
     }
     
     public BigDecimal calculateDailyInterest() {

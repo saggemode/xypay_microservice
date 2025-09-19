@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/admin/rate-configurator")
@@ -65,7 +66,7 @@ public class RateConfiguratorController {
      * Update rate configuration
      */
     @PutMapping("/rate-config/{id}")
-    public ResponseEntity<Map<String, Object>> updateRateConfig(@PathVariable Long id, @RequestBody Map<String, Object> request) {
+    public ResponseEntity<Map<String, Object>> updateRateConfig(@PathVariable UUID id, @RequestBody Map<String, Object> request) {
         Map<String, Object> response = rateConfigurationService.updateRateConfiguration(id, request);
         return ResponseEntity.ok(response);
     }
@@ -74,7 +75,7 @@ public class RateConfiguratorController {
      * Delete rate configuration
      */
     @DeleteMapping("/rate-config/{id}")
-    public ResponseEntity<Map<String, Object>> deleteRateConfig(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteRateConfig(@PathVariable UUID id) {
         Map<String, Object> response = rateConfigurationService.deleteRateConfiguration(id);
         return ResponseEntity.ok(response);
     }

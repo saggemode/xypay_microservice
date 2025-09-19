@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin")
@@ -167,7 +168,7 @@ public class AdminNotificationController {
     public ResponseEntity<Map<String, Object>> deleteSelected(@RequestBody Map<String, Object> request) {
         try {
             @SuppressWarnings("unchecked")
-            List<Long> notificationIds = (List<Long>) request.get("notificationIds");
+            List<UUID> notificationIds = (List<UUID>) request.get("notificationIds");
             
             if (notificationIds == null || notificationIds.isEmpty()) {
                 Map<String, Object> response = new HashMap<>();
@@ -177,7 +178,7 @@ public class AdminNotificationController {
             }
             
             int deletedCount = 0;
-            for (Long id : notificationIds) {
+            for (UUID id : notificationIds) {
                 try {
                     if (notificationService.deleteNotification(id)) {
                         deletedCount++;
@@ -225,10 +226,93 @@ public class AdminNotificationController {
         }
     }
     
+    // API endpoint to get a single notification by ID
+    @GetMapping("/api/notifications/{id}")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> getNotificationById(@PathVariable UUID id) {
+        try {
+            Notification notification = notificationService.getNotificationById(id);
+            
+            if (notification == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Notification not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            System.out.println("=== Notification Details ===");
+            System.out.println("ID: " + notification.getId());
+            System.out.println("Title: " + notification.getTitle());
+            System.out.println("Message: " + notification.getMessage());
+            System.out.println("Type: " + notification.getNotificationType());
+            System.out.println("Level: " + notification.getLevel());
+            System.out.println("Status: " + notification.getStatus());
+            System.out.println("IsRead: " + notification.isRead());
+            System.out.println("CreatedAt: " + notification.getCreatedAt());
+            
+            Map<String, Object> dto = convertToDto(notification);
+            System.out.println("DTO: " + dto);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("notification", dto);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error getting notification: " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Internal server error");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+    
+    // API endpoint to toggle read status of a notification
+    @PostMapping("/api/notifications/{id}/toggle-read")
+    @ResponseBody
+    public ResponseEntity<Map<String, Object>> toggleReadStatus(@PathVariable UUID id) {
+        try {
+            Notification notification = notificationService.getNotificationById(id);
+            
+            if (notification == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("success", false);
+                response.put("message", "Notification not found");
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Toggle read status
+            if (notification.isRead()) {
+                notification.markAsUnread();
+            } else {
+                notification.markAsRead();
+            }
+            
+            notificationService.createNotification(notification);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("isRead", notification.isRead());
+            response.put("message", "Notification read status updated");
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            System.err.println("Error toggling read status for notification: " + id + ": " + e.getMessage());
+            e.printStackTrace();
+            
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Internal server error");
+            errorResponse.put("message", e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+    
     // API endpoint to delete a single notification
     @DeleteMapping("/api/notifications/{id}")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> deleteNotification(@PathVariable Long id) {
+    public ResponseEntity<Map<String, Object>> deleteNotification(@PathVariable UUID id) {
         try {
             boolean deleted = notificationService.deleteNotification(id);
             
@@ -243,7 +327,7 @@ public class AdminNotificationController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            System.err.println("Error deleting notification: " + e.getMessage());
+            System.err.println("Error deleting notification: " + id + ": " + e.getMessage());
             e.printStackTrace();
             
             Map<String, Object> errorResponse = new HashMap<>();
@@ -261,6 +345,7 @@ public class AdminNotificationController {
         dto.put("id", notification.getId());
         dto.put("title", notification.getTitle());
         dto.put("message", notification.getMessage());
+        dto.put("type", notification.getNotificationType() != null ? notification.getNotificationType().toString() : "OTHER");
         dto.put("notificationType", notification.getNotificationType() != null ? notification.getNotificationType().toString() : "OTHER");
         dto.put("level", notification.getLevel() != null ? notification.getLevel().toString() : "INFO");
         dto.put("status", notification.getStatus() != null ? notification.getStatus().toString() : "PENDING");
@@ -304,6 +389,9 @@ public class AdminNotificationController {
             transaction.put("amount", notification.getTransaction().getAmount());
             transaction.put("type", notification.getTransaction().getType());
             transaction.put("status", notification.getTransaction().getStatus());
+            transaction.put("reference", notification.getTransaction().getReference());
+            transaction.put("description", notification.getTransaction().getDescription());
+            transaction.put("metadata", notification.getTransaction().getMetadata());
             dto.put("transaction", transaction);
         }
         

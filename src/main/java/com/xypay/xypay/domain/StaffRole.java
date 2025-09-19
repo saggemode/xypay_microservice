@@ -79,4 +79,13 @@ public class StaffRole extends BaseEntity {
     public boolean canApproveAmount(BigDecimal amount) {
         return amount.compareTo(maxTransactionApproval) <= 0;
     }
+    
+    // Getter methods that were missing
+    public Boolean getCanApproveKyc() {
+        return canApproveKyc;
+    }
+    
+    public Boolean getCanManageStaff() {
+        return canManageStaff;
+    }
 }

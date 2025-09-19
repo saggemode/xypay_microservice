@@ -17,7 +17,7 @@ public interface IslamicPaymentRepository extends JpaRepository<IslamicPayment, 
     
     List<IslamicPayment> findByIslamicContract(IslamicBankingContract islamicContract);
     
-    List<IslamicPayment> findByIslamicContractIdOrderByDueDateAsc(Long contractId);
+    List<IslamicPayment> findByIslamicContractIdOrderByDueDateAsc(UUID contractId);
     
     List<IslamicPayment> findByPaymentStatus(IslamicPayment.PaymentStatus paymentStatus);
     

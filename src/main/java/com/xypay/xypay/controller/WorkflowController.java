@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/workflows")
@@ -30,7 +31,7 @@ public class WorkflowController {
     public List<WorkflowDefinition> all() { return service.findAll(); }
 
     @GetMapping("/{id}")
-    public WorkflowDefinition get(@PathVariable Long id) { return service.findById(id); }
+    public WorkflowDefinition get(@PathVariable UUID id) { return service.findById(id); }
 
     @PostMapping
     public WorkflowDefinition save(@RequestBody WorkflowDefinition def, Principal principal) {
@@ -39,7 +40,7 @@ public class WorkflowController {
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) { service.save(null); }
+    public void delete(@PathVariable UUID id) { service.save(null); }
     
     // Workflow Engine Endpoints
     
@@ -50,8 +51,8 @@ public class WorkflowController {
         
         String workflowType = (String) request.get("workflowType");
         String entityType = (String) request.get("entityType");
-        Long entityId = Long.valueOf(request.get("entityId").toString());
-        Long initiatedBy = Long.valueOf(request.get("initiatedBy").toString());
+        UUID entityId = UUID.fromString(request.get("entityId").toString());
+        UUID initiatedBy = UUID.fromString(request.get("initiatedBy").toString());
         
         @SuppressWarnings("unchecked")
         Map<String, Object> contextData = (Map<String, Object>) request.get("contextData");
@@ -64,13 +65,13 @@ public class WorkflowController {
     
     @PostMapping("/action/{stepId}")
     public ResponseEntity<String> processAction(
-            @PathVariable Long stepId,
+            @PathVariable UUID stepId,
             @RequestBody Map<String, Object> request,
             Principal principal) {
         
         String action = (String) request.get("action"); // APPROVED, REJECTED
         String comments = (String) request.get("comments");
-        Long actionBy = Long.valueOf(request.get("actionBy").toString());
+        UUID actionBy = UUID.fromString(request.get("actionBy").toString());
         
         workflowEngineService.processAction(stepId, action, comments, actionBy);
         
@@ -79,7 +80,7 @@ public class WorkflowController {
     
     @GetMapping("/pending/user/{userId}")
     public ResponseEntity<List<WorkflowInstance>> getPendingWorkflowsForUser(
-            @PathVariable Long userId) {
+            @PathVariable UUID userId) {
         
         List<WorkflowInstance> workflows = workflowEngineService.getPendingWorkflowsForUser(userId);
         return ResponseEntity.ok(workflows);

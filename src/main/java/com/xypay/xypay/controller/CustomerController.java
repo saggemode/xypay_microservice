@@ -5,6 +5,7 @@ import com.xypay.xypay.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/customers")
@@ -18,12 +19,12 @@ public class CustomerController {
     }
 
     @PostMapping("/{customerId}/verify-kyc")
-    public ResponseEntity<String> verifyKYC(@PathVariable Long customerId, @RequestParam String documentType) {
+    public ResponseEntity<String> verifyKYC(@PathVariable UUID customerId, @RequestParam String documentType) {
         return ResponseEntity.ok(customerService.verifyKYC(customerId, documentType));
     }
 
     @GetMapping("/{customerId}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable Long customerId) {
+    public ResponseEntity<Customer> getCustomer(@PathVariable UUID customerId) {
         return ResponseEntity.ok(customerService.getCustomer(customerId));
     }
 }

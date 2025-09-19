@@ -1,6 +1,7 @@
 package com.xypay.xypay.repository;
 
 import com.xypay.xypay.domain.StaffActivity;
+import com.xypay.xypay.domain.StaffProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,7 @@ import java.util.UUID;
 @Repository
 public interface StaffActivityRepository extends JpaRepository<StaffActivity, UUID> {
     
-    List<StaffActivity> findByStaffOrderByTimestampDesc(UUID staffId);
+    List<StaffActivity> findByStaffOrderByTimestampDesc(StaffProfile staff);
     
     List<StaffActivity> findByActivityTypeOrderByTimestampDesc(StaffActivity.ActivityType activityType);
     

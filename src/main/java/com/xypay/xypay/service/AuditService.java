@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 public class AuditService {
@@ -30,7 +31,7 @@ public class AuditService {
     /**
      * Log detailed audit action with entity information
      */
-    public void logAction(String entityType, Long entityId, String action, String payload, String username) {
+    public void logAction(String entityType, UUID entityId, String action, String payload, String username) {
         try {
             AuditLog auditLog = new AuditLog();
             
