@@ -209,6 +209,13 @@ public class CbnLevyAdminController {
         }
     }
 
+    // Show create form
+    @GetMapping("/create")
+    public String showCreateForm(Model model) {
+        model.addAttribute("levy", new CBNLevy());
+        return "admin/cbn-levies-create";
+    }
+
     // Form-based create method (no authentication required for form submission)
     @PostMapping("/create")
     public String createLevyForm(@ModelAttribute CBNLevy levy) {

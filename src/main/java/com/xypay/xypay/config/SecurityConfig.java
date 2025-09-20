@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers("/rm/**").hasRole("RELATIONSHIP_MANAGER")
                 .requestMatchers("/admin/cbn-levies/**").permitAll()
                 .requestMatchers("/admin/xysave/api/**").hasAnyRole("SUPERUSER", "ADMIN")
+                .requestMatchers("/admin/api/**").hasAnyRole("SUPERUSER", "ADMIN")
                 .requestMatchers("/admin/**").hasAnyRole("SUPERUSER", "ADMIN")
                 .requestMatchers("/spend-save/**").hasAnyRole("USER", "ADMIN", "SUPERUSER")
                 .requestMatchers("/api/transactions/**").hasAuthority("SCOPE_transaction")
@@ -83,7 +84,7 @@ public class SecurityConfig {
                 .ignoringRequestMatchers("/api/**", "/admin/xysave/api/**")
             )
             .headers(headers -> headers
-                .frameOptions().sameOrigin()
+                .frameOptions(frameOptions -> frameOptions.sameOrigin())
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)

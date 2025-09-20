@@ -43,6 +43,14 @@ public class CBNLevyService {
     }
     
     /**
+     * Search CBN levies by name or description
+     */
+    @Transactional(readOnly = true)
+    public Page<CBNLevy> searchLevies(String searchTerm, Pageable pageable) {
+        return cbnLevyRepository.findByNameContainingIgnoreCase(searchTerm, pageable);
+    }
+    
+    /**
      * Get CBN levy by ID
      */
     @Transactional(readOnly = true)
@@ -151,13 +159,6 @@ public class CBNLevyService {
         return cbnLevyRepository.findApplicableLevies(amount, amount);
     }
     
-    /**
-     * Search levies by name or description
-     */
-    @Transactional(readOnly = true)
-    public Page<CBNLevy> searchLevies(String searchTerm, Pageable pageable) {
-        return cbnLevyRepository.findByNameContainingIgnoreCase(searchTerm, pageable);
-    }
     
     /**
      * Get levy statistics

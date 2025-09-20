@@ -182,11 +182,8 @@ public class NotificationService {
                 }
             }
             
-            // If still unknown, try to get from wallet user (the sender)
-            if ("Unknown".equals(senderName) && transaction.getWallet() != null && transaction.getWallet().getUser() != null) {
-                senderName = getUserFullName(transaction.getWallet().getUser());
-                logger.info("Using wallet user as sender: {}", senderName);
-            }
+            // Note: For credit transactions, transaction.getWallet().getUser() is the recipient, not the sender
+            // So we don't use it as a fallback for sender name
             
             logger.info("Final sender name: {}", senderName);
             
