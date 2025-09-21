@@ -2,6 +2,7 @@ package com.xypay.xypay.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,8 +14,11 @@ public class NIBSSClient {
     
     private static final Logger logger = LoggerFactory.getLogger(NIBSSClient.class);
     
-    private final String baseUrl = "https://api.nibss.com"; // Simulated base URL
-    private final String apiKey = "simulated_api_key";
+    @Value("${nibss.base-url:https://api.nibss.com}")
+    private String baseUrl;
+
+    @Value("${nibss.api-key:}")
+    private String apiKey;
     private final Random random = new Random();
     
     /**

@@ -6,8 +6,8 @@ spring:
     name: eureka-server
   security:
     user:
-      name: admin
-      password: admin123
+      name: ${EUREKA_USERNAME:admin}
+      password: ${EUREKA_PASSWORD:}
 
 eureka:
   instance:
